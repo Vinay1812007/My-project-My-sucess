@@ -77,7 +77,9 @@
         // ============================================================
 
         const genAI = new GoogleGenerativeAI(API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        
+        // FIXED: Using the specific version "-001" to solve the 404 error
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-001" });
 
         const chatBox = document.getElementById("chatBox");
         const promptInput = document.getElementById("promptInput");
