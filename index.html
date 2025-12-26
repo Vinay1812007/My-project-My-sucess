@@ -12,30 +12,31 @@
       margin: 0;
       font-family: Arial, sans-serif;
       background: #0f0f0f;
-      color: #fff;
+      color: white;
       display: flex;
       flex-direction: column;
       height: 100vh;
     }
 
     header {
-      padding: 15px;
       text-align: center;
+      padding: 14px;
       font-weight: bold;
       border-bottom: 1px solid #222;
     }
 
     #chat {
       flex: 1;
-      padding: 15px;
+      padding: 16px;
       overflow-y: auto;
     }
 
     .msg {
-      margin-bottom: 12px;
       max-width: 80%;
+      margin-bottom: 10px;
       padding: 10px;
       border-radius: 8px;
+      word-wrap: break-word;
     }
 
     .user {
@@ -65,9 +66,11 @@
     button {
       margin-left: 8px;
       padding: 10px 16px;
-      border: none;
       border-radius: 6px;
+      border: none;
       cursor: pointer;
+      background: white;
+      color: black;
     }
   </style>
 </head>
@@ -88,22 +91,28 @@
     const input = document.getElementById("input");
     const chat = document.getElementById("chat");
 
-    if (!input.value) return;
+    if (!input.value.trim()) return;
 
-    chat.innerHTML += `<div class="msg user">${input.value}</div>`;
-    const userMessage = input.value;
+    const userText = input.value;
     input.value = "";
+
+    chat.innerHTML += `<div class="msg user">${userText}</div>`;
     chat.scrollTop = chat.scrollHeight;
 
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: userMessage })
-    });
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userText })
+      });
 
-    const data = await res.json();
-    chat.innerHTML += `<div class="msg bot">${data.reply}</div>`;
-    chat.scrollTop = chat.scrollHeight;
+      const data = await res.json();
+      chat.innerHTML += `<div class="msg bot">${data.reply}</div>`;
+      chat.scrollTop = chat.scrollHeight;
+
+    } catch (err) {
+      chat.innerHTML += `<div class="msg bot">Error connecting to AI</div>`;
+    }
   }
 </script>
 
