@@ -107,11 +107,13 @@
       });
 
       const data = await res.json();
-      chat.innerHTML += `<div class="msg bot">${data.reply}</div>`;
+      const reply = data.reply || "No response from AI";
+
+      chat.innerHTML += `<div class="msg bot">${reply}</div>`;
       chat.scrollTop = chat.scrollHeight;
 
     } catch (err) {
-      chat.innerHTML += `<div class="msg bot">Error connecting to AI</div>`;
+      chat.innerHTML += `<div class="msg bot">Connection error</div>`;
     }
   }
 </script>
