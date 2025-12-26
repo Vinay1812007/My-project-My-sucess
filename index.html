@@ -1,92 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Vinay AI Assistant</title>
-  <meta name="viewport" content="width=device-width">
-  <link rel="icon" href="favicon.png">
-
-  <style>
-    body { background:#0f0f0f; color:#fff; font-family:Arial; margin:0 }
-    header { padding:14px; text-align:center; font-weight:bold; border-bottom:1px solid #222 }
-    #chat { padding:16px; height:80vh; overflow-y:auto }
-    .msg { padding:10px; margin-bottom:8px; border-radius:8px; max-width:80% }
-    .user { background:#2563eb; margin-left:auto }
-    .bot { background:#27272a }
-    footer { display:flex; padding:10px; border-top:1px solid #222 }
-    input { flex:1; padding:10px; border-radius:6px; border:none }
-    button { margin-left:8px; padding:10px }
-    img, video { max-width:100%; border-radius:8px }
-  </style>
+  <title>Vinay AI</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 <header>Vinay AI Assistant 🤖</header>
+
+<select id="provider">
+  <option value="groq">Groq</option>
+  <option value="gemini">Gemini</option>
+  <option value="pollinations">Pollinations</option>
+  <option value="vision">Groq Vision</option>
+</select>
+
+<input id="input" placeholder="Type prompt..." />
+<button onclick="send()">Send</button>
+
 <div id="chat"></div>
 
-<footer>
-  <input id="input" placeholder="Type /image, /video, /reason, /analyze..." />
-  <button onclick="send()">Send</button>
-</footer>
-
-<script>
-async function send() {
-  const input = document.getElementById("input");
-  const chat = document.getElementById("chat");
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = "";
-
-  chat.innerHTML += `<div class="msg user">${text}</div>`;
-
-  let res, data;
-
-  if (text.startsWith("/image")) {
-    const p = text.replace("/image", "");
-    res = await fetch(`/api/image?prompt=${encodeURIComponent(p)}`);
-    data = await res.json();
-    chat.innerHTML += `<div class="msg bot"><img src="${data.url}"></div>`;
-  }
-
-  else if (text.startsWith("/video")) {
-    const p = text.replace("/video", "");
-    res = await fetch(`/api/video?prompt=${encodeURIComponent(p)}`);
-    data = await res.json();
-    chat.innerHTML += `<div class="msg bot"><video src="${data.url}" controls></video></div>`;
-  }
-
-  else if (text.startsWith("/reason")) {
-    res = await fetch("/api/gemini", {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({ prompt:text })
-    });
-    data = await res.json();
-    chat.innerHTML += `<div class="msg bot">${data.reply}</div>`;
-  }
-
-  else if (text.startsWith("/analyze")) {
-    const [_, imageUrl, ...p] = text.split(" ");
-    res = await fetch("/api/vision", {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({ imageUrl, prompt:p.join(" ") })
-    });
-    data = await res.json();
-    chat.innerHTML += `<div class="msg bot">${data.reply}</div>`;
-  }
-
-  else {
-    res = await fetch("/api/chat", {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({ message:text })
-    });
-    data = await res.json();
-    chat.innerHTML += `<div class="msg bot">${data.reply}</div>`;
-  }
-
-  chat.scrollTop = chat.scrollHeight;
-}
-</script>
+<script src="app.js"></script>
 </body>
 </html>
