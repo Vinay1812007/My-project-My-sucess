@@ -1,43 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Vinay AI</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vinay AI</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="app">
+<div class="glass app">
 
-  <header class="glass topbar">
-    <div class="title">Vinay AI ✨</div>
-    <select id="modelSelect" class="glass select">
-      <option value="groq">Groq</option>
-      <option value="gemini">Gemini</option>
-      <option value="image">Image</option>
-      <option value="video">Video</option>
-      <option value="search">Search</option>
-      <option value="ocr">OCR</option>
-    </select>
-  </header>
+<header class="top">
+  <span>Vinay AI</span>
 
-  <main id="chat" class="chat"></main>
+  <select id="persona">
+    <option value="default">Default</option>
+    <option value="coder">Coder</option>
+    <option value="teacher">Teacher</option>
+    <option value="researcher">Researcher</option>
+  </select>
 
-  <footer class="glass inputbar">
-    <div class="icons">
-      <button id="voiceBtn">🎤</button>
-      <button id="uploadBtn">📎</button>
-      <button onclick="openCanvas()">⌨️</button>
-    </div>
+  <select id="model">
+    <option value="groq">Groq</option>
+    <option value="gemini">Gemini</option>
+    <option value="image">Image</option>
+  </select>
+</header>
 
-    <input id="input" placeholder="Ask anything..." />
-    <button id="send">⬆️</button>
-  </footer>
+<main id="chat"></main>
+
+<footer class="bar">
+  <button id="voice">🎤</button>
+  <input id="input" placeholder="Type here…" autocomplete="off">
+  <button id="send">➤</button>
+</footer>
 
 </div>
-
-<input type="file" id="fileInput" accept="image/*" hidden />
 
 <script src="app.js"></script>
 </body>
