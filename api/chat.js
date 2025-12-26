@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Only POST requests allowed" });
+    return res.status(405).json({ reply: "Only POST allowed" });
   }
 
   let body = "";
@@ -11,9 +11,14 @@ export default async function handler(req, res) {
 
   req.on("end", async () => {
     try {
-      const { message } = JSON.parse(body);
+      const parsed = JSON.parse(body);
+      const message = parsed.message;
 
-      const response = await fetch(
+      if (!message) {
+        return res.status(400).json({ reply: "Message is missing" });
+      }
+
+      const groqRes = await fetch(
         "https://api.groq.com/openai/v1/chat/completions",
         {
           method: "POST",
@@ -31,16 +36,21 @@ export default async function handler(req, res) {
         }
       );
 
-      const data = await response.json();
+      const data = await groqRes.json();
 
-      res.status(200).json({
+      if (!data.choices || !data.choices[0]) {
+        return res.status(500).json({
+          reply: "AI did not return a response. Try again."
+        });
+      }
+
+      return res.status(200).json({
         reply: data.choices[0].message.content
       });
 
     } catch (error) {
-      res.status(500).json({
-        error: "Server error",
-        details: error.message
+      return res.status(500).json({
+        reply: "Server error occurred"
       });
     }
   });
