@@ -1,6 +1,41 @@
-body { background:#0f0f0f; color:white; font-family:Arial }
-header { padding:12px; text-align:center; font-weight:bold }
-#chat { padding:10px }
-.msg { padding:10px; margin:6px; border-radius:6px }
-.user { background:#2563eb }
-.bot { background:#27272a }
+body {
+  margin: 0;
+  background: #0f0f0f;
+  color: white;
+  font-family: Arial;
+}
+
+header {
+  padding: 10px;
+  text-align: center;
+  background: #111;
+}
+
+#chat {
+  padding: 20px;
+  height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.msg {
+  margin-bottom: 10px;
+}
+
+.user {
+  color: #4ea1ff;
+}
+
+.bot {
+  color: #7CFC00;
+}
+
+footer {
+  display: flex;
+  gap: 5px;
+  padding: 10px;
+  background: #111;
+}
+
+input, select, button {
+  padding: 8px;
+}
