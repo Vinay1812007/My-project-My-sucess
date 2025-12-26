@@ -1,55 +1,83 @@
-*{box-sizing:border-box}
-body{
-  margin:0;
-  background:#0b0b0b;
-  color:white;
-  font-family:-apple-system,BlinkMacSystemFont;
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #0f0f14;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont;
 }
 
-.glass{
-  backdrop-filter:blur(20px);
-  background:rgba(255,255,255,.08);
+.app {
+  max-width: 700px;
+  margin: auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.app{
-  height:100vh;
-  display:flex;
-  flex-direction:column;
+header {
+  padding: 14px;
+  text-align: center;
+  font-weight: 600;
+  backdrop-filter: blur(20px);
+  background: rgba(255,255,255,0.05);
 }
 
-.top{
-  padding:10px;
-  display:flex;
-  gap:10px;
-  justify-content:space-between;
+#chat {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
 }
 
-#chat{
-  flex:1;
-  padding:15px;
-  overflow-y:auto;
+.msg {
+  max-width: 80%;
+  padding: 12px 14px;
+  border-radius: 16px;
+  margin-bottom: 10px;
+  animation: fade 0.2s ease-in;
 }
 
-.msg{
-  margin-bottom:10px;
-  padding:10px;
-  border-radius:12px;
-  max-width:80%;
+.user {
+  background: #2563eb;
+  margin-left: auto;
 }
 
-.user{background:#2563eb;margin-left:auto}
-.bot{background:#1f2937}
-
-.bar{
-  display:flex;
-  gap:10px;
-  padding:10px;
+.bot {
+  background: rgba(255,255,255,0.08);
 }
 
-input{
-  flex:1;
-  padding:12px;
-  border-radius:12px;
-  border:none;
-  outline:none;
+.input-bar {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  backdrop-filter: blur(20px);
+  background: rgba(255,255,255,0.05);
+}
+
+input, select, button {
+  border: none;
+  outline: none;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+input {
+  flex: 1;
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+button {
+  background: #2563eb;
+  color: white;
+}
+
+img {
+  max-width: 100%;
+  border-radius: 12px;
+}
+
+@keyframes fade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; }
 }
