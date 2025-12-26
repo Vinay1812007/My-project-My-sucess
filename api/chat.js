@@ -19,7 +19,7 @@ export default async function handler(req, res) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "llama3-8b-8192",
+          model: "llama3-70b-8192",
           messages: [
             { role: "system", content: "You are Vinay AI Assistant." },
             { role: "user", content: message }
@@ -31,7 +31,7 @@ export default async function handler(req, res) {
     const data = await groqResponse.json();
 
     if (!data?.choices?.[0]?.message?.content) {
-      console.error("Groq error:", data);
+      console.error("Groq raw response:", data);
       return res.status(500).json({
         reply: "Groq API error. Check logs."
       });
