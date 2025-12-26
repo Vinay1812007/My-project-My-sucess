@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Vinay AI</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -10,40 +10,34 @@
 
 <div class="app">
 
-  <!-- TOP BAR -->
   <header class="glass topbar">
     <div class="title">Vinay AI ✨</div>
-
     <select id="modelSelect" class="glass select">
       <option value="groq">Groq</option>
       <option value="gemini">Gemini</option>
       <option value="image">Image</option>
       <option value="video">Video</option>
+      <option value="search">Search</option>
+      <option value="ocr">OCR</option>
     </select>
   </header>
 
-  <!-- CHAT AREA -->
   <main id="chat" class="chat"></main>
 
-  <!-- INPUT BAR -->
   <footer class="glass inputbar">
     <div class="icons">
-      <button title="Web">🌐</button>
-      <button title="Image">🖼️</button>
-      <button title="Code">⌨️</button>
+      <button id="voiceBtn">🎤</button>
+      <button id="uploadBtn">📎</button>
+      <button onclick="openCanvas()">⌨️</button>
     </div>
 
-    <input
-      id="input"
-      type="text"
-      placeholder="Ask anything..."
-      autocomplete="off"
-    />
-
+    <input id="input" placeholder="Ask anything..." />
     <button id="send">⬆️</button>
   </footer>
 
 </div>
+
+<input type="file" id="fileInput" accept="image/*" hidden />
 
 <script src="app.js"></script>
 </body>
