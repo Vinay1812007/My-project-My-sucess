@@ -1,0 +1,6 @@
+body { background:#0f0f0f; color:white; font-family:Arial }
+header { padding:12px; text-align:center; font-weight:bold }
+#chat { padding:10px }
+.msg { padding:10px; margin:6px; border-radius:6px }
+.user { background:#2563eb }
+.bot { background:#27272a }
