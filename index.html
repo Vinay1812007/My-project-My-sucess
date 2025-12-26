@@ -1,26 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Vinay AI Assistant</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vinay AI</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>Vinay AI Assistant 🤖</header>
+<div class="app">
 
-<div id="controls">
-  <label><input type="radio" name="model" value="groq" checked> Groq</label>
-  <label><input type="radio" name="model" value="gemini"> Gemini</label>
-  <label><input type="radio" name="model" value="image"> Image</label>
-  <label><input type="radio" name="model" value="video"> Video</label>
+  <!-- TOP BAR -->
+  <header class="glass topbar">
+    <div class="title">Vinay AI ✨</div>
+
+    <select id="modelSelect" class="glass select">
+      <option value="groq">Groq</option>
+      <option value="gemini">Gemini</option>
+      <option value="image">Image</option>
+      <option value="video">Video</option>
+    </select>
+  </header>
+
+  <!-- CHAT AREA -->
+  <main id="chat" class="chat"></main>
+
+  <!-- INPUT BAR -->
+  <footer class="glass inputbar">
+    <div class="icons">
+      <button title="Web">🌐</button>
+      <button title="Image">🖼️</button>
+      <button title="Code">⌨️</button>
+    </div>
+
+    <input
+      id="input"
+      type="text"
+      placeholder="Ask anything..."
+      autocomplete="off"
+    />
+
+    <button id="send">⬆️</button>
+  </footer>
+
 </div>
-
-<div id="chat"></div>
-
-<footer>
-  <input id="input" placeholder="Ask anything..." />
-  <button id="send">Send</button>
-</footer>
 
 <script src="app.js"></script>
 </body>
