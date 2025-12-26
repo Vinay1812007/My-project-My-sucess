@@ -1,76 +1,66 @@
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
 const send = document.getElementById("send");
-const modelSelect = document.getElementById("modelSelect");
-const fileInput = document.getElementById("fileInput");
+const voice = document.getElementById("voice");
 
-let sessionId = localStorage.getItem("session") || crypto.randomUUID();
-localStorage.setItem("session", sessionId);
+const model = document.getElementById("model");
+const persona = document.getElementById("persona");
 
+let memory = JSON.parse(localStorage.getItem("memory")||"[]");
+
+// FIX INPUT NOT TYPING
+input.addEventListener("input",()=>{});
+
+// SEND
 send.onclick = sendMsg;
-input.onkeydown = e => e.key === "Enter" && sendMsg();
+input.addEventListener("keydown",e=>{
+  if(e.key==="Enter") sendMsg();
+});
 
-function add(role, text) {
-  const d = document.createElement("div");
-  d.className = `msg ${role}`;
-  d.textContent = text;
+function add(role,text){
+  const d=document.createElement("div");
+  d.className="msg "+role;
+  d.textContent=text;
   chat.appendChild(d);
-  chat.scrollTop = chat.scrollHeight;
+  chat.scrollTop=chat.scrollHeight;
 }
 
-function typing(on=true){
-  if(on){
-    const d=document.createElement("div");
-    d.id="typing"; d.className="msg bot";
-    d.innerHTML='<div class="typing"><span></span><span></span><span></span></div>';
-    chat.appendChild(d);
-  } else {
-    document.getElementById("typing")?.remove();
-  }
-}
+async function sendMsg(){
+  const text=input.value.trim();
+  if(!text) return;
 
-async function sendMsg(extra={}) {
-  const text = input.value.trim();
-  if (!text && !extra.imageBase64) return;
+  add("user",text);
+  input.value="";
 
-  if(text) add("user", text);
-  input.value = "";
-  typing(true);
+  const payload={
+    message:text,
+    model:model.value,
+    persona:persona.value,
+    memory
+  };
 
-  const res = await fetch("/api/router", {
+  const r=await fetch("/api/router",{
     method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({
-      model: modelSelect.value,
-      message: text,
-      sessionId,
-      ...extra
-    })
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(payload)
   });
 
-  const data = await res.json();
-  typing(false);
+  const j=await r.json();
+  add("bot",j.reply);
 
-  if(data.image) chat.innerHTML += `<img src="${data.image}"/>`;
-  else if(data.video) chat.innerHTML += `<video src="${data.video}" controls></video>`;
-  else add("bot", data.reply);
+  // MEMORY
+  memory.push({q:text,a:j.reply});
+  localStorage.setItem("memory",JSON.stringify(memory));
+
+  // TTS
+  speechSynthesis.speak(new SpeechSynthesisUtterance(j.reply));
 }
 
 // VOICE INPUT
-document.getElementById("voiceBtn").onclick = () => {
-  const rec = new (webkitSpeechRecognition || SpeechRecognition)();
-  rec.onresult = e => { input.value = e.results[0][0].transcript; sendMsg(); };
+voice.onclick=()=>{
+  const rec=new(window.SpeechRecognition||webkitSpeechRecognition)();
+  rec.onresult=e=>{
+    input.value=e.results[0][0].transcript;
+  };
   rec.start();
 };
-
-// UPLOAD IMAGE → OCR
-document.getElementById("uploadBtn").onclick = ()=> fileInput.click();
-fileInput.onchange = () => {
-  const r = new FileReader();
-  r.onload = () => sendMsg({ imageBase64: r.result.split(",")[1] });
-  r.readAsDataURL(fileInput.files[0]);
-};
-
-function openCanvas() {
-  window.open("canvas.html","canvas","width=600,height=700");
-}
