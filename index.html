@@ -1,24 +1,31 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Vinay AI</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Vinay AI Assistant</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<header>Vinay AI Assistant 🤖</header>
 
-<select id="provider">
-  <option value="groq">Groq</option>
-  <option value="gemini">Gemini</option>
-  <option value="pollinations">Pollinations</option>
-  <option value="vision">Groq Vision</option>
-</select>
+  <header>
+    <h2>Vinay AI Assistant 🤖</h2>
+  </header>
 
-<input id="input" placeholder="Type prompt..." />
-<button onclick="send()">Send</button>
+  <main id="chat"></main>
 
-<div id="chat"></div>
+  <footer>
+    <select id="model">
+      <option value="groq">Groq</option>
+      <option value="gemini">Gemini</option>
+      <option value="pollinations-image">Image</option>
+      <option value="pollinations-video">Video</option>
+    </select>
 
-<script src="app.js"></script>
+    <input id="input" placeholder="Ask anything..." />
+    <button id="send">Send</button>
+  </footer>
+
+  <!-- VERY IMPORTANT -->
+  <script src="app.js"></script>
 </body>
 </html>
