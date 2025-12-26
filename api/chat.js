@@ -1,26 +1,16 @@
-export const config = {
-  runtime: "edge",
-};
-
-export default async function handler(req) {
+export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return new Response(
-      JSON.stringify({ reply: "Only POST requests allowed" }),
-      { status: 405 }
-    );
+    return res.status(405).json({ reply: "Only POST allowed" });
   }
 
   try {
-    const { message } = await req.json();
+    const { message } = req.body;
 
     if (!message) {
-      return new Response(
-        JSON.stringify({ reply: "Message missing" }),
-        { status: 400 }
-      );
+      return res.status(400).json({ reply: "Message missing" });
     }
 
-    const groqRes = await fetch(
+    const groqResponse = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
       {
         method: "POST",
@@ -38,24 +28,23 @@ export default async function handler(req) {
       }
     );
 
-    const data = await groqRes.json();
+    const data = await groqResponse.json();
 
-    if (!data.choices || !data.choices[0]) {
-      return new Response(
-        JSON.stringify({ reply: "Groq returned no response." }),
-        { status: 500 }
-      );
+    if (!data?.choices?.[0]?.message?.content) {
+      console.error("Groq error:", data);
+      return res.status(500).json({
+        reply: "Groq API error. Check logs."
+      });
     }
 
-    return new Response(
-      JSON.stringify({ reply: data.choices[0].message.content }),
-      { status: 200 }
-    );
+    return res.status(200).json({
+      reply: data.choices[0].message.content
+    });
 
-  } catch (err) {
-    return new Response(
-      JSON.stringify({ reply: "Server error occurred." }),
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error("Server error:", error);
+    return res.status(500).json({
+      reply: "Server error occurred"
+    });
   }
 }
