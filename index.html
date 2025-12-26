@@ -1,40 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Vinay AI</title>
-<link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Assistant</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div class="glass app">
+<div class="app">
+  <header>AI Assistant</header>
 
-<header class="top">
-  <span>Vinay AI</span>
+  <div id="chat"></div>
 
-  <select id="persona">
-    <option value="default">Default</option>
-    <option value="coder">Coder</option>
-    <option value="teacher">Teacher</option>
-    <option value="researcher">Researcher</option>
-  </select>
+  <div class="input-bar">
+    <select id="model">
+      <option value="groq">Groq</option>
+      <option value="gemini">Gemini</option>
+      <option value="image">Image</option>
+    </select>
 
-  <select id="model">
-    <option value="groq">Groq</option>
-    <option value="gemini">Gemini</option>
-    <option value="image">Image</option>
-  </select>
-</header>
-
-<main id="chat"></main>
-
-<footer class="bar">
-  <button id="voice">🎤</button>
-  <input id="input" placeholder="Type here…" autocomplete="off">
-  <button id="send">➤</button>
-</footer>
-
+    <input id="input" placeholder="Type here..." />
+    <button id="send">➤</button>
+  </div>
 </div>
 
 <script src="app.js"></script>
