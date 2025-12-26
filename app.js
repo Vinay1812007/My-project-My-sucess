@@ -1,44 +1,47 @@
-// MAKE SURE JS IS LOADED
-console.log("app.js loaded");
-
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
-const sendBtn = document.getElementById("send");
-const modelSelect = document.getElementById("model");
+const send = document.getElementById("send");
 
-sendBtn.addEventListener("click", sendMessage);
-input.addEventListener("keydown", e => {
-  if (e.key === "Enter") sendMessage();
-});
+send.onclick = sendMsg;
+input.onkeydown = e => e.key === "Enter" && sendMsg();
 
-async function sendMessage() {
+function model() {
+  return document.querySelector("input[name=model]:checked").value;
+}
+
+async function sendMsg() {
   const text = input.value.trim();
   if (!text) return;
 
-  addMessage("user", text);
+  add("user", text);
   input.value = "";
 
-  try {
-    const res = await fetch("/api/router", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: modelSelect.value,
-        message: text
-      })
-    });
+  const res = await fetch("/api/router", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: model(),
+      message: text,
+      sessionId: "vinay"
+    })
+  });
 
-    const data = await res.json();
-    addMessage("bot", data.reply || "No response");
-  } catch (err) {
-    addMessage("bot", "Error connecting to server");
+  const data = await res.json();
+
+  if (data.image) {
+    add("bot", "");
+    chat.innerHTML += `<img src="${data.image}" width="300"/>`;
+  } else if (data.video) {
+    chat.innerHTML += `<video src="${data.video}" controls width="300"></video>`;
+  } else {
+    add("bot", data.reply);
   }
 }
 
-function addMessage(type, text) {
-  const div = document.createElement("div");
-  div.className = `msg ${type}`;
-  div.textContent = (type === "user" ? "You: " : "AI: ") + text;
-  chat.appendChild(div);
+function add(role, text) {
+  const d = document.createElement("div");
+  d.className = `msg ${role}`;
+  d.textContent = `${role === "user" ? "You" : "AI"}: ${text}`;
+  chat.appendChild(d);
   chat.scrollTop = chat.scrollHeight;
 }
