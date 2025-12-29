@@ -1,73 +1,39 @@
 * {
   box-sizing: border-box;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  font-family: system-ui, sans-serif;
 }
 
 body {
   margin: 0;
-  background: radial-gradient(circle at top, #0f1c3f, #020617);
+  background: radial-gradient(circle at top, #1e3a8a, #020617);
   color: white;
-  height: 100vh;
 }
 
 .app {
   display: flex;
+  flex-direction: column;
   height: 100vh;
 }
 
-/* Sidebar */
-.sidebar {
-  width: 260px;
-  background: rgba(0,0,0,0.35);
-  backdrop-filter: blur(14px);
-  padding: 16px;
-  overflow-y: auto;
-}
-
-.sidebar h2 {
-  margin: 0 0 10px;
-  opacity: 0.8;
-}
-
-.sidebar li {
-  list-style: none;
-  padding: 10px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.sidebar li:hover {
-  background: rgba(255,255,255,0.1);
-}
-
-/* Chat */
-.chat {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.topbar {
+header {
   padding: 14px;
   text-align: center;
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
   font-weight: bold;
+  background: #0f172a;
 }
 
-.messages {
+.chat {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
 }
 
-.message {
+.msg {
   max-width: 70%;
-  padding: 14px;
+  padding: 12px 16px;
   margin-bottom: 12px;
-  border-radius: 18px;
-  animation: pop 0.25s ease;
+  border-radius: 14px;
+  animation: fadeIn 0.25s ease;
 }
 
 .user {
@@ -76,50 +42,39 @@ body {
 }
 
 .bot {
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(8px);
+  background: rgba(255,255,255,0.08);
 }
 
-@keyframes pop {
-  from { transform: scale(0.96); opacity: 0 }
-  to { transform: scale(1); opacity: 1 }
-}
-
-/* Input */
 .input-bar {
   display: flex;
   padding: 12px;
-  gap: 10px;
-  background: rgba(0,0,0,0.4);
+  background: #020617;
 }
 
-textarea {
+input {
   flex: 1;
-  resize: none;
-  padding: 14px;
-  border-radius: 14px;
+  padding: 12px;
+  border-radius: 10px;
   border: none;
   outline: none;
-  font-size: 16px;
 }
 
 button {
+  margin-left: 10px;
+  padding: 0 18px;
+  border-radius: 10px;
   border: none;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
   cursor: pointer;
-  font-size: 18px;
   background: #2563eb;
   color: white;
-  transition: transform 0.15s;
+  font-size: 18px;
 }
 
-button:active {
-  transform: scale(0.9);
+button:hover {
+  background: #1d4ed8;
 }
 
-/* Mobile */
-@media (max-width: 768px) {
-  .sidebar { display: none; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
