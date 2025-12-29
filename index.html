@@ -1,45 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Vinay AI Assistant ✨</title>
-<link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Vinay AI</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<header class="top-bar">
-  <h1>Vinay AI Assistant ✨</h1>
-
-  <div class="controls">
-    <select id="model">
-      <option value="groq">Groq</option>
-      <option value="gemini">Gemini</option>
-    </select>
-
-    <button id="newChatBtn">＋</button>
-  </div>
-</header>
-
-<div class="layout">
-
-  <!-- LEFT HISTORY -->
-  <aside id="history">
-    <h3>Chats</h3>
-    <div id="historyList"></div>
+<div class="app">
+  <aside id="sidebar">
+    <h2>Chats</h2>
+    <div id="chatList"></div>
   </aside>
 
-  <!-- CHAT -->
-  <main id="chat"></main>
+  <main>
+    <header>Vinay AI ✨</header>
 
+    <div id="chat"></div>
+
+    <div class="input-bar">
+      <select id="provider">
+        <option value="groq">Groq</option>
+        <option value="gemini">Gemini</option>
+      </select>
+
+      <input id="prompt" placeholder="Ask anything…" />
+      <button id="send">➤</button>
+      <button id="speak">🔊</button>
+    </div>
+  </main>
 </div>
-
-<footer class="input-bar">
-  <button id="micBtn" class="btn">🎤</button>
-  <input id="input" placeholder="Type here..." />
-  <button id="sendBtn" class="btn send">➤</button>
-</footer>
 
 <script src="app.js"></script>
 </body>
