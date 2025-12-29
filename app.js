@@ -2,83 +2,81 @@ const chat = document.getElementById("chat");
 const input = document.getElementById("input");
 const sendBtn = document.getElementById("sendBtn");
 const micBtn = document.getElementById("micBtn");
-const modelSel = document.getElementById("model");
-const personaSel = document.getElementById("persona");
-const canvas = document.getElementById("canvas");
+const historyList = document.getElementById("historyList");
 
-let speaking = null;
+let chats = JSON.parse(localStorage.getItem("chats")) || [];
+let currentChat = null;
 
-/* ---------- MEMORY ---------- */
-function save(role, text) {
-  const mem = JSON.parse(localStorage.getItem("memory") || "[]");
-  mem.push({ role, text });
-  localStorage.setItem("memory", JSON.stringify(mem.slice(-50)));
+/* ---------- UTIL ---------- */
+function renderHistory() {
+  historyList.innerHTML = "";
+  chats.forEach((c, i) => {
+    const div = document.createElement("div");
+    div.className = "history-item";
+    div.textContent = c.title;
+    div.onclick = () => loadChat(i);
+    historyList.appendChild(div);
+  });
 }
 
-function loadMemory() {
-  JSON.parse(localStorage.getItem("memory") || "[]")
-    .forEach(m => addMessage(m.text, m.role));
-}
-
-/* ---------- UI ---------- */
 function addMessage(text, role) {
+  if (!text) return;
+
   const div = document.createElement("div");
   div.className = `msg ${role}`;
-  div.innerHTML = `
-    ${text}
-    ${role === "ai" ? `<button class="speak-btn" onclick="speak(this)">🔊</button>` : ""}
-  `;
+  div.textContent = text;
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
+
+  currentChat.messages.push({ role, text });
+  save();
 }
 
-function speak(btn) {
-  speechSynthesis.cancel();
-  const t = btn.parentElement.innerText.replace("🔊", "");
-  const u = new SpeechSynthesisUtterance(t);
-  speaking = u;
-  speechSynthesis.speak(u);
+/* ---------- CHAT ---------- */
+function newChat() {
+  currentChat = {
+    title: "New Chat",
+    messages: []
+  };
+  chats.push(currentChat);
+  save();
+  chat.innerHTML = "";
+  renderHistory();
 }
 
-/* Stop sound while typing */
-input.addEventListener("input", () => speechSynthesis.cancel());
+function loadChat(index) {
+  currentChat = chats[index];
+  chat.innerHTML = "";
+  currentChat.messages.forEach(m => addMessage(m.text, m.role));
+}
 
 /* ---------- SEND ---------- */
-sendBtn.onclick = send;
-input.onkeydown = e => e.key === "Enter" && send();
-
 async function send() {
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = "";
+  const text = input.value;
+  if (!text.trim()) return;
+
+  input.value = ""; // FIX: clear AFTER read
 
   addMessage(text, "user");
-  save("user", text);
-
-  const persona = personaSel.value
-    ? `You are a ${personaSel.value}. Respond accordingly.\n\n${text}`
-    : text;
 
   const res = await fetch("/api/ai", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {"Content-Type":"application/json"},
     body: JSON.stringify({
-      message: persona,
-      model: modelSel.value
+      message: text,
+      model: document.getElementById("model").value
     })
   });
 
   const data = await res.json();
-  const reply = data.reply || "No response";
-
-  addMessage(reply, "ai");
-  save("ai", reply);
-
-  if (reply.length > 500) {
-    canvas.innerText = reply;
-    canvas.classList.remove("hidden");
-  }
+  addMessage(data.reply || "No response", "ai");
 }
+
+/* ---------- EVENTS ---------- */
+sendBtn.onclick = send;
+input.addEventListener("keydown", e => {
+  if (e.key === "Enter") send();
+});
 
 /* ---------- VOICE INPUT ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -89,14 +87,12 @@ if (SR) {
   rec.onresult = e => input.value += e.results[0][0].transcript;
 }
 
-/* ---------- EXPORT ---------- */
-function exportChat() {
-  const blob = new Blob([localStorage.getItem("memory")], { type: "application/json" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "chat.json";
-  a.click();
+/* ---------- SAVE ---------- */
+function save() {
+  localStorage.setItem("chats", JSON.stringify(chats));
 }
 
 /* ---------- INIT ---------- */
-loadMemory();
+if (!chats.length) newChat();
+else loadChat(0);
+renderHistory();
