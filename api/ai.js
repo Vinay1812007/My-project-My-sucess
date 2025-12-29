@@ -3,91 +3,96 @@ export default async function handler(req, res) {
     return res.status(405).json({ reply: "Method not allowed" });
   }
 
-  const { message, model } = req.body;
-
-  if (!message || !model) {
-    return res.json({ reply: "Invalid request" });
-  }
-
   try {
-    /* =========================
-       GROQ (STABLE)
-    ========================= */
-    if (model === "groq") {
-      const r = await fetch(
-        "https://api.groq.com/openai/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: "llama-3.1-8b-instant",
-            messages: [{ role: "user", content: message }],
-            temperature: 0.7,
-          }),
+    const { message, model } = req.body;
+
+    if (!message || typeof message !== "string") {
+      return res.json({ reply: "Please enter a message." });
+    }
+
+    /* ===========================
+       GEMINI (PRIMARY)
+    ============================ */
+    if (model === "gemini") {
+      try {
+        const geminiResponse = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              contents: [
+                {
+                  role: "user",
+                  parts: [{ text: message }]
+                }
+              ]
+            })
+          }
+        );
+
+        const geminiData = await geminiResponse.json();
+
+        const geminiText =
+          geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (geminiText && geminiText.trim()) {
+          return res.status(200).json({
+            reply: geminiText
+          });
         }
-      );
 
-      const d = await r.json();
+        // Gemini responded but with no usable text
+        throw new Error("Gemini returned empty text");
 
-      return res.json({
-        reply:
-          d?.choices?.[0]?.message?.content ||
-          "Groq did not return text.",
+      } catch (geminiError) {
+        console.warn("Gemini failed → Falling back to Groq");
+      }
+    }
+
+    /* ===========================
+       GROQ (FALLBACK / DEFAULT)
+    ============================ */
+    const groqResponse = await fetch(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "llama3-8b-8192",
+          messages: [
+            { role: "user", content: message }
+          ],
+          temperature: 0.7,
+          max_tokens: 1024
+        })
+      }
+    );
+
+    const groqData = await groqResponse.json();
+
+    const groqText =
+      groqData?.choices?.[0]?.message?.content;
+
+    if (!groqText) {
+      return res.status(200).json({
+        reply: "AI did not generate a response. Please try again."
       });
     }
 
-    /* =========================
-       GEMINI (FINAL FIX)
-    ========================= */
-    if (model === "gemini") {
-      const r = await fetch(
-        `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${process.env.GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: "user",
-                parts: [{ text: message }],
-              },
-            ],
-            generationConfig: {
-              temperature: 0.8,
-              maxOutputTokens: 512,
-            },
-          }),
-        }
-      );
+    return res.status(200).json({
+      reply: groqText
+    });
 
-      const d = await r.json();
-
-      console.log("GEMINI RAW:", JSON.stringify(d));
-
-      let reply = "";
-
-      if (d?.candidates?.length) {
-        const parts = d.candidates[0]?.content?.parts || [];
-        reply = parts.map(p => p.text).join(" ").trim();
-      }
-
-      if (!reply) {
-        reply =
-          "⚠️ Gemini is unavailable right now. Please try again or switch to Groq.";
-      }
-
-      return res.json({ reply });
-    }
-
-    return res.json({ reply: "Unknown model selected." });
-
-  } catch (err) {
-    console.error("AI ERROR:", err);
-    return res.json({
-      reply: "Server error. Check Vercel logs.",
+  } catch (error) {
+    console.error("API ERROR:", error);
+    return res.status(500).json({
+      reply: "Server error. Please try again later."
     });
   }
 }
