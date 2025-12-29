@@ -3,10 +3,10 @@ const sendBtn = document.getElementById("send-btn");
 const chat = document.getElementById("chat");
 
 function addMessage(text, type) {
-  const div = document.createElement("div");
-  div.className = `msg ${type}`;
-  div.textContent = text;
-  chat.appendChild(div);
+  const msg = document.createElement("div");
+  msg.className = `msg ${type}`;
+  msg.textContent = text;
+  chat.appendChild(msg);
   chat.scrollTop = chat.scrollHeight;
 }
 
@@ -17,6 +17,12 @@ async function sendMessage() {
   addMessage(text, "user");
   input.value = "";
 
+  const typing = document.createElement("div");
+  typing.className = "msg bot";
+  typing.textContent = "Thinking...";
+  chat.appendChild(typing);
+  chat.scrollTop = chat.scrollHeight;
+
   try {
     const res = await fetch("/api/ai", {
       method: "POST",
@@ -25,14 +31,14 @@ async function sendMessage() {
     });
 
     const data = await res.json();
-    addMessage(data.reply, "bot");
+    typing.textContent = data.reply || "No response.";
 
   } catch {
-    addMessage("Network error", "bot");
+    typing.textContent = "Network error.";
   }
 }
 
-sendBtn.addEventListener("click", sendMessage);
+sendBtn.onclick = sendMessage;
 
 input.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
