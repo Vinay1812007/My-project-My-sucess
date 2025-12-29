@@ -3,37 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <title>Vinay AI ✨</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <div class="app">
+  <header>Vinay AI ✨</header>
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <h2>Chats</h2>
-    <ul id="chatList"></ul>
-  </aside>
+  <div id="chat" class="chat"></div>
 
-  <!-- Main -->
-  <main class="chat">
-    <header class="topbar">Vinay AI ✨</header>
-
-    <div id="messages" class="messages"></div>
-
-    <div class="input-bar">
-      <textarea
-        id="input"
-        placeholder="Ask anything…"
-        rows="1"
-      ></textarea>
-
-      <button id="speakBtn" title="Read last message">🔊</button>
-      <button id="sendBtn">➤</button>
-    </div>
-  </main>
-
+  <div class="input-bar">
+    <input
+      id="chat-input"
+      placeholder="Ask anything..."
+      autocomplete="off"
+    />
+    <button id="send-btn">➤</button>
+  </div>
 </div>
 
 <script src="app.js"></script>
