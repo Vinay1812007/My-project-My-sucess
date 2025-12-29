@@ -6,34 +6,43 @@ export default async function handler(req, res) {
   try {
     const { messages } = req.body;
 
-    if (!messages || !Array.isArray(messages)) {
-      return res.status(400).json({ error: "Invalid messages format" });
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ reply: "⚠️ Empty message list." });
     }
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "llama-3.1-70b-versatile",
-        messages,
-        temperature: 0.7
-      })
-    });
+    const groqRes = await fetch(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "llama3-70b-8192",
+          messages,
+          temperature: 0.7
+        })
+      }
+    );
 
-    const data = await response.json();
+    const data = await groqRes.json();
 
-    const text =
-      data?.choices?.[0]?.message?.content?.trim() || null;
+    const reply =
+      data?.choices?.[0]?.message?.content?.trim();
 
-    if (!text) {
-      return res.json({ reply: "⚠️ Groq returned no text." });
+    if (!reply) {
+      return res.json({
+        reply: "⚠️ Groq responded but returned empty text. Try again."
+      });
     }
 
-    res.json({ reply: text });
+    res.json({ reply });
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      reply: "❌ Server error",
+      details: err.message
+    });
   }
 }
