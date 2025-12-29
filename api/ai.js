@@ -1,16 +1,16 @@
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({ reply: "Method not allowed" });
   }
 
   try {
-    const { messages } = req.body;
+    const { prompt } = req.body;
 
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return res.status(400).json({ reply: "⚠️ Empty message list." });
+    if (!prompt || typeof prompt !== "string") {
+      return res.status(400).json({ reply: "Invalid prompt" });
     }
 
-    const groqRes = await fetch(
+    const response = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
       {
         method: "POST",
@@ -20,29 +20,31 @@ export default async function handler(req, res) {
         },
         body: JSON.stringify({
           model: "llama3-70b-8192",
-          messages,
+          messages: [
+            { role: "system", content: "You are Vinay AI, a helpful assistant." },
+            { role: "user", content: prompt }
+          ],
           temperature: 0.7
         })
       }
     );
 
-    const data = await groqRes.json();
+    const data = await response.json();
 
-    const reply =
-      data?.choices?.[0]?.message?.content?.trim();
+    const reply = data?.choices?.[0]?.message?.content;
 
     if (!reply) {
       return res.json({
-        reply: "⚠️ Groq responded but returned empty text. Try again."
+        reply: "⚠️ Groq returned no text. Try again."
       });
     }
 
     res.json({ reply });
 
-  } catch (err) {
+  } catch (error) {
     res.status(500).json({
       reply: "❌ Server error",
-      details: err.message
+      error: error.message
     });
   }
 }
