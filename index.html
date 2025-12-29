@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Vinay AI Assistant ✨</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vinay AI Assistant ✨</title>
+<link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
 <header class="top-bar">
@@ -17,25 +18,27 @@
       <option value="gemini">Gemini</option>
     </select>
 
-    <select id="persona">
-      <option value="">Default</option>
-      <option value="coder">Coder</option>
-      <option value="teacher">Teacher</option>
-      <option value="creative">Creative</option>
-    </select>
-
-    <button onclick="exportChat()">📤</button>
+    <button id="newChatBtn">＋</button>
   </div>
 </header>
 
-<main id="chat"></main>
+<div class="layout">
 
-<div id="canvas" class="canvas hidden"></div>
+  <!-- LEFT HISTORY -->
+  <aside id="history">
+    <h3>Chats</h3>
+    <div id="historyList"></div>
+  </aside>
+
+  <!-- CHAT -->
+  <main id="chat"></main>
+
+</div>
 
 <footer class="input-bar">
-  <button id="micBtn">🎤</button>
-  <input id="input" placeholder="Type here..." autocomplete="off"/>
-  <button id="sendBtn">➤</button>
+  <button id="micBtn" class="btn">🎤</button>
+  <input id="input" placeholder="Type here..." />
+  <button id="sendBtn" class="btn send">➤</button>
 </footer>
 
 <script src="app.js"></script>
