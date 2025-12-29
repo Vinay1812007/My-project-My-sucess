@@ -1,34 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Vinay AI</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Vinay AI ✨</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <div class="app">
-  <aside id="sidebar">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
     <h2>Chats</h2>
-    <div id="chatList"></div>
+    <ul id="chatList"></ul>
   </aside>
 
-  <main>
-    <header>Vinay AI ✨</header>
+  <!-- Main -->
+  <main class="chat">
+    <header class="topbar">Vinay AI ✨</header>
 
-    <div id="chat"></div>
+    <div id="messages" class="messages"></div>
 
     <div class="input-bar">
-      <select id="provider">
-        <option value="groq">Groq</option>
-        <option value="gemini">Gemini</option>
-      </select>
+      <textarea
+        id="input"
+        placeholder="Ask anything…"
+        rows="1"
+      ></textarea>
 
-      <input id="prompt" placeholder="Ask anything…" />
-      <button id="send">➤</button>
-      <button id="speak">🔊</button>
+      <button id="speakBtn" title="Read last message">🔊</button>
+      <button id="sendBtn">➤</button>
     </div>
   </main>
+
 </div>
 
 <script src="app.js"></script>
