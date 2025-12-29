@@ -158,12 +158,18 @@ function addBubble(text, cls) {
 }
 
 /* ---------- FAKE AI (SAFE DEMO) ---------- */
-function aiReply(text) {
-  return new Promise(r => {
-    setTimeout(() => {
-      r("✅ Working response from " + model.value + " model.\nYou said: " + text);
-    }, 700);
+async function aiReply(text) {
+  const r = await fetch("/api/ai", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: model.value,
+      message: text
+    })
   });
+
+  const j = await r.json();
+  return j.reply || "No response";
 }
 
 /* ---------- SEND ---------- */
