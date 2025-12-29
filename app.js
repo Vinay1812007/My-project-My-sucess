@@ -1,48 +1,102 @@
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
-const send = document.getElementById("send");
-const model = document.getElementById("model");
+const sendBtn = document.getElementById("sendBtn");
+const micBtn = document.getElementById("micBtn");
+const modelSel = document.getElementById("model");
+const personaSel = document.getElementById("persona");
+const canvas = document.getElementById("canvas");
 
-let memory = [];
+let speaking = null;
 
-function add(role, text) {
-  const d = document.createElement("div");
-  d.className = `msg ${role}`;
-  d.innerText = text;
-  chat.appendChild(d);
+/* ---------- MEMORY ---------- */
+function save(role, text) {
+  const mem = JSON.parse(localStorage.getItem("memory") || "[]");
+  mem.push({ role, text });
+  localStorage.setItem("memory", JSON.stringify(mem.slice(-50)));
+}
+
+function loadMemory() {
+  JSON.parse(localStorage.getItem("memory") || "[]")
+    .forEach(m => addMessage(m.text, m.role));
+}
+
+/* ---------- UI ---------- */
+function addMessage(text, role) {
+  const div = document.createElement("div");
+  div.className = `msg ${role}`;
+  div.innerHTML = `
+    ${text}
+    ${role === "ai" ? `<button class="speak-btn" onclick="speak(this)">🔊</button>` : ""}
+  `;
+  chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
 }
 
-send.onclick = sendMsg;
-input.onkeydown = e => e.key === "Enter" && sendMsg();
+function speak(btn) {
+  speechSynthesis.cancel();
+  const t = btn.parentElement.innerText.replace("🔊", "");
+  const u = new SpeechSynthesisUtterance(t);
+  speaking = u;
+  speechSynthesis.speak(u);
+}
 
-async function sendMsg() {
+/* Stop sound while typing */
+input.addEventListener("input", () => speechSynthesis.cancel());
+
+/* ---------- SEND ---------- */
+sendBtn.onclick = send;
+input.onkeydown = e => e.key === "Enter" && send();
+
+async function send() {
   const text = input.value.trim();
   if (!text) return;
   input.value = "";
 
-  add("user", text);
-  memory.push(text);
-  add("bot", "…");
+  addMessage(text, "user");
+  save("user", text);
 
-  const botBubble = chat.lastChild;
+  const persona = personaSel.value
+    ? `You are a ${personaSel.value}. Respond accordingly.\n\n${text}`
+    : text;
 
-  const r = await fetch("/api/router", {
+  const res = await fetch("/api/ai", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      message: text,
-      model: model.value,
-      memory
+      message: persona,
+      model: modelSel.value
     })
   });
 
-  const j = await r.json();
-  botBubble.innerText = j.reply || "No response.";
+  const data = await res.json();
+  const reply = data.reply || "No response";
 
-  if (j.image) {
-    const img = document.createElement("img");
-    img.src = j.image;
-    chat.appendChild(img);
+  addMessage(reply, "ai");
+  save("ai", reply);
+
+  if (reply.length > 500) {
+    canvas.innerText = reply;
+    canvas.classList.remove("hidden");
   }
 }
+
+/* ---------- VOICE INPUT ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SR) {
+  const rec = new SR();
+  rec.lang = "en-US";
+  micBtn.onclick = () => rec.start();
+  rec.onresult = e => input.value += e.results[0][0].transcript;
+}
+
+/* ---------- EXPORT ---------- */
+function exportChat() {
+  const blob = new Blob([localStorage.getItem("memory")], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "chat.json";
+  a.click();
+}
+
+/* ---------- INIT ---------- */
+loadMemory();
