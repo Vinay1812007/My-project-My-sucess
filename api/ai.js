@@ -1,4 +1,5 @@
 // api/ai.js
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ reply: "Method not allowed" });
@@ -7,15 +8,15 @@ export default async function handler(req, res) {
   try {
     const { message, model } = req.body;
 
-    if (!message) {
-      return res.json({ reply: "Empty message" });
+    if (!message || !model) {
+      return res.json({ reply: "Invalid request" });
     }
 
-    /* ==========================
-       GROQ
-    ========================== */
+    /* =========================
+       GROQ (WORKING)
+    ========================= */
     if (model === "groq") {
-      const groqRes = await fetch(
+      const r = await fetch(
         "https://api.groq.com/openai/v1/chat/completions",
         {
           method: "POST",
@@ -26,24 +27,23 @@ export default async function handler(req, res) {
           body: JSON.stringify({
             model: "llama-3.1-8b-instant",
             messages: [{ role: "user", content: message }],
+            temperature: 0.7,
           }),
         }
       );
 
-      const groqData = await groqRes.json();
+      const d = await r.json();
 
-      const reply =
-        groqData?.choices?.[0]?.message?.content ||
-        "Groq returned no response.";
-
-      return res.json({ reply });
+      return res.json({
+        reply: d?.choices?.[0]?.message?.content || "Groq had no output.",
+      });
     }
 
-    /* ==========================
-       GEMINI (FIXED)
-    ========================== */
+    /* =========================
+       GEMINI (FIXED FOR REAL)
+    ========================= */
     if (model === "gemini") {
-      const geminiRes = await fetch(
+      const r = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
         {
           method: "POST",
@@ -55,27 +55,41 @@ export default async function handler(req, res) {
                 parts: [{ text: message }],
               },
             ],
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 512,
+            },
+            safetySettings: [
+              { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+              { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+              { category: "HARM_CATEGORY_SEXUAL_CONTENT", threshold: "BLOCK_NONE" },
+              { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
+            ],
           }),
         }
       );
 
-      const geminiData = await geminiRes.json();
+      const d = await r.json();
 
-      // 🔥 SAFE EXTRACTION (NO CRASH)
-      const reply =
-        geminiData?.candidates?.[0]?.content?.parts?.[0]?.text ||
-        "Gemini returned no text.";
+      // 🔒 Gemini SAFE TEXT EXTRACTION
+      let reply = "";
+
+      if (d?.candidates?.length) {
+        const parts = d.candidates[0]?.content?.parts || [];
+        reply = parts.map(p => p.text).join(" ").trim();
+      }
+
+      if (!reply) {
+        reply = "Gemini did not generate a response.";
+      }
 
       return res.json({ reply });
     }
 
-    /* ==========================
-       UNKNOWN MODEL
-    ========================== */
-    return res.json({ reply: "Unknown model selected." });
+    return res.json({ reply: "Unknown model" });
 
   } catch (err) {
-    console.error("AI API ERROR:", err);
+    console.error("AI ERROR:", err);
     return res.json({ reply: "Server error. Check logs." });
   }
 }
