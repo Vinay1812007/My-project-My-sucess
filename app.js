@@ -1,72 +1,42 @@
-const messagesEl = document.getElementById("messages");
-const input = document.getElementById("input");
-const sendBtn = document.getElementById("sendBtn");
-const speakBtn = document.getElementById("speakBtn");
-const chatList = document.getElementById("chatList");
+const input = document.getElementById("chat-input");
+const sendBtn = document.getElementById("send-btn");
+const chat = document.getElementById("chat");
 
-let chat = [];
-
-function addMessage(text, role) {
+function addMessage(text, type) {
   const div = document.createElement("div");
-  div.className = `message ${role}`;
+  div.className = `msg ${type}`;
   div.textContent = text;
-  messagesEl.appendChild(div);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
 }
 
 async function sendMessage() {
   const text = input.value.trim();
   if (!text) return;
 
-  input.value = "";
   addMessage(text, "user");
+  input.value = "";
 
-  chat.push({ role: "user", content: text });
+  try {
+    const res = await fetch("/api/ai", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: text })
+    });
 
-  addMessage("Thinking…", "bot");
+    const data = await res.json();
+    addMessage(data.reply, "bot");
 
-  const res = await fetch("/api/ai", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages: chat })
-  });
-
-  const data = await res.json();
-
-  messagesEl.lastChild.remove();
-
-  const reply = data.reply || "⚠️ No response.";
-  addMessage(reply, "bot");
-  chat.push({ role: "assistant", content: reply });
+  } catch {
+    addMessage("Network error", "bot");
+  }
 }
 
-// ENTER TO SEND (FIXED)
-input.addEventListener("keydown", e => {
+sendBtn.addEventListener("click", sendMessage);
+
+input.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
     sendMessage();
   }
 });
-
-// BUTTON
-sendBtn.onclick = sendMessage;
-
-// AUTO-RESIZE INPUT
-input.addEventListener("input", () => {
-  input.style.height = "auto";
-  input.style.height = input.scrollHeight + "px";
-});
-
-// TTS (ChatGPT-style browser voice)
-speakBtn.onclick = () => {
-  const last = [...messagesEl.children].reverse()
-    .find(m => m.classList.contains("bot"));
-
-  if (!last) return;
-
-  speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(last.textContent);
-  utter.rate = 1;
-  utter.pitch = 1;
-  speechSynthesis.speak(utter);
-};
