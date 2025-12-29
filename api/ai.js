@@ -1,36 +1,49 @@
-export default async function handler(req, res) {
+export const config = {
+  runtime: "edge"
+};
+
+export default async function handler(req) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return new Response(
+      JSON.stringify({ error: "Method not allowed" }),
+      { status: 405 }
+    );
   }
 
   try {
-    const { model, message } = req.body;
+    const { model, message } = await req.json();
 
     if (!message) {
-      return res.status(400).json({ error: "No message" });
+      return new Response(
+        JSON.stringify({ reply: "No message received" }),
+        { status: 200 }
+      );
     }
 
-    // ---------- GROQ ----------
+    // ===== GROQ =====
     if (model === "groq") {
       const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
+          "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "llama-3.1-70b-versatile",
+          model: "llama-3.1-8b-instant",
           messages: [{ role: "user", content: message }]
         })
       });
 
       const j = await r.json();
-      return res.json({
-        reply: j.choices?.[0]?.message?.content || "No response"
-      });
+      return new Response(
+        JSON.stringify({
+          reply: j?.choices?.[0]?.message?.content || "No response"
+        }),
+        { status: 200 }
+      );
     }
 
-    // ---------- GEMINI ----------
+    // ===== GEMINI =====
     if (model === "gemini") {
       const r = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
@@ -44,14 +57,25 @@ export default async function handler(req, res) {
       );
 
       const j = await r.json();
-      return res.json({
-        reply: j.candidates?.[0]?.content?.parts?.[0]?.text || "No response"
-      });
+      return new Response(
+        JSON.stringify({
+          reply:
+            j?.candidates?.[0]?.content?.parts?.[0]?.text ||
+            "No response"
+        }),
+        { status: 200 }
+      );
     }
 
-    return res.json({ reply: "Model not supported" });
+    return new Response(
+      JSON.stringify({ reply: "Model not supported" }),
+      { status: 200 }
+    );
 
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+  } catch (e) {
+    return new Response(
+      JSON.stringify({ reply: "Server error" }),
+      { status: 200 }
+    );
   }
 }
