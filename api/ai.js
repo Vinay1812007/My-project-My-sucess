@@ -44,38 +44,34 @@ export default async function handler(req) {
     }
 
     // ===== GEMINI =====
-    if (model === "gemini") {
-      const r = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+// ===== GEMINI (FIXED) =====
+if (model === "gemini") {
+  const url =
+    "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=" +
+    process.env.GEMINI_API_KEY;
+
+  const r = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: message }] }]
-          })
+          role: "user",
+          parts: [{ text: message }]
         }
-      );
+      ]
+    })
+  });
 
-      const j = await r.json();
-      return new Response(
-        JSON.stringify({
-          reply:
-            j?.candidates?.[0]?.content?.parts?.[0]?.text ||
-            "No response"
-        }),
-        { status: 200 }
-      );
-    }
+  const j = await r.json();
 
-    return new Response(
-      JSON.stringify({ reply: "Model not supported" }),
-      { status: 200 }
-    );
+  const reply =
+    j?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-  } catch (e) {
-    return new Response(
-      JSON.stringify({ reply: "Server error" }),
-      { status: 200 }
-    );
-  }
+  return new Response(
+    JSON.stringify({
+      reply: reply || "⚠️ Gemini returned no text"
+    }),
+    { status: 200 }
+  );
 }
