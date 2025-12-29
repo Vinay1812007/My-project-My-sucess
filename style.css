@@ -1,80 +1,75 @@
+/* ===== RESET ===== */
 * {
-  box-sizing: border-box;
-  font-family: system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
+/* ===== BODY ===== */
 body {
-  margin: 0;
-  background: radial-gradient(circle at top, #1e3a8a, #020617);
-  color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #fafafa;
+    color: #222;
+    line-height: 1.6;
 }
 
-.app {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-
+/* ===== HEADER ===== */
 header {
-  padding: 14px;
-  text-align: center;
-  font-weight: bold;
-  background: #0f172a;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: #fff;
+    padding: 40px 20px;
+    text-align: center;
 }
 
-.chat {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
+header h1 {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
 }
 
-.msg {
-  max-width: 70%;
-  padding: 12px 16px;
-  margin-bottom: 12px;
-  border-radius: 14px;
-  animation: fadeIn 0.25s ease;
+header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
 }
 
-.user {
-  margin-left: auto;
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
+/* ===== MAIN ===== */
+main {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 0 20px;
 }
 
-.bot {
-  background: rgba(255,255,255,0.08);
+main h2 {
+    font-size: 1.6rem;
+    margin-bottom: 15px;
 }
 
-.input-bar {
-  display: flex;
-  padding: 12px;
-  background: #020617;
+/* ===== AD SAFE AREA ===== */
+.adsbygoogle {
+    margin: 25px auto;
 }
 
-input {
-  flex: 1;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  outline: none;
+/* ===== CONTENT ===== */
+main p {
+    font-size: 1rem;
+    margin-top: 15px;
 }
 
-button {
-  margin-left: 10px;
-  padding: 0 18px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  background: #2563eb;
-  color: white;
-  font-size: 18px;
+/* ===== FOOTER ===== */
+footer {
+    background: #eee;
+    color: #444;
+    text-align: center;
+    padding: 15px;
+    margin-top: 50px;
+    font-size: 0.9rem;
 }
 
-button:hover {
-  background: #1d4ed8;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+    header h1 {
+        font-size: 1.8rem;
+    }
+    main {
+        margin: 20px auto;
+    }
 }
