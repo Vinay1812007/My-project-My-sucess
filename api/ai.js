@@ -3,13 +3,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ reply: "Method not allowed" });
   }
 
+  const { prompt } = req.body;
+
+  if (!prompt || typeof prompt !== "string" || !prompt.trim()) {
+    return res.status(400).json({ reply: "Invalid prompt" });
+  }
+
   try {
-    const { prompt } = req.body;
-
-    if (!prompt || typeof prompt !== "string") {
-      return res.status(400).json({ reply: "Invalid prompt" });
-    }
-
     const response = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
       {
@@ -30,21 +30,15 @@ export default async function handler(req, res) {
     );
 
     const data = await response.json();
-
     const reply = data?.choices?.[0]?.message?.content;
 
     if (!reply) {
-      return res.json({
-        reply: "⚠️ Groq returned no text. Try again."
-      });
+      return res.json({ reply: "Groq returned empty text. Try again." });
     }
 
     res.json({ reply });
 
-  } catch (error) {
-    res.status(500).json({
-      reply: "❌ Server error",
-      error: error.message
-    });
+  } catch (err) {
+    res.status(500).json({ reply: "Server error", error: err.message });
   }
 }
