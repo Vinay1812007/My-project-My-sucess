@@ -1,35 +1,40 @@
 body{
-  margin:0;
   background:#111;
-  color:white;
+  color:#fff;
   font-family:sans-serif;
-  text-align:center;
+  padding:10px;
 }
-#menu{padding:20px}
-canvas{
-  display:none;
-  margin:auto;
-  background:#222;
-}
-#hud{
-  position:fixed;
-  top:5px;
-  width:100%;
+#filters{
   display:flex;
-  justify-content:space-around;
+  gap:10px;
+  margin-bottom:10px;
 }
-#chat{
-  position:fixed;
-  bottom:5px;
-  left:5px;
-  width:200px;
-  background:rgba(0,0,0,.6);
+select{
+  padding:6px;
 }
-#messages{
-  max-height:120px;
-  overflow:auto;
+#garage{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:10px;
 }
-input,button{
+.card{
+  background:#222;
   padding:8px;
-  margin:4px;
+  border-radius:6px;
+  text-align:center;
+  cursor:pointer;
+}
+.card.locked{
+  opacity:.4;
+  cursor:not-allowed;
+}
+.car{
+  height:60px;
+  border-radius:4px;
+  margin-bottom:6px;
+}
+canvas{
+  background:#222;
+  display:block;
+  margin:auto;
 }
