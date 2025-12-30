@@ -1,6 +1,6 @@
-/* =========================
+/* =====================================================
    SCENE SETUP
-========================= */
+===================================================== */
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x202020);
 
@@ -13,19 +13,18 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
-/* =========================
+/* =====================================================
    LIGHTING
-========================= */
-const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+===================================================== */
+const sun = new THREE.DirectionalLight(0xffffff, 1.3);
 sun.position.set(150, 300, 150);
 sun.castShadow = true;
 scene.add(sun);
-
 scene.add(new THREE.AmbientLight(0xffffff, 0.6));
 
-/* =========================
-   GROUND & ROADS
-========================= */
+/* =====================================================
+   GROUND & ROAD
+===================================================== */
 const ground = new THREE.Mesh(
   new THREE.PlaneGeometry(3000, 3000),
   new THREE.MeshStandardMaterial({ color: 0x1b1b1b })
@@ -33,114 +32,97 @@ const ground = new THREE.Mesh(
 ground.rotation.x = -Math.PI / 2;
 scene.add(ground);
 
-function road(x, z, w, h) {
-  const r = new THREE.Mesh(
-    new THREE.PlaneGeometry(w, h),
-    new THREE.MeshStandardMaterial({ color: 0x333333 })
-  );
-  r.rotation.x = -Math.PI / 2;
-  r.position.set(x, 0.02, z);
-  scene.add(r);
-
-  // lane markings
-  for (let i = -h / 2; i < h / 2; i += 20) {
-    const line = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.5, 6),
-      new THREE.MeshStandardMaterial({ color: 0xffffff })
-    );
-    line.rotation.x = -Math.PI / 2;
-    line.position.set(x, 0.03, z + i);
-    scene.add(line);
-  }
-}
-
-road(0, 0, 18, 2000);
-road(80, 0, 18, 2000);
-road(-80, 0, 18, 2000);
-road(0, 200, 300, 18);
-
-/* =========================
-   BUILDINGS
-========================= */
-for (let i = 0; i < 120; i++) {
-  const b = new THREE.Mesh(
-    new THREE.BoxGeometry(12, Math.random() * 40 + 15, 12),
-    new THREE.MeshStandardMaterial({ color: 0x444444 })
-  );
-  b.position.set(
-    Math.random() * 600 - 300,
-    b.geometry.parameters.height / 2,
-    Math.random() * 600 - 300
-  );
-  scene.add(b);
-}
-
-/* =========================
-   PLAYER CAR
-========================= */
-const car = new THREE.Mesh(
-  new THREE.BoxGeometry(2, 0.9, 4),
-  new THREE.MeshStandardMaterial({ color: 0xff0000 })
+const road = new THREE.Mesh(
+  new THREE.PlaneGeometry(20, 2000),
+  new THREE.MeshStandardMaterial({ color: 0x333333 })
 );
-car.position.set(0, 0.45, 0);
-scene.add(car);
+road.rotation.x = -Math.PI / 2;
+road.position.y = 0.02;
+scene.add(road);
 
-let speed = 0;
-let rotation = 0;
+/* =====================================================
+   CAR SYSTEM (MULTI GLTF)
+===================================================== */
+const loader = new THREE.GLTFLoader();
 
-/* =========================
-   TRAFFIC AI
-========================= */
-const traffic = [];
+const CAR_DEFS = {
+  audi: { file: "audi.glb", scale: 1.2 },
+  bmw: { file: "bmw.glb", scale: 1.2 },
+  ferrari: { file: "ferrari.glb", scale: 1.2 }
+};
 
-function spawnTraffic(z) {
-  const t = new THREE.Mesh(
-    new THREE.BoxGeometry(2, 0.8, 4),
-    new THREE.MeshStandardMaterial({ color: 0x555555 })
+let car = null;
+let currentCar = "audi";
+
+function loadCar(type) {
+  if (car) scene.remove(car);
+
+  const def = CAR_DEFS[type];
+  document.getElementById("carName").innerText = type.toUpperCase();
+
+  loader.load(
+    `./assets/cars/${def.file}`,
+    gltf => {
+      car = gltf.scene;
+      car.scale.setScalar(def.scale);
+      car.position.set(0, 0.4, 0);
+      car.traverse(o => {
+        if (o.isMesh) {
+          o.castShadow = true;
+          o.receiveShadow = true;
+        }
+      });
+      scene.add(car);
+    },
+    undefined,
+    () => {
+      // fallback box (never breaks game)
+      car = new THREE.Mesh(
+        new THREE.BoxGeometry(2, 0.9, 4),
+        new THREE.MeshStandardMaterial({ color: 0xff0000 })
+      );
+      car.position.set(0, 0.45, 0);
+      scene.add(car);
+    }
   );
-  t.position.set(80, 0.4, z);
-  t.userData.speed = 0.4 + Math.random() * 0.4;
-  scene.add(t);
-  traffic.push(t);
 }
 
-for (let i = 0; i < 10; i++) spawnTraffic(-500 + i * 100);
+loadCar(currentCar);
 
-/* =========================
-   POLICE AI
-========================= */
-const police = new THREE.Mesh(
-  new THREE.BoxGeometry(2, 0.9, 4),
-  new THREE.MeshStandardMaterial({ color: 0x0033ff })
-);
-police.position.set(-60, 0.45, -200);
-scene.add(police);
-
-let heat = 0;
-
-/* =========================
+/* =====================================================
    INPUT
-========================= */
+===================================================== */
 const keys = {};
-window.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
+window.addEventListener("keydown", e => {
+  keys[e.key.toLowerCase()] = true;
+
+  if (e.key === "1") { currentCar = "audi"; loadCar("audi"); }
+  if (e.key === "2") { currentCar = "bmw"; loadCar("bmw"); }
+  if (e.key === "3") { currentCar = "ferrari"; loadCar("ferrari"); }
+});
 window.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 
-/* =========================
-   GAME LOOP
-========================= */
+/* =====================================================
+   GAME STATE
+===================================================== */
+let speed = 0;
+let rotation = 0;
 let timeOfDay = 0;
 
+/* =====================================================
+   GAME LOOP
+===================================================== */
 function animate() {
   requestAnimationFrame(animate);
+  if (!car) return;
 
-  /* Acceleration */
+  /* Driving */
   if (keys["w"] || keys["arrowup"]) speed += 0.035;
   if (keys["s"] || keys["arrowdown"]) speed -= 0.045;
 
   speed *= 0.97;
-  speed = Math.max(-1.2, Math.min(2.2, speed));
+  speed = Math.max(-1.2, Math.min(2.4, speed));
 
-  /* Steering */
   if (keys["a"] || keys["arrowleft"]) rotation += 0.04 * (speed / 2);
   if (keys["d"] || keys["arrowright"]) rotation -= 0.04 * (speed / 2);
 
@@ -148,7 +130,7 @@ function animate() {
   car.position.x += Math.sin(rotation) * speed;
   car.position.z += Math.cos(rotation) * speed;
 
-  /* Camera follow */
+  /* Camera */
   const camOffset = new THREE.Vector3(
     Math.sin(rotation) * -14,
     7,
@@ -157,23 +139,6 @@ function animate() {
   camera.position.copy(car.position.clone().add(camOffset));
   camera.lookAt(car.position);
 
-  /* Traffic movement */
-  traffic.forEach(t => {
-    t.position.z += t.userData.speed;
-    if (t.position.z > car.position.z + 600) {
-      t.position.z = car.position.z - 800;
-    }
-  });
-
-  /* Police chase */
-  if (Math.abs(speed) > 1.4) heat += 0.015;
-  if (heat > 1) {
-    police.position.lerp(car.position, 0.035);
-    document.getElementById("status").innerText = "Police Chase!";
-  } else {
-    document.getElementById("status").innerText = "Free Roam";
-  }
-
   /* Day / Night */
   timeOfDay += 0.0005;
   const daylight = (Math.sin(timeOfDay) + 1) / 2;
@@ -181,7 +146,6 @@ function animate() {
   document.getElementById("time").innerText =
     daylight > 0.5 ? "Day" : "Night";
 
-  /* HUD */
   document.getElementById("speed").innerText =
     Math.abs(speed * 120).toFixed(0) + " km/h";
 
@@ -190,9 +154,9 @@ function animate() {
 
 animate();
 
-/* =========================
+/* =====================================================
    RESIZE
-========================= */
+===================================================== */
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
