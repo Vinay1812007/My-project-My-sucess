@@ -5,7 +5,7 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x202020);
 
 const camera = new THREE.PerspectiveCamera(
-  75, window.innerWidth / window.innerHeight, 0.1, 3000
+  75, window.innerWidth / window.innerHeight, 0.1, 5000
 );
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -14,26 +14,31 @@ renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
 /* =====================================================
-   LIGHTING
+   LIGHTING (STRONG, SAFE)
 ===================================================== */
-const sun = new THREE.DirectionalLight(0xffffff, 1.3);
-sun.position.set(150, 300, 150);
+const sun = new THREE.DirectionalLight(0xffffff, 1.5);
+sun.position.set(200, 400, 200);
 sun.castShadow = true;
 scene.add(sun);
-scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.8));
 
 /* =====================================================
-   GROUND & ROAD
+   GROUND
 ===================================================== */
 const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(3000, 3000),
-  new THREE.MeshStandardMaterial({ color: 0x1b1b1b })
+  new THREE.PlaneGeometry(5000, 5000),
+  new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
 );
 ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
 scene.add(ground);
 
+/* =====================================================
+   ROAD
+===================================================== */
 const road = new THREE.Mesh(
-  new THREE.PlaneGeometry(20, 2000),
+  new THREE.PlaneGeometry(22, 4000),
   new THREE.MeshStandardMaterial({ color: 0x333333 })
 );
 road.rotation.x = -Math.PI / 2;
@@ -41,65 +46,50 @@ road.position.y = 0.02;
 scene.add(road);
 
 /* =====================================================
-   CAR SYSTEM (MULTI GLTF)
+   LOAD BMW MODEL (AUTO FIXED)
 ===================================================== */
 const loader = new THREE.GLTFLoader();
+let car;
 
-const CAR_DEFS = {
-  audi: { file: "audi.glb", scale: 1.2 },
-  bmw: { file: "bmw.glb", scale: 1.2 },
-  ferrari: { file: "ferrari.glb", scale: 1.2 }
-};
+loader.load(
+  "./assets/cars/bmw.glb",
+  gltf => {
+    car = gltf.scene;
 
-let car = null;
-let currentCar = "audi";
+    // Center model
+    const box = new THREE.Box3().setFromObject(car);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
 
-function loadCar(type) {
-  if (car) scene.remove(car);
+    car.position.sub(center);
 
-  const def = CAR_DEFS[type];
-  document.getElementById("carName").innerText = type.toUpperCase();
+    // Scale to realistic size
+    const scale = 4 / Math.max(size.x, size.z);
+    car.scale.setScalar(scale);
 
-  loader.load(
-    `./assets/cars/${def.file}`,
-    gltf => {
-      car = gltf.scene;
-      car.scale.setScalar(def.scale);
-      car.position.set(0, 0.4, 0);
-      car.traverse(o => {
-        if (o.isMesh) {
-          o.castShadow = true;
-          o.receiveShadow = true;
-        }
-      });
-      scene.add(car);
-    },
-    undefined,
-    () => {
-      // fallback box (never breaks game)
-      car = new THREE.Mesh(
-        new THREE.BoxGeometry(2, 0.9, 4),
-        new THREE.MeshStandardMaterial({ color: 0xff0000 })
-      );
-      car.position.set(0, 0.45, 0);
-      scene.add(car);
-    }
-  );
-}
+    // Place on ground
+    car.position.y = 0.35;
 
-loadCar(currentCar);
+    car.traverse(o => {
+      if (o.isMesh) {
+        o.castShadow = true;
+        o.receiveShadow = true;
+      }
+    });
+
+    scene.add(car);
+  },
+  undefined,
+  error => {
+    console.error("GLB load failed", error);
+  }
+);
 
 /* =====================================================
-   INPUT
+   INPUT (WASD + ARROWS)
 ===================================================== */
 const keys = {};
-window.addEventListener("keydown", e => {
-  keys[e.key.toLowerCase()] = true;
-
-  if (e.key === "1") { currentCar = "audi"; loadCar("audi"); }
-  if (e.key === "2") { currentCar = "bmw"; loadCar("bmw"); }
-  if (e.key === "3") { currentCar = "ferrari"; loadCar("ferrari"); }
-});
+window.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
 window.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 
 /* =====================================================
@@ -107,7 +97,6 @@ window.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 ===================================================== */
 let speed = 0;
 let rotation = 0;
-let timeOfDay = 0;
 
 /* =====================================================
    GAME LOOP
@@ -116,35 +105,29 @@ function animate() {
   requestAnimationFrame(animate);
   if (!car) return;
 
-  /* Driving */
-  if (keys["w"] || keys["arrowup"]) speed += 0.035;
-  if (keys["s"] || keys["arrowdown"]) speed -= 0.045;
+  // Acceleration
+  if (keys["w"] || keys["arrowup"]) speed += 0.04;
+  if (keys["s"] || keys["arrowdown"]) speed -= 0.05;
 
-  speed *= 0.97;
-  speed = Math.max(-1.2, Math.min(2.4, speed));
+  speed *= 0.96;
+  speed = Math.max(-1.5, Math.min(2.5, speed));
 
-  if (keys["a"] || keys["arrowleft"]) rotation += 0.04 * (speed / 2);
-  if (keys["d"] || keys["arrowright"]) rotation -= 0.04 * (speed / 2);
+  // Steering
+  if (keys["a"] || keys["arrowleft"]) rotation += 0.04 * speed;
+  if (keys["d"] || keys["arrowright"]) rotation -= 0.04 * speed;
 
   car.rotation.y = rotation;
   car.position.x += Math.sin(rotation) * speed;
   car.position.z += Math.cos(rotation) * speed;
 
-  /* Camera */
+  // Camera (GTA style)
   const camOffset = new THREE.Vector3(
-    Math.sin(rotation) * -14,
-    7,
-    Math.cos(rotation) * -14
+    Math.sin(rotation) * -16,
+    8,
+    Math.cos(rotation) * -16
   );
   camera.position.copy(car.position.clone().add(camOffset));
   camera.lookAt(car.position);
-
-  /* Day / Night */
-  timeOfDay += 0.0005;
-  const daylight = (Math.sin(timeOfDay) + 1) / 2;
-  sun.intensity = 1.3 * daylight;
-  document.getElementById("time").innerText =
-    daylight > 0.5 ? "Day" : "Night";
 
   document.getElementById("speed").innerText =
     Math.abs(speed * 120).toFixed(0) + " km/h";
