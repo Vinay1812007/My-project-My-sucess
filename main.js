@@ -1,17 +1,13 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.158/build/three.module.js";
+import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/loaders/GLTFLoader.js";
 
 /* ===============================
-   BASIC SETUP
+   SCENE SETUP
 ================================ */
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x202020);
+scene.fog = new THREE.Fog(0x202020, 50, 500);
 
-const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  2000
-);
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -19,20 +15,20 @@ renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
 /* ===============================
-   LIGHTING (DAY / NIGHT)
+   LIGHTING
 ================================ */
 const sun = new THREE.DirectionalLight(0xffffff, 1.2);
 sun.position.set(200, 300, 200);
 sun.castShadow = true;
 scene.add(sun);
 
-const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+const ambient = new THREE.AmbientLight(0xffffff, 0.35);
 scene.add(ambient);
 
-let timeOfDay = 0; // 0 → day, 1 → night
+let timeOfDay = 0;
 
 /* ===============================
-   GROUND & ROADS (HYDERABAD STYLE)
+   GROUND & ROADS
 ================================ */
 const ground = new THREE.Mesh(
   new THREE.PlaneGeometry(2000, 2000),
@@ -42,59 +38,87 @@ ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
 
-function createRoad(x, z, w, h) {
-  const road = new THREE.Mesh(
+function road(x, z, w, h) {
+  const r = new THREE.Mesh(
     new THREE.PlaneGeometry(w, h),
     new THREE.MeshStandardMaterial({ color: 0x3a3a3a })
   );
-  road.rotation.x = -Math.PI / 2;
-  road.position.set(x, 0.02, z);
-  scene.add(road);
+  r.rotation.x = -Math.PI / 2;
+  r.position.set(x, 0.02, z);
+  scene.add(r);
 }
 
-createRoad(0, 0, 20, 2000);
-createRoad(100, 0, 20, 2000);
-createRoad(-100, 0, 20, 2000);
-createRoad(0, 200, 300, 20);
-createRoad(0, -300, 300, 20);
+road(0, 0, 20, 2000);
+road(100, 0, 20, 2000);
+road(-100, 0, 20, 2000);
+road(0, 200, 300, 20);
+road(0, -300, 300, 20);
 
 /* ===============================
-   PLAYER CAR
+   CITY BUILDINGS
 ================================ */
-const car = new THREE.Group();
+for (let i = 0; i < 120; i++) {
+  const b = new THREE.Mesh(
+    new THREE.BoxGeometry(10, Math.random() * 40 + 10, 10),
+    new THREE.MeshStandardMaterial({ color: 0x444444 })
+  );
+  b.position.set(
+    Math.random() * 600 - 300,
+    b.geometry.parameters.height / 2,
+    Math.random() * 600 - 300
+  );
+  b.castShadow = true;
+  b.receiveShadow = true;
+  scene.add(b);
+}
 
-const carBody = new THREE.Mesh(
-  new THREE.BoxGeometry(2, 0.8, 4),
-  new THREE.MeshStandardMaterial({ color: 0xff0000 })
+/* ===============================
+   PLAYER CAR (GLTF READY)
+================================ */
+let car;
+const loader = new GLTFLoader();
+
+loader.load(
+  "./assets/cars/car.glb",
+  gltf => {
+    car = gltf.scene;
+    car.scale.set(1.2, 1.2, 1.2);
+    car.position.set(0, 0.4, 0);
+    car.traverse(o => o.castShadow = true);
+    scene.add(car);
+  },
+  undefined,
+  () => {
+    car = new THREE.Mesh(
+      new THREE.BoxGeometry(2, 0.8, 4),
+      new THREE.MeshStandardMaterial({ color: 0xff0000 })
+    );
+    car.position.set(0, 0.4, 0);
+    car.castShadow = true;
+    scene.add(car);
+  }
 );
-carBody.castShadow = true;
-car.add(carBody);
-
-scene.add(car);
-car.position.set(0, 0.4, 0);
 
 let speed = 0;
 let rotation = 0;
 
 /* ===============================
-   AI TRAFFIC
+   TRAFFIC AI
 ================================ */
 const traffic = [];
 
-function spawnTraffic(x, z) {
+function spawnTraffic(z) {
   const t = new THREE.Mesh(
     new THREE.BoxGeometry(2, 0.8, 4),
     new THREE.MeshStandardMaterial({ color: 0x555555 })
   );
-  t.position.set(x, 0.4, z);
-  t.userData.speed = 0.3 + Math.random() * 0.4;
+  t.position.set(0, 0.4, z);
+  t.userData.speed = 0.4 + Math.random() * 0.4;
   scene.add(t);
   traffic.push(t);
 }
 
-for (let i = 0; i < 10; i++) {
-  spawnTraffic(0, -400 + i * 80);
-}
+for (let i = 0; i < 12; i++) spawnTraffic(-500 + i * 80);
 
 /* ===============================
    POLICE AI
@@ -109,6 +133,32 @@ scene.add(police);
 let heat = 0;
 
 /* ===============================
+   RAIN SYSTEM
+================================ */
+let rainEnabled = false;
+const rain = [];
+
+function startRain() {
+  rainEnabled = true;
+  document.getElementById("weather").innerText = "Rain";
+  for (let i = 0; i < 800; i++) {
+    const drop = new THREE.Mesh(
+      new THREE.SphereGeometry(0.05),
+      new THREE.MeshBasicMaterial({ color: 0x88aaff })
+    );
+    drop.position.set(
+      Math.random() * 600 - 300,
+      Math.random() * 200,
+      Math.random() * 600 - 300
+    );
+    scene.add(drop);
+    rain.push(drop);
+  }
+}
+
+setTimeout(startRain, 15000);
+
+/* ===============================
    INPUT
 ================================ */
 const keys = {};
@@ -120,11 +170,12 @@ window.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 ================================ */
 function animate() {
   requestAnimationFrame(animate);
+  if (!car) return;
 
   /* Car physics */
   if (keys["w"]) speed += 0.03;
   if (keys["s"]) speed -= 0.04;
-  speed *= 0.98;
+  speed *= rainEnabled ? 0.96 : 0.98;
   speed = Math.max(-1, Math.min(2, speed));
 
   if (keys["a"]) rotation += 0.04;
@@ -134,40 +185,45 @@ function animate() {
   car.position.x += Math.sin(rotation) * speed;
   car.position.z += Math.cos(rotation) * speed;
 
-  /* Camera (GTA third person) */
+  /* Camera */
   const camOffset = new THREE.Vector3(
-    Math.sin(rotation) * -10,
+    Math.sin(rotation) * -12,
     6,
-    Math.cos(rotation) * -10
+    Math.cos(rotation) * -12
   );
   camera.position.copy(car.position.clone().add(camOffset));
   camera.lookAt(car.position);
 
-  /* Traffic movement */
+  /* Traffic */
   traffic.forEach(t => {
     t.position.z += t.userData.speed;
-    if (t.position.z > car.position.z + 600) {
+    if (t.position.z > car.position.z + 500) {
       t.position.z = car.position.z - 800;
     }
   });
 
-  /* Police logic */
+  /* Police chase */
   if (Math.abs(speed) > 1.2) heat += 0.01;
   if (heat > 1) {
-    police.position.lerp(car.position, 0.02);
+    police.position.lerp(car.position, 0.03);
     document.getElementById("status").innerText = "Police Chase!";
   } else {
     document.getElementById("status").innerText = "Free Roam";
   }
 
-  /* Day / Night */
-  timeOfDay += 0.0005;
-  const nightFactor = (Math.sin(timeOfDay) + 1) / 2;
-  sun.intensity = 1.2 * nightFactor;
-  ambient.intensity = 0.2 + nightFactor * 0.4;
-  document.getElementById("time").innerText = nightFactor > 0.5 ? "Day" : "Night";
+  /* Rain animation */
+  rain.forEach(d => {
+    d.position.y -= 1;
+    if (d.position.y < 0) d.position.y = 200;
+  });
 
-  /* HUD */
+  /* Day / Night */
+  timeOfDay += 0.0004;
+  const daylight = (Math.sin(timeOfDay) + 1) / 2;
+  sun.intensity = 1.2 * daylight;
+  ambient.intensity = 0.2 + daylight * 0.4;
+  document.getElementById("time").innerText = daylight > 0.5 ? "Day" : "Night";
+
   document.getElementById("speed").innerText =
     Math.abs(speed * 120).toFixed(0) + " km/h";
 
