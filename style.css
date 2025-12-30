@@ -1,40 +1,68 @@
-body{
-  background:#111;
-  color:#fff;
-  font-family:sans-serif;
-  padding:10px;
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
 }
-#filters{
-  display:flex;
-  gap:10px;
-  margin-bottom:10px;
+
+body {
+  margin: 0;
+  background: #000;
+  color: #fff;
+  overflow: hidden;
 }
-select{
-  padding:6px;
+
+canvas {
+  display: block;
+  margin: auto;
+  background: #111;
 }
-#garage{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
-  gap:10px;
+
+#hud {
+  position: fixed;
+  top: 6px;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  font-size: 13px;
+  z-index: 10;
 }
-.card{
-  background:#222;
-  padding:8px;
-  border-radius:6px;
-  text-align:center;
-  cursor:pointer;
+
+#cutscene {
+  position: fixed;
+  inset: 0;
+  background: black;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  z-index: 100;
 }
-.card.locked{
-  opacity:.4;
-  cursor:not-allowed;
+
+#cutscene button {
+  margin-top: 20px;
+  padding: 10px 20px;
 }
-.car{
-  height:60px;
-  border-radius:4px;
-  margin-bottom:6px;
+
+#replayEditor {
+  position: fixed;
+  bottom: 60px;
+  width: 100%;
+  display: none;
+  justify-content: center;
+  gap: 10px;
+  z-index: 10;
 }
-canvas{
-  background:#222;
-  display:block;
-  margin:auto;
+
+#mobileControls {
+  position: fixed;
+  bottom: 10px;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+}
+
+#mobileControls button {
+  padding: 14px;
+  font-size: 16px;
+  opacity: 0.85;
 }
