@@ -1,188 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Indie Drift Racer</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Hyderabad Open-World Racer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>🏎 Indie Drift Racer</h1>
-
-<div id="garageView">
-  <h2>Garage</h2>
-
-  <div id="filters">
-    <select id="brandFilter"></select>
-    <select id="rarityFilter"></select>
-  </div>
-
-  <div id="garage"></div>
+<!-- CUTSCENE -->
+<div id="cutscene">
+  <div id="cutsceneText"></div>
+  <button id="skipCutscene">Skip</button>
 </div>
 
-<div id="raceView" style="display:none">
-  <h2 id="raceTitle"></h2>
-  <canvas id="game" width="360" height="600"></canvas>
-  <button onclick="exitRace()">Exit Race</button>
+<!-- HUD -->
+<div id="hud">
+  <div id="speed">0 km/h</div>
+  <div id="carName"></div>
+  <div id="league"></div>
+  <div id="weather"></div>
+  <div id="season"></div>
 </div>
 
-<script>
-/* ============================================================
-   1. RAW CAR LIST (AUTO-PARSED)
-   ============================================================ */
-const RAW_LIST = `
-Audi-Brilliant Black-A3
-Audi-Brilliant Black-A4
-Audi-Brilliant Black-Q5
-BMW-Alpine White-3 Series
-BMW-Alpine White-X5
-Ferrari-Rosso Corsa-488 GTB
-Ferrari-Giallo Modena-F8 Tributo
-Lamborghini-Giallo Inti-Urus
-Tesla-Pearl White-Model 3
-Toyota-Super White-Fortuner
-Hyundai-Polar White-Creta
-Tata-Daytona Grey-Nexon
-Mahindra-Napoli Black-Thar
-`;
+<!-- REPLAY EDITOR -->
+<div id="replayEditor">
+  <input type="range" id="replaySlider" min="0" value="0">
+  <button id="replayPlay">Play</button>
+  <button id="replayCamera">Camera</button>
+  <button id="replayExport">Export</button>
+</div>
 
-/* ============================================================
-   2. COLOR → HEX (ACCURATE)
-   ============================================================ */
-const COLOR_MAP = {
-  "Brilliant Black":"#0A0A0A","Alpine White":"#FFFFFF",
-  "Rosso Corsa":"#C40000","Giallo Modena":"#FFD400",
-  "Giallo Inti":"#FFCC00","Pearl White":"#FDFDFD",
-  "Super White":"#FFFFFF","Polar White":"#F8F8F8",
-  "Daytona Grey":"#555555","Napoli Black":"#000000"
-};
+<!-- CANVAS -->
+<canvas id="gameCanvas" width="480" height="800"></canvas>
 
-/* ============================================================
-   3. CLASS & RARITY LOGIC
-   ============================================================ */
-function classFromModel(model){
-  if(/GT|F8|488|Huracan/i.test(model)) return "Supercar";
-  if(/SUV|Q5|X5|Fortuner|Creta|Nexon|Thar/i.test(model)) return "SUV";
-  return "Sedan";
-}
+<!-- MOBILE CONTROLS -->
+<div id="mobileControls">
+  <button id="btnBrake">Brake</button>
+  <button id="btnGas">Gas</button>
+  <button id="btnDrift">Drift</button>
+</div>
 
-function rarityFromBrand(brand){
-  if(["Ferrari","Lamborghini"].includes(brand)) return "Legendary";
-  if(["BMW","Audi","Tesla"].includes(brand)) return "Epic";
-  if(["Toyota","Hyundai"].includes(brand)) return "Rare";
-  return "Common";
-}
-
-const RARITY_COLORS={
-  Common:"#aaa",Rare:"#3fa9f5",Epic:"#b15cff",Legendary:"#ffb400"
-};
-
-/* ============================================================
-   4. BUILD FULL CAR DATABASE
-   ============================================================ */
-const CARS = RAW_LIST.trim().split("\n").map(line=>{
-  const [brand,color,model]=line.split("-");
-  return {
-    id:brand+model+color,
-    brand,model,colorName:color,
-    color:COLOR_MAP[color]||"#888",
-    class:classFromModel(model),
-    rarity:rarityFromBrand(brand),
-    unlocked:false
-  };
-});
-
-/* Starter unlock */
-CARS[0].unlocked=true;
-
-/* ============================================================
-   5. GARAGE UI
-   ============================================================ */
-const garage=document.getElementById("garage");
-
-function populateFilters(){
-  brandFilter.innerHTML=`<option value="">All Brands</option>`;
-  [...new Set(CARS.map(c=>c.brand))].forEach(b=>{
-    brandFilter.innerHTML+=`<option>${b}</option>`;
-  });
-  rarityFilter.innerHTML=`<option value="">All Rarity</option>`;
-  Object.keys(RARITY_COLORS).forEach(r=>{
-    rarityFilter.innerHTML+=`<option>${r}</option>`;
-  });
-}
-
-function renderGarage(){
-  garage.innerHTML="";
-  const b=brandFilter.value,r=rarityFilter.value;
-  CARS.filter(c=>
-    (!b||c.brand===b)&&(!r||c.rarity===r)
-  ).forEach(car=>{
-    garage.innerHTML+=`
-      <div class="card ${car.unlocked?"":"locked"}"
-           onclick="${car.unlocked?`selectCar('${car.id}')`:``}">
-        <div class="car" style="background:${car.color}"></div>
-        <b>${car.brand} ${car.model}</b>
-        <small>${car.colorName}</small>
-        <small style="color:${RARITY_COLORS[car.rarity]}">${car.rarity}</small>
-        ${car.unlocked?"":"🔒"}
-      </div>`;
-  });
-}
-
-populateFilters();
-renderGarage();
-
-/* ============================================================
-   6. RACE LOGIC + DAMAGE SKINS
-   ============================================================ */
-let selectedCar=null;
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
-let damage=0;
-
-function selectCar(id){
-  selectedCar=CARS.find(c=>c.id===id);
-  raceTitle.innerText=`${selectedCar.brand} ${selectedCar.model}`;
-  garageView.style.display="none";
-  raceView.style.display="block";
-  requestAnimationFrame(raceLoop);
-}
-
-function raceLoop(){
-  ctx.clearRect(0,0,360,600);
-  ctx.fillStyle=selectedCar.color;
-  ctx.fillRect(160,400,40,80);
-
-  if(damage>30){
-    ctx.strokeStyle="black";
-    ctx.strokeRect(160,400,40,80);
-  }
-  if(damage>60){
-    ctx.strokeStyle="red";
-    ctx.beginPath();
-    ctx.moveTo(160,400);
-    ctx.lineTo(200,480);
-    ctx.stroke();
-  }
-
-  damage=Math.min(100,damage+0.2);
-  requestAnimationFrame(raceLoop);
-}
-
-function exitRace(){
-  raceView.style.display="none";
-  garageView.style.display="block";
-  damage=0;
-}
-
-/* ============================================================
-   7. UNLOCK LOGIC (RARITY BASED)
-   ============================================================ */
-function unlockByRarity(r){
-  CARS.filter(c=>c.rarity===r).forEach(c=>c.unlocked=true);
-  renderGarage();
-}
-</script>
+<script src="script.js"></script>
 </body>
 </html>
