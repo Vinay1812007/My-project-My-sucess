@@ -2,7 +2,7 @@ html, body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: black;
+  background: #000;
   font-family: Arial, sans-serif;
 }
 
@@ -13,8 +13,8 @@ html, body {
   display: flex;
   gap: 15px;
   padding: 8px 12px;
-  background: rgba(0,0,0,0.5);
-  color: white;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
   font-size: 14px;
   border-radius: 4px;
   z-index: 10;
