@@ -1,0 +1,35 @@
+body{
+  margin:0;
+  background:#111;
+  color:white;
+  font-family:sans-serif;
+  text-align:center;
+}
+#menu{padding:20px}
+canvas{
+  display:none;
+  margin:auto;
+  background:#222;
+}
+#hud{
+  position:fixed;
+  top:5px;
+  width:100%;
+  display:flex;
+  justify-content:space-around;
+}
+#chat{
+  position:fixed;
+  bottom:5px;
+  left:5px;
+  width:200px;
+  background:rgba(0,0,0,.6);
+}
+#messages{
+  max-height:120px;
+  overflow:auto;
+}
+input,button{
+  padding:8px;
+  margin:4px;
+}
