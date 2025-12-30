@@ -1,4 +1,10 @@
 /* =========================
+   IMPORTS (CORRECT WAY)
+========================= */
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.158/build/three.module.js";
+import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/loaders/GLTFLoader.js";
+
+/* =========================
    RENDERER
 ========================= */
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -12,7 +18,7 @@ document.body.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 
 /* =========================
-   CAMERA (FORCED SAFE)
+   CAMERA (SAFE POSITION)
 ========================= */
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -20,58 +26,69 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.set(0, 10, 20);
+camera.position.set(0, 8, 18);
 camera.lookAt(0, 0, 0);
 
 /* =========================
-   LIGHT (VERY BRIGHT)
+   LIGHT
 ========================= */
-const ambient = new THREE.AmbientLight(0xffffff, 1);
-scene.add(ambient);
-
-const dir = new THREE.DirectionalLight(0xffffff, 1);
-dir.position.set(10, 20, 10);
-scene.add(dir);
+scene.add(new THREE.AmbientLight(0xffffff, 1));
+const sun = new THREE.DirectionalLight(0xffffff, 1);
+sun.position.set(10, 20, 10);
+scene.add(sun);
 
 /* =========================
-   DEBUG HELPERS (MUST SEE)
-========================= */
-scene.add(new THREE.AxesHelper(5));
-
-/* =========================
-   GROUND (VISIBLE)
+   GROUND
 ========================= */
 const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(100, 100),
-  new THREE.MeshBasicMaterial({ color: 0x444444, side: THREE.DoubleSide })
+  new THREE.PlaneGeometry(200, 200),
+  new THREE.MeshStandardMaterial({ color: 0x444444 })
 );
 ground.rotation.x = -Math.PI / 2;
 scene.add(ground);
 
 /* =========================
-   TEST CUBE (GUARANTEED)
+   FALLBACK CUBE (ALWAYS VISIBLE)
 ========================= */
-const testCube = new THREE.Mesh(
-  new THREE.BoxGeometry(2, 2, 4),
-  new THREE.MeshBasicMaterial({ color: 0xff0000 })
+const fallback = new THREE.Mesh(
+  new THREE.BoxGeometry(2, 1, 4),
+  new THREE.MeshStandardMaterial({ color: 0xff0000 })
 );
-testCube.position.set(0, 1, 0);
-scene.add(testCube);
+fallback.position.set(0, 0.5, 0);
+scene.add(fallback);
 
 /* =========================
-   TRY LOAD BMW (OPTIONAL)
+   LOAD BMW MODEL (CORRECT)
 ========================= */
-const loader = new THREE.GLTFLoader();
+const loader = new GLTFLoader();
+
 loader.load(
   "./assets/cars/bmw.glb",
-  gltf => {
+  (gltf) => {
+    scene.remove(fallback);
+
     const car = gltf.scene;
-    car.position.set(0, 0, 0);
-    car.scale.set(2, 2, 2);
+
+    const box = new THREE.Box3().setFromObject(car);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+
+    car.position.sub(center);
+    car.scale.setScalar(4 / Math.max(size.x, size.z));
+    car.position.y = 0.35;
+
+    car.traverse(m => {
+      if (m.isMesh) {
+        m.castShadow = true;
+        m.receiveShadow = true;
+      }
+    });
+
     scene.add(car);
+    currentCar = car;
   },
   undefined,
-  e => console.warn("BMW failed, cube still visible", e)
+  (err) => console.error("GLB load failed", err)
 );
 
 /* =========================
@@ -82,18 +99,31 @@ window.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
 window.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 
 /* =========================
-   LOOP
+   DRIVE
 ========================= */
 let speed = 0;
+let rotation = 0;
+let currentCar = fallback;
 
 function animate() {
   requestAnimationFrame(animate);
 
-  if (keys["w"] || keys["arrowup"]) speed += 0.02;
-  if (keys["s"] || keys["arrowdown"]) speed -= 0.02;
+  if (keys["w"] || keys["arrowup"]) speed += 0.03;
+  if (keys["s"] || keys["arrowdown"]) speed -= 0.04;
   speed *= 0.95;
 
-  testCube.position.z -= speed;
+  if (keys["a"] || keys["arrowleft"]) rotation += 0.03 * speed;
+  if (keys["d"] || keys["arrowright"]) rotation -= 0.03 * speed;
+
+  currentCar.rotation.y = rotation;
+  currentCar.position.x += Math.sin(rotation) * speed;
+  currentCar.position.z += Math.cos(rotation) * speed;
+
+  camera.position.x = currentCar.position.x + Math.sin(rotation) * -14;
+  camera.position.z = currentCar.position.z + Math.cos(rotation) * -14;
+  camera.position.y = 7;
+  camera.lookAt(currentCar.position);
+
   document.getElementById("speed").innerText =
     Math.abs(speed * 120).toFixed(0) + " km/h";
 
