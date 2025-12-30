@@ -11,11 +11,11 @@ html, body {
   top: 10px;
   left: 10px;
   display: flex;
-  gap: 20px;
+  gap: 15px;
+  padding: 8px 12px;
+  background: rgba(0,0,0,0.5);
   color: white;
   font-size: 14px;
-  z-index: 10;
-  background: rgba(0,0,0,0.4);
-  padding: 6px 12px;
   border-radius: 4px;
+  z-index: 10;
 }
