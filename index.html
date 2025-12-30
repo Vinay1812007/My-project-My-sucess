@@ -1,46 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Hyderabad Open-World Racer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Hyderabad Open-World Racer (3D)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<!-- CUTSCENE -->
-<div id="cutscene">
-  <div id="cutsceneText"></div>
-  <button id="skipCutscene">Skip</button>
-</div>
-
-<!-- HUD -->
 <div id="hud">
-  <div id="speed">0 km/h</div>
-  <div id="carName"></div>
-  <div id="league"></div>
-  <div id="weather"></div>
-  <div id="season"></div>
+  <span id="speed">0 km/h</span>
+  <span id="car">Car: Sedan</span>
 </div>
 
-<!-- REPLAY EDITOR -->
-<div id="replayEditor">
-  <input type="range" id="replaySlider" min="0" value="0">
-  <button id="replayPlay">Play</button>
-  <button id="replayCamera">Camera</button>
-  <button id="replayExport">Export</button>
-</div>
-
-<!-- CANVAS -->
-<canvas id="gameCanvas" width="480" height="800"></canvas>
-
-<!-- MOBILE CONTROLS -->
-<div id="mobileControls">
-  <button id="btnBrake">Brake</button>
-  <button id="btnGas">Gas</button>
-  <button id="btnDrift">Drift</button>
-</div>
-
-<script src="script.js"></script>
+<script type="module" src="main.js"></script>
 </body>
 </html>
