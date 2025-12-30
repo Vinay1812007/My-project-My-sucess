@@ -1,0 +1,7 @@
+body { margin: 0; overflow: hidden; }
+#score {
+    position: absolute;
+    top: 20px; left: 20px;
+    color: white; font-family: sans-serif;
+    font-size: 24px; font-weight: bold;
+}
