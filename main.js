@@ -5,7 +5,10 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x202020);
 
 const camera = new THREE.PerspectiveCamera(
-  75, window.innerWidth / window.innerHeight, 0.1, 5000
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  5000
 );
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -14,17 +17,16 @@ renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
 /* =====================================================
-   LIGHTING (STRONG, SAFE)
+   LIGHTING
 ===================================================== */
 const sun = new THREE.DirectionalLight(0xffffff, 1.5);
 sun.position.set(200, 400, 200);
 sun.castShadow = true;
 scene.add(sun);
-
 scene.add(new THREE.AmbientLight(0xffffff, 0.8));
 
 /* =====================================================
-   GROUND
+   GROUND + ROAD
 ===================================================== */
 const ground = new THREE.Mesh(
   new THREE.PlaneGeometry(5000, 5000),
@@ -34,9 +36,6 @@ ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
 
-/* =====================================================
-   ROAD
-===================================================== */
 const road = new THREE.Mesh(
   new THREE.PlaneGeometry(22, 4000),
   new THREE.MeshStandardMaterial({ color: 0x333333 })
@@ -46,47 +45,69 @@ road.position.y = 0.02;
 scene.add(road);
 
 /* =====================================================
-   LOAD BMW MODEL (AUTO FIXED)
+   HUD SAFETY
+===================================================== */
+const speedEl = document.getElementById("speed");
+const carNameEl = document.getElementById("carName") || { innerText: "" };
+
+/* =====================================================
+   CAR SYSTEM (SAFE)
 ===================================================== */
 const loader = new THREE.GLTFLoader();
-let car;
+let car = null;
 
+/* --- ALWAYS CREATE FALLBACK FIRST --- */
+function createFallbackCar() {
+  const fallback = new THREE.Mesh(
+    new THREE.BoxGeometry(2, 1, 4),
+    new THREE.MeshStandardMaterial({ color: 0xff0000 })
+  );
+  fallback.position.set(0, 0.5, 0);
+  fallback.castShadow = true;
+  fallback.receiveShadow = true;
+  scene.add(fallback);
+  return fallback;
+}
+
+car = createFallbackCar();
+carNameEl.innerText = "BMW";
+
+/* --- LOAD BMW MODEL (ONLY EXISTING FILE) --- */
 loader.load(
   "./assets/cars/bmw.glb",
   gltf => {
+    scene.remove(car);
+
     car = gltf.scene;
 
-    // Center model
     const box = new THREE.Box3().setFromObject(car);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
 
     car.position.sub(center);
 
-    // Scale to realistic size
     const scale = 4 / Math.max(size.x, size.z);
     car.scale.setScalar(scale);
 
-    // Place on ground
     car.position.y = 0.35;
 
-    car.traverse(o => {
-      if (o.isMesh) {
-        o.castShadow = true;
-        o.receiveShadow = true;
+    car.traverse(m => {
+      if (m.isMesh) {
+        m.castShadow = true;
+        m.receiveShadow = true;
       }
     });
 
     scene.add(car);
   },
   undefined,
-  error => {
-    console.error("GLB load failed", error);
+  err => {
+    console.error("BMW GLB failed to load", err);
   }
 );
 
 /* =====================================================
-   INPUT (WASD + ARROWS)
+   INPUT
 ===================================================== */
 const keys = {};
 window.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
@@ -120,7 +141,7 @@ function animate() {
   car.position.x += Math.sin(rotation) * speed;
   car.position.z += Math.cos(rotation) * speed;
 
-  // Camera (GTA style)
+  // Camera
   const camOffset = new THREE.Vector3(
     Math.sin(rotation) * -16,
     8,
@@ -129,8 +150,7 @@ function animate() {
   camera.position.copy(car.position.clone().add(camOffset));
   camera.lookAt(car.position);
 
-  document.getElementById("speed").innerText =
-    Math.abs(speed * 120).toFixed(0) + " km/h";
+  speedEl.innerText = Math.abs(speed * 120).toFixed(0) + " km/h";
 
   renderer.render(scene, camera);
 }
