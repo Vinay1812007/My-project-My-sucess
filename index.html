@@ -2,207 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>2025 Crash Celebration</title>
-    <style>
-        body { margin: 0; overflow: hidden; background: #000; }
-        #loading {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: white; font-family: sans-serif; font-size: 24px;
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMW Infinite Runner</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
         }
-        #btn {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            padding: 15px 30px; font-size: 20px; cursor: pointer; display: none;
-            background: white; border: none; border-radius: 5px;
-        }
-    </style>
+      }
+    </script>
 </head>
 <body>
-    <div id="loading">Loading Car Model...</div>
-    <button id="btn">START ENGINE</button>
-
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-            }
-        }
-    </script>
-
-    <script type="module">
-        import * as THREE from 'three';
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-        import { FontLoader } from 'three/addons/loaders/FontLoader.js';
-        import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-
-        // --- SETUP SCENE ---
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x111111);
-        scene.fog = new THREE.Fog(0x111111, 10, 50);
-
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        document.body.appendChild(renderer.domElement);
-
-        // --- LIGHTS ---
-        const ambientLight = new THREE.AmbientLight(0xffffff, 2);
-        scene.add(ambientLight);
-        
-        const dirLight = new THREE.DirectionalLight(0xffffff, 3);
-        dirLight.position.set(5, 10, 7);
-        dirLight.castShadow = true;
-        scene.add(dirLight);
-
-        // --- FLOOR ---
-        const floorGeometry = new THREE.PlaneGeometry(200, 200);
-        const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.8 });
-        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-        floor.rotation.x = -Math.PI / 2;
-        floor.receiveShadow = true;
-        scene.add(floor);
-
-        // --- VARIABLES ---
-        let car, text2025, wishText;
-        let isRunning = false;
-        let crashHappened = false;
-        const fontLoader = new FontLoader();
-
-        // --- LOAD TEXT (2025) ---
-        fontLoader.load('https://unpkg.com/three@0.160.0/examples/fonts/helvetiker_bold.typeface.json', function (font) {
-            
-            // Create "2025"
-            const textGeo = new TextGeometry('2025', {
-                font: font, size: 2, height: 0.5,
-            });
-            textGeo.center();
-            const textMat = new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0x550000 });
-            text2025 = new THREE.Mesh(textGeo, textMat);
-            text2025.position.set(0, 1, 10); // Placed in front of car
-            text2025.castShadow = true;
-            scene.add(text2025);
-
-            // Create "Happy New Year" (Hidden initially attached to car later)
-            const wishGeo = new TextGeometry('HAPPY NEW YEAR\n       2026', {
-                font: font, size: 0.4, height: 0.1,
-            });
-            wishGeo.center();
-            const wishMat = new THREE.MeshStandardMaterial({ color: 0x00ff00, emissive: 0x004400 });
-            wishText = new THREE.Mesh(wishGeo, wishMat);
-            // We don't add wishText to scene yet, we add it to the car later
-        });
-
-        // --- LOAD CAR ---
-        const loader = new GLTFLoader();
-        loader.load('./bmw.glb', function (gltf) {
-            car = gltf.scene;
-            
-            // Normalize Scale (Make sure it fits)
-            const box = new THREE.Box3().setFromObject(car);
-            const size = box.getSize(new THREE.Vector3());
-            const scaleFactor = 3 / size.x; // Scale to be approx 3 units wide
-            car.scale.set(scaleFactor, scaleFactor, scaleFactor);
-
-            car.position.set(0, 0, -15); // Start position
-            car.rotation.y = Math.PI; // Face forward
-            car.castShadow = true;
-            
-            scene.add(car);
-
-            // Attach "Happy New Year" to the back of the car
-            if(wishText) {
-                car.add(wishText);
-                wishText.position.set(0, 2.5, -2); // Positioned above trunk
-                wishText.rotation.y = Math.PI; // Face backwards so camera sees it
-                wishText.visible = false; // Hide until crash
-            }
-
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('btn').style.display = 'block';
-        }, undefined, function (error) {
-            console.error(error);
-            document.getElementById('loading').innerText = "Error loading bmw.glb. Check filename!";
-        });
-
-        // --- START BUTTON ---
-        document.getElementById('btn').addEventListener('click', () => {
-            isRunning = true;
-            document.getElementById('btn').style.display = 'none';
-        });
-
-        // --- ANIMATION LOOP ---
-        function animate() {
-            requestAnimationFrame(animate);
-
-            if (car && isRunning) {
-                // Move Car Forward
-                car.position.z += 0.2;
-
-                // Camera follows car
-                camera.position.x = car.position.x + 3;
-                camera.position.y = car.position.y + 3;
-                camera.position.z = car.position.z - 6; // Behind the car
-                camera.lookAt(car.position);
-
-                // Check Crash
-                if (!crashHappened && text2025 && car.position.z > text2025.position.z - 1) {
-                    crashHappened = true;
-                    
-                    // 1. "Explode" 2025 (Simple physics simulation)
-                    scene.remove(text2025);
-                    createExplosion(text2025.position);
-
-                    // 2. Show Wish on Car Back
-                    if (wishText) wishText.visible = true;
-                }
-            } else if (!car) {
-                // Idle rotation while loading
-                camera.position.set(0, 2, 5);
-            }
-
-            renderer.render(scene, camera);
-        }
-
-        // --- EXPLOSION EFFECT ---
-        function createExplosion(pos) {
-            const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-            const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-            
-            for (let i = 0; i < 20; i++) {
-                const cube = new THREE.Mesh(geometry, material);
-                cube.position.copy(pos);
-                
-                // Random spread
-                cube.position.x += (Math.random() - 0.5) * 2;
-                cube.position.y += (Math.random()) * 2;
-                
-                scene.add(cube);
-                
-                // Animate debris falling (simple gravity logic inside render loop would be better, but this is a quick visual)
-                let velX = (Math.random() - 0.5) * 0.2;
-                let velY = Math.random() * 0.2;
-                let velZ = Math.random() * 0.2;
-
-                const interval = setInterval(() => {
-                    cube.position.x += velX;
-                    cube.position.y += velY;
-                    cube.position.z += velZ;
-                    cube.rotation.x += 0.1;
-                    velY -= 0.01; // Gravity
-                    if(cube.position.y < 0) clearInterval(interval); // Stop when hitting ground
-                }, 16);
-            }
-        }
-
-        animate();
-
-        // Handle Window Resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-    </script>
+    <div id="ui-layer">
+        <h1>BMW Racer</h1>
+        <p>Score: <span id="score">0</span></p>
+        <p id="instructions">Use Left/Right Arrows to Move</p>
+    </div>
+    <div id="game-over">
+        <h1>CRASH!</h1>
+        <button onclick="window.location.reload()">Try Again</button>
+    </div>
+    <script type="module" src="main.js"></script>
 </body>
 </html>
