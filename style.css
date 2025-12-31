@@ -1,51 +1,18 @@
-body {
-    margin: 0;
-    overflow: hidden;
-    background: #111;
-    font-family: 'Arial Black', sans-serif;
-}
-
-#ui {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    color: white;
-    text-shadow: 2px 2px 0px #ff0055;
-    pointer-events: none;
-}
-
-.controls {
-    font-size: 12px;
-    color: #aaa;
-    margin-top: -10px;
-    text-shadow: none;
-}
-
-#loading {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 24px;
-    background: rgba(0,0,0,0.8);
-    padding: 20px;
-    border-radius: 8px;
-}
+body { margin: 0; overflow: hidden; background: #111; font-family: sans-serif; }
+#ui { position: absolute; top: 20px; left: 20px; color: white; pointer-events: none; }
 
 #game-over {
-    display: none;
+    display: none; /* Hidden by default */
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(20, 20, 20, 0.95);
+    background: rgba(0, 0, 0, 0.9);
     border: 2px solid #ff0055;
     padding: 40px;
     text-align: center;
     color: white;
-    border-radius: 15px;
-    box-shadow: 0 0 20px #ff0055;
+    border-radius: 10px;
+    z-index: 10;
 }
 
 button {
@@ -53,12 +20,9 @@ button {
     color: white;
     border: none;
     padding: 15px 30px;
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 20px;
     cursor: pointer;
-    text-transform: uppercase;
     margin-top: 20px;
+    border-radius: 5px;
 }
-button:hover {
-    background: #ff4488;
-}
+button:hover { background: #ff4488; }
