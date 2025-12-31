@@ -1,0 +1,35 @@
+body { margin: 0; overflow: hidden; font-family: sans-serif; }
+canvas { display: block; }
+
+#ui-layer {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: white;
+    text-shadow: 1px 1px 2px black;
+    pointer-events: none;
+}
+
+#game-over {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 40px;
+    border-radius: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 20px;
+    cursor: pointer;
+    background: #ff4444;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    margin-top: 10px;
+}
