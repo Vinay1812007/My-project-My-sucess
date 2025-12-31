@@ -1,13 +1,36 @@
-body { margin: 0; overflow: hidden; font-family: sans-serif; }
-canvas { display: block; }
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #111;
+    font-family: 'Arial Black', sans-serif;
+}
 
-#ui-layer {
+#ui {
     position: absolute;
     top: 20px;
     left: 20px;
     color: white;
-    text-shadow: 1px 1px 2px black;
+    text-shadow: 2px 2px 0px #ff0055;
     pointer-events: none;
+}
+
+.controls {
+    font-size: 12px;
+    color: #aaa;
+    margin-top: -10px;
+    text-shadow: none;
+}
+
+#loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 24px;
+    background: rgba(0,0,0,0.8);
+    padding: 20px;
+    border-radius: 8px;
 }
 
 #game-over {
@@ -16,20 +39,26 @@ canvas { display: block; }
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    text-align: center;
-    background: rgba(0,0,0,0.8);
-    color: white;
+    background: rgba(20, 20, 20, 0.95);
+    border: 2px solid #ff0055;
     padding: 40px;
-    border-radius: 10px;
+    text-align: center;
+    color: white;
+    border-radius: 15px;
+    box-shadow: 0 0 20px #ff0055;
 }
 
 button {
-    padding: 10px 20px;
-    font-size: 20px;
-    cursor: pointer;
-    background: #ff4444;
-    border: none;
+    background: #ff0055;
     color: white;
-    border-radius: 5px;
-    margin-top: 10px;
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    margin-top: 20px;
+}
+button:hover {
+    background: #ff4488;
 }
