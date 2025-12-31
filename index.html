@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BMW Infinite Runner</title>
+    <title>BMW Neon Racer</title>
     <link rel="stylesheet" href="style.css">
     <script type="importmap">
       {
@@ -15,15 +15,19 @@
     </script>
 </head>
 <body>
-    <div id="ui-layer">
-        <h1>BMW Racer</h1>
+    <div id="ui">
+        <h1>NEON RACER</h1>
         <p>Score: <span id="score">0</span></p>
-        <p id="instructions">Use Left/Right Arrows to Move</p>
+        <p class="controls">← LEFT | RIGHT →</p>
     </div>
+    
+    <div id="loading">Loading Car Model...</div>
+
     <div id="game-over">
-        <h1>CRASH!</h1>
-        <button onclick="window.location.reload()">Try Again</button>
+        <h1>CRASHED!</h1>
+        <button onclick="window.location.reload()">TRY AGAIN</button>
     </div>
+
     <script type="module" src="main.js"></script>
 </body>
 </html>
