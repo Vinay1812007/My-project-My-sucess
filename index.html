@@ -3,159 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Happy New Year Celebration</title>
+    <title>New Year 2026</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            background-color: #000;
+            background-color: #050505;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Courier New', Courier, monospace;
+            flex-direction: column;
         }
 
-        /* Container for the text */
-        .container {
-            text-align: center;
-            position: relative;
-            z-index: 10;
-        }
-
-        /* The Neon Text Effect */
         h1 {
-            font-size: 4rem;
             color: #fff;
-            text-transform: uppercase;
-            animation: glow 1.5s ease-in-out infinite alternate;
-            margin-bottom: 20px;
+            font-size: 4rem;
+            text-shadow: 0 0 10px #ff00de, 0 0 20px #ff00de, 0 0 40px #ff00de;
+            text-align: center;
+            display: none; /* Hidden initially */
         }
 
-        p {
-            color: #ddd;
-            font-size: 1.2rem;
-            margin-top: 0;
-        }
-
-        /* Start Button Styling */
-        #startBtn {
-            padding: 15px 40px;
-            font-size: 20px;
+        button {
+            padding: 20px 50px;
+            font-size: 24px;
             background: linear-gradient(45deg, #ff00cc, #3333ff);
             color: white;
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 0 20px rgba(255, 0, 204, 0.5);
+            box-shadow: 0 0 25px rgba(255, 0, 204, 0.6);
             transition: transform 0.2s;
+            z-index: 100;
         }
 
-        #startBtn:hover {
+        button:hover {
             transform: scale(1.1);
-        }
-
-        /* Hide content initially */
-        .hidden {
-            display: none;
-        }
-
-        /* Glow Animation */
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e60073, 0 0 40px #e60073;
-            }
-            to {
-                text-shadow: 0 0 20px #fff, 0 0 30px #ff4da6, 0 0 40px #ff4da6, 0 0 50px #ff4da6;
-            }
-        }
-        
-        /* Mobile adjustment */
-        @media (max-width: 600px) {
-            h1 { font-size: 2.5rem; }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div id="startScreen">
-            <button id="startBtn">TAP TO CELEBRATE 🎆</button>
-        </div>
+    <button id="startBtn">CLICK TO CELEBRATE 🎆</button>
 
-        <div id="celebration" class="hidden">
-            <h1>HAPPY NEW YEAR<br>2026</h1>
-            <p>Wishing you success and joy!</p>
-        </div>
-    </div>
+    <h1 id="message">HAPPY NEW YEAR<br>2026!</h1>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
-        // Sound file (Public domain firework sound)
-        const audio = new Audio('https://www.soundjay.com/nature/sounds/rain-01.mp3'); 
-        // Note: Generic Fireworks sounds are hard to find on hotlinkable CDNs. 
-        // I have used a rain placeholder. *READ STEP 4 to change this to a real firework sound*
+        const btn = document.getElementById('startBtn');
+        const msg = document.getElementById('message');
         
-        // Let's swap to a better beep/effect for now since pure mp3 links are rare to find stable:
-        // You can replace the URL below with any mp3 link you find online.
-        const fireworksSound = new Audio('https://voca.ro/media/1nC2y2y2y2y2.mp3'); // Placeholder logic
+        // This looks for a file named "sound.mp3" in the same folder
+        const audio = new Audio('sound.mp3'); 
 
-        document.getElementById('startBtn').addEventListener('click', function() {
-            // 1. Hide Button, Show Text
-            document.getElementById('startScreen').classList.add('hidden');
-            document.getElementById('celebration').classList.remove('hidden');
+        btn.addEventListener('click', () => {
+            // 1. Play Sound
+            audio.play().catch(e => console.log("Audio error: ", e));
 
-            // 2. Play Sound (Simulating fireworks loop)
-            // Ideally, you upload an mp3 to your github and link it, but this simulates it.
-            
-            // 3. Start the Fireworks
-            startFireworks();
-        });
+            // 2. Hide Button / Show Text
+            btn.style.display = 'none';
+            msg.style.display = 'block';
 
-        function startFireworks() {
-            var duration = 15 * 1000; // 15 seconds
-            var animationEnd = Date.now() + duration;
-            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+            // 3. Start Animation Loop
+            const duration = 15 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
-            function random(min, max) {
-                return Math.random() * (max - min) + min;
-            }
+            function random(min, max) { return Math.random() * (max - min) + min; }
 
-            var interval = setInterval(function() {
-                var timeLeft = animationEnd - Date.now();
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
 
                 if (timeLeft <= 0) {
                     return clearInterval(interval);
                 }
 
-                var particleCount = 50 * (timeLeft / duration);
+                const particleCount = 50 * (timeLeft / duration);
 
-                // Create "Fireworks" effects (bursts from random spots)
-                confetti(Object.assign({}, defaults, { 
-                    particleCount, 
-                    origin: { x: random(0.1, 0.9), y: Math.random() - 0.2 },
-                    colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff']
-                }));
+                // Random bursts
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 } }));
                 
-                // Side cannons like the Google video
-                confetti({
-                    particleCount: 5,
-                    angle: 60,
-                    spread: 55,
-                    origin: { x: 0 },
-                    colors: ['#ff0000', '#ffffff']
-                });
-                confetti({
-                    particleCount: 5,
-                    angle: 120,
-                    spread: 55,
-                    origin: { x: 1 },
-                    colors: ['#ff0000', '#ffffff']
-                });
+                // Center burst
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: 0.5, y: 0.5 } }));
 
             }, 250);
-        }
+        });
     </script>
 </body>
 </html>
