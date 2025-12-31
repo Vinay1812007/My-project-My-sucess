@@ -1,229 +1,107 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-// --- CONFIGURATION ---
-const LANE_POSITIONS = [-3, 0, 3]; // Left, Center, Right lanes
-const CAR_SPEED_BASE = 0.4;
+// --- SETUP ---
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a1a2e); 
 
-// --- GLOBALS ---
-let scene, camera, renderer;
-let playerContainer, playerCar;
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 4, 8); // Camera high and back
+camera.lookAt(0, 0, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// --- LIGHTS ---
+const ambientLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
+scene.add(ambientLight);
+const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+dirLight.position.set(5, 10, 7);
+scene.add(dirLight);
+
+// --- GAME VARIABLES ---
+let playerContainer = new THREE.Group(); // We move this group, not the car directly
+scene.add(playerContainer);
+
+let speed = 0.5;
+let lane = 1; // 0=Left, 1=Center, 2=Right
+const lanes = [-3.5, 0, 3.5]; 
 let obstacles = [];
-let road, roadMarkings = [];
-let currentLane = 1;
-let targetX = 0;
-let score = 0;
 let gameOver = false;
-let speed = CAR_SPEED_BASE;
 
-function init() {
-    // 1. SETUP SCENE
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x1a1a2e); // Dark Blue Night Sky
-    scene.fog = new THREE.Fog(0x1a1a2e, 10, 40);
+// --- CRITICAL FIX: MANUALLY LOADING THE CAR ---
+const loader = new GLTFLoader();
 
-    // 2. SETUP CAMERA
-    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 3, 7); // High and behind
-    camera.lookAt(0, 0, -5);
+// 1. ADD A RED BOX FIRST (So you see SOMETHING if the file fails)
+const fallbackGeo = new THREE.BoxGeometry(2, 1, 4);
+const fallbackMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+const fallbackCar = new THREE.Mesh(fallbackGeo, fallbackMat);
+fallbackCar.position.y = 0.5;
+playerContainer.add(fallbackCar); // Add box initially
 
-    // 3. RENDERER
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true; // Turn on shadows
-    document.body.appendChild(renderer.domElement);
-
-    // 4. LIGHTING (Graphics Upgrade)
-    const ambientLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.8);
-    scene.add(ambientLight);
-
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    dirLight.position.set(10, 20, 10);
-    dirLight.castShadow = true;
-    dirLight.shadow.camera.bottom = -10;
-    scene.add(dirLight);
-
-    // 5. ROAD
-    createRoad();
-
-    // 6. LOAD CAR (The Fix)
-    loadPlayerCar();
-
-    // 7. LISTENERS
-    window.addEventListener('resize', onWindowResize);
-    window.addEventListener('keydown', handleInput);
+// 2. ATTEMPT TO LOAD THE REAL CAR
+loader.load('assets/bmw.glb', function (gltf) {
+    console.log("Car Loaded Successfully!");
     
-    // Start Loop
-    animate();
-}
+    // Remove the red box
+    playerContainer.remove(fallbackCar);
 
-function createRoad() {
-    // Main asphalt
-    const roadGeo = new THREE.PlaneGeometry(12, 1000);
-    const roadMat = new THREE.MeshPhongMaterial({ color: 0x222222 });
-    road = new THREE.Mesh(roadGeo, roadMat);
-    road.rotation.x = -Math.PI / 2;
-    road.receiveShadow = true;
-    scene.add(road);
+    const realCar = gltf.scene;
 
-    // Striped lines
-    const lineGeo = new THREE.PlaneGeometry(0.2, 1000);
-    const lineMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    // --- THE HARDCODED FIX ---
+    // Your file data shows the car is at X:285, Y:-165. 
+    // We strictly inverse this to pull it back to 0,0,0.
+    realCar.position.set(-285.5, 166, 3); 
     
-    const leftLine = new THREE.Mesh(lineGeo, lineMat);
-    leftLine.position.set(-1.5, 0.02, 0);
-    leftLine.rotation.x = -Math.PI / 2;
-    scene.add(leftLine);
-
-    const rightLine = new THREE.Mesh(lineGeo, lineMat);
-    rightLine.position.set(1.5, 0.02, 0);
-    rightLine.rotation.x = -Math.PI / 2;
-    scene.add(rightLine);
-}
-
-function loadPlayerCar() {
-    const loader = new GLTFLoader();
+    // Scale it down/up to fit
+    realCar.scale.set(0.04, 0.04, 0.04); 
     
-    // We create a "Container" group. We move the container, not the raw model.
-    playerContainer = new THREE.Group();
-    scene.add(playerContainer);
+    realCar.rotation.y = Math.PI; // Spin 180 degrees to face forward
 
-    // Try loading with 'assets/' prefix, fallback to root if needed
-    const path = 'assets/bmw.glb'; 
+    playerContainer.add(realCar);
 
-    loader.load(path, (gltf) => {
-        const rawModel = gltf.scene;
+}, undefined, function (error) {
+    console.error("ERROR LOADING CAR:", error);
+});
 
-        // --- AUTO-CENTERING MAGIC ---
-        // 1. Calculate the bounding box of the raw model
-        const box = new THREE.Box3().setFromObject(rawModel);
-        const center = box.getCenter(new THREE.Vector3());
-        const size = box.getSize(new THREE.Vector3());
+// --- ROAD ---
+const roadGeo = new THREE.PlaneGeometry(14, 1000);
+const roadMat = new THREE.MeshPhongMaterial({ color: 0x333333 });
+const road = new THREE.Mesh(roadGeo, roadMat);
+road.rotation.x = -Math.PI / 2;
+road.position.z = -200;
+scene.add(road);
 
-        // 2. Center the model relative to its parent (the container)
-        // We shift it by negative its center position
-        rawModel.position.x = -center.x;
-        rawModel.position.y = -center.y;
-        rawModel.position.z = -center.z;
+// --- INPUT ---
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft' && lane > 0) lane--;
+    if (e.key === 'ArrowRight' && lane < 2) lane++;
+});
 
-        // 3. Scale it to a reasonable size (e.g., 2 units wide)
-        const maxDim = Math.max(size.x, size.y, size.z);
-        const scaleFactor = 3.5 / maxDim; // Adjust 3.5 to make car bigger/smaller
-        rawModel.scale.set(scaleFactor, scaleFactor, scaleFactor);
-
-        // 4. Rotate if needed (BMW usually faces wrong way)
-        playerContainer.rotation.y = Math.PI; 
-
-        // 5. Add corrected model to container
-        playerContainer.add(rawModel);
-        
-        // 6. Lift container slightly above road
-        playerContainer.position.y = 0.5;
-
-        // Enable shadows
-        rawModel.traverse((child) => {
-            if (child.isMesh) {
-                child.castShadow = true;
-                child.receiveShadow = true;
-            }
-        });
-
-        document.getElementById('loading').style.display = 'none';
-
-    }, undefined, (error) => {
-        console.error("Model Error:", error);
-        // Fallback Box if model fails
-        const geo = new THREE.BoxGeometry(1.5, 1, 3);
-        const mat = new THREE.MeshNormalMaterial();
-        const box = new THREE.Mesh(geo, mat);
-        box.position.y = 0.5;
-        playerContainer.add(box);
-        document.getElementById('loading').innerText = "Model Failed - Using Box";
-    });
-}
-
-function handleInput(e) {
-    if (gameOver) return;
-    if (e.key === 'ArrowLeft' && currentLane > 0) {
-        currentLane--;
-    } else if (e.key === 'ArrowRight' && currentLane < 2) {
-        currentLane++;
-    }
-}
-
-function spawnObstacle() {
-    const laneIndex = Math.floor(Math.random() * 3);
-    const laneX = LANE_POSITIONS[laneIndex];
-
-    // Neon Obstacle
-    const geo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
-    const mat = new THREE.MeshStandardMaterial({ 
-        color: 0xff0055,
-        emissive: 0xaa0033,
-        emissiveIntensity: 0.5
-    });
-    const obs = new THREE.Mesh(geo, mat);
-    
-    obs.position.set(laneX, 0.75, -50);
-    obs.castShadow = true;
-    
-    scene.add(obs);
-    obstacles.push(obs);
-}
-
-function update() {
-    if (gameOver) return;
-
-    // 1. Smooth Lane Switching
-    targetX = LANE_POSITIONS[currentLane];
-    if (playerContainer) {
-        // Interpolate position (smooth slide)
-        playerContainer.position.x += (targetX - playerContainer.position.x) * 0.1;
-        
-        // Tilt car slightly when turning
-        playerContainer.rotation.z = (playerContainer.position.x - targetX) * 0.1;
-    }
-
-    // 2. Spawn Logic
-    if (Math.random() < 0.02) spawnObstacle();
-
-    // 3. Move Obstacles
-    for (let i = obstacles.length - 1; i >= 0; i--) {
-        let obs = obstacles[i];
-        obs.position.z += speed;
-
-        // Collision detection
-        if (playerContainer) {
-            // Simple distance check
-            const dx = playerContainer.position.x - obs.position.x;
-            const dz = playerContainer.position.z - obs.position.z;
-            if (Math.abs(dx) < 1.2 && Math.abs(dz) < 1.5) {
-                gameOver = true;
-                document.getElementById('game-over').style.display = 'block';
-            }
-        }
-
-        // Cleanup
-        if (obs.position.z > 10) {
-            scene.remove(obs);
-            obstacles.splice(i, 1);
-            score += 10;
-            document.getElementById('score').innerText = score;
-            speed += 0.0005; // Acceleration
-        }
-    }
-}
-
+// --- LOOP ---
 function animate() {
     requestAnimationFrame(animate);
-    update();
+
+    if (gameOver) return;
+
+    // Move Container to Lane
+    playerContainer.position.x += (lanes[lane] - playerContainer.position.x) * 0.1;
+
+    // Tilt Effect
+    playerContainer.rotation.z = (playerContainer.position.x - lanes[lane]) * 0.05;
+
+    // Move Road Effect
+    road.position.z += speed;
+    if (road.position.z > 0) road.position.z = -200;
+
     renderer.render(scene, camera);
 }
+animate();
 
-function onWindowResize() {
+// Handle Window Resize
+window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
-init();
+});
