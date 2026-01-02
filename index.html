@@ -3,29 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BMW Racer</title>
+    <title>Shopify Editions | Winter '26</title>
     <link rel="stylesheet" href="style.css">
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-        }
-      }
-    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="ui">
-        <h1>NEON RACER</h1>
-        <p>Score: <span id="score">0</span></p>
-    </div>
 
-    <div id="game-over">
-        <h1>CRASH!</h1>
-        <p>Final Score: <span id="final-score">0</span></p>
-        <button id="replay-btn">PLAY AGAIN</button>
-    </div>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">Shopify Editions <span class="badge">Winter '26</span></div>
+            <ul class="nav-links">
+                <li><a href="#sidekick">Sidekick</a></li>
+                <li><a href="#agentic">Agentic</a></li>
+                <li><a href="#online">Online</a></li>
+                <li><a href="#retail">Retail</a></li>
+                <li><a href="#marketing">Marketing</a></li>
+                <li><a href="#operations">Operations</a></li>
+            </ul>
+            <div class="nav-cta">
+                <a href="#" class="btn-sm">Log in</a>
+            </div>
+        </div>
+    </nav>
 
-    <script type="module" src="main.js"></script>
+    <header class="hero">
+        <div class="hero-content">
+            <p class="eyebrow">The Renaissance Edition</p>
+            <h1>A new world of commerce.</h1>
+            <p class="subtitle">150+ product updates transforming how merchants build, design, and grow.</p>
+            <div class="hero-actions">
+                <a href="#" class="btn-primary">Explore the Edition</a>
+                <a href="#" class="btn-secondary">Watch the Keynote</a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="glowing-orb"></div>
+        </div>
+    </header>
+
+    <section id="sidekick" class="content-section">
+        <div class="section-header">
+            <h2>Sidekick</h2>
+            <p>The AI-powered Shopify expert who's just as obsessed with your business as you are.</p>
+        </div>
+        <div class="grid-container">
+            <div class="card large-card">
+                <div class="card-content">
+                    <h3>Insights, proactively delivered</h3>
+                    <p>Sidekick Pulse delivers personalized recommendations and next steps for your business using market trends.</p>
+                </div>
+                <div class="card-visual pulse-visual"></div>
+            </div>
+            <div class="card">
+                <h3>Custom App Generation</h3>
+                <p>Get Sidekick to build custom apps designed specifically for your business needs.</p>
+            </div>
+            <div class="card">
+                <h3>Designs, Refined</h3>
+                <p>Tell Sidekick the specific design updates you want and watch it adjust your theme instantly.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="agentic" class="content-section">
+        <div class="section-header">
+            <h2>Agentic Commerce</h2>
+            <p>Sell directly in AI chats with built-in tools that syndicate your products to every platform.</p>
+        </div>
+        <div class="grid-container">
+            <div class="card full-width">
+                <div class="card-content">
+                    <h3>Shopify Agentic Storefronts</h3>
+                    <p>Manage how your brand appears to millions of users shopping in AI chats. Your products are discoverable right in ChatGPT, Copilot, and Perplexity.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="online" class="content-section">
+        <div class="section-header">
+            <h2>Online Store</h2>
+            <p>Validate store changes with A/B testing and AI simulation.</p>
+        </div>
+        <div class="grid-container thirds">
+            <div class="card">
+                <h3>Rollouts</h3>
+                <p>Schedule theme changes and A/B test with Rollouts, built directly into the admin.</p>
+            </div>
+            <div class="card">
+                <h3>Shopify SimGym</h3>
+                <p>Simulate shopper behavior with AI agents to get actionable recommendations before going live.</p>
+            </div>
+            <div class="card">
+                <h3>2048 Variants</h3>
+                <p>Create products with up to 2048 variants to manage and merchandise diverse catalogs.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="retail" class="content-section">
+        <div class="section-header">
+            <h2>Retail</h2>
+            <p>New in-store hardware that provides unwavering reliability.</p>
+        </div>
+        <div class="grid-container">
+            <div class="card large-card">
+                <div class="card-content">
+                    <h3>POS Hub</h3>
+                    <p>The POS Hub gives you the reliability of wired connections with the processing power of a computer.</p>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Tap to Pay</h3>
+                <p>Now available in more countries including Germany, Ireland, and Spain.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-logo">Shopify</div>
+            <div class="footer-links">
+                <a href="#">Terms of Service</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Sitemap</a>
+            </div>
+            <div class="copyright">© 2026 Shopify Inc.</div>
+        </div>
+    </footer>
+
 </body>
 </html>
