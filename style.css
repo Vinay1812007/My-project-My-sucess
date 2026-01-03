@@ -38,23 +38,6 @@ body {
     100% { transform: scale(1.2); opacity: 0.8; }
 }
 
-/* Navigation */
-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 2rem 4rem;
-    position: fixed;
-    width: 100%;
-    z-index: 100;
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-
-.logo { font-weight: 700; letter-spacing: 2px; }
-.nav-links a { color: var(--text-muted); text-decoration: none; margin-right: 20px; transition: 0.3s; }
-.nav-links a:hover { color: white; }
-
 /* Buttons */
 .btn-primary {
     background: white;
@@ -76,7 +59,7 @@ nav {
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding-top: 60px;
+    /* Removed padding-top since nav is gone */
 }
 
 .hero h1 {
@@ -96,7 +79,10 @@ nav {
 }
 
 /* Grid Layout */
-.grid-section { padding: 4rem; }
+.grid-section { 
+    padding: 4rem; 
+    padding-bottom: 8rem; /* Extra padding at bottom since footer is gone */
+}
 .section-title { font-size: 2rem; margin-bottom: 2rem; }
 
 .bento-grid {
@@ -162,10 +148,3 @@ nav {
 /* Stagger Delays */
 .delay-1 { transition-delay: 0.1s; }
 .delay-2 { transition-delay: 0.2s; }
-
-footer {
-    text-align: center;
-    padding: 4rem;
-    color: var(--text-muted);
-    border-top: 1px solid var(--border);
-}
