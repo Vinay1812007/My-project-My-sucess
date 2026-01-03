@@ -1,5 +1,5 @@
 :root {
-    --bg: #000000; /* Pure black for high contrast */
+    --bg: #000000;
     --card-bg: #0f0f0f;
     --text: #ffffff;
     --text-muted: #888888;
@@ -11,57 +11,30 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 body {
     background-color: var(--bg);
-    color: var(--text);
     overflow-x: hidden;
 }
 
-/* Navigation */
+/* Navigation - Minimal/Empty */
 nav {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem 4rem;
-    position: fixed;
+    height: 80px;
     width: 100%;
+    position: fixed;
     z-index: 100;
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    /* Removed border for cleaner look since empty */
 }
-
-.logo { font-weight: 800; letter-spacing: 1px; font-size: 1.1rem; }
-
-.animated-menu { display: flex; gap: 30px; list-style: none; }
-.animated-menu li a {
-    color: var(--text-muted);
-    text-decoration: none;
-    font-size: 0.95rem;
-    position: relative;
-    padding: 5px 0;
-    transition: color 0.3s ease;
-}
-.animated-menu li a:hover { color: white; }
-.animated-menu li a::after {
-    content: ''; position: absolute; width: 0; height: 2px;
-    bottom: 0; left: 0; background-color: white;
-    transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-}
-.animated-menu li a:hover::after { width: 100%; }
 
 /* Hero Section */
 .hero {
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    text-align: center;
     position: relative;
-    padding-top: 80px;
     overflow: hidden;
 }
 
@@ -79,29 +52,15 @@ nav {
     opacity: 0.6;
 }
 
-/* Typography */
-.hero h1 {
-    font-size: 6rem;
-    line-height: 1;
-    margin-bottom: 15px;
-    font-weight: 800;
-    letter-spacing: -2px;
-}
-.hero p {
-    color: var(--text-muted);
-    font-size: 1.3rem;
-    margin-bottom: 40px;
-}
-
 /* THEME: CSS Glowing Globe */
 .hero-visual {
-    margin: 40px 0;
     perspective: 1000px;
+    /* Centered nicely since no text surrounds it */
 }
 
 .globe-container {
-    width: 200px;
-    height: 200px;
+    width: 300px; /* Made slightly larger as it is the only focus */
+    height: 300px;
     position: relative;
     margin: 0 auto;
 }
@@ -113,32 +72,32 @@ nav {
     background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), rgba(0,0,0,1));
     box-shadow: 
         inset -10px -10px 40px rgba(61, 61, 255, 0.5),
-        0 0 50px rgba(61, 61, 255, 0.4);
+        0 0 80px rgba(61, 61, 255, 0.6); /* Increased glow */
     position: relative;
     animation: float 6s ease-in-out infinite;
 }
 
-/* Wireframe effect on the globe */
+/* Wireframe effect */
 .globe::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     border-radius: 50%;
     background: 
-        linear-gradient(90deg, transparent 48%, rgba(255,255,255,0.1) 50%, transparent 52%),
-        linear-gradient(0deg, transparent 48%, rgba(255,255,255,0.1) 50%, transparent 52%);
-    background-size: 20px 20px;
+        linear-gradient(90deg, transparent 48%, rgba(255,255,255,0.15) 50%, transparent 52%),
+        linear-gradient(0deg, transparent 48%, rgba(255,255,255,0.15) 50%, transparent 52%);
+    background-size: 30px 30px;
     transform: rotate(15deg);
-    opacity: 0.5;
+    opacity: 0.6;
 }
 
 .globe-shadow {
-    width: 150px;
-    height: 20px;
+    width: 200px;
+    height: 30px;
     background: rgba(0,0,0,0.5);
     border-radius: 50%;
-    margin: 30px auto 0;
-    filter: blur(10px);
+    margin: 50px auto 0;
+    filter: blur(15px);
     animation: shadowScale 6s ease-in-out infinite;
 }
 
@@ -151,26 +110,8 @@ nav {
     50% { transform: scale(0.8); opacity: 0.3; }
 }
 
-/* Button */
-.btn-primary {
-    background: white;
-    color: black;
-    border: none;
-    padding: 14px 32px;
-    border-radius: 50px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-.btn-primary:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(255,255,255,0.4);
-}
-
 /* Grid Section */
 .grid-section { padding: 4rem; max-width: 1400px; margin: 0 auto; }
-.section-title { font-size: 2rem; margin-bottom: 2rem; }
 
 .bento-grid {
     display: grid;
@@ -183,10 +124,10 @@ nav {
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: 20px;
-    padding: 30px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center; /* Center visuals vertically */
     transition: transform 0.4s ease, border-color 0.4s ease;
 }
 .card:hover {
@@ -194,12 +135,19 @@ nav {
     border-color: rgba(255,255,255,0.4);
 }
 
-.card h3 { font-size: 1.4rem; margin-bottom: 8px; }
-.card p { color: var(--text-muted); font-size: 0.95rem; }
+.card-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-.visual-box { width: 100%; height: 50%; border-radius: 12px; margin-top: auto; }
-.gradient-1 { background: linear-gradient(135deg, #2a2a2a, #1a1a1a); border: 1px solid #333; }
-.gradient-2 { background: linear-gradient(135deg, #1a1a1a, #2a2a2a); border: 1px solid #333; }
+/* Visual boxes now fill the space as abstract art */
+.visual-box { width: 100%; height: 100%; border-radius: 12px; opacity: 0.8; }
+.gradient-1 { background: linear-gradient(135deg, #2a2a2a, #3d3dff); }
+.gradient-2 { background: linear-gradient(135deg, #1a1a1a, #00d2ff); }
+.gradient-3 { background: linear-gradient(135deg, #111, #222); border: 1px solid #333; }
 
 .large { grid-column: span 2; grid-row: span 2; }
 .tall { grid-row: span 2; }
