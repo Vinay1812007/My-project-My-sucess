@@ -25,28 +25,36 @@
 
     <main class="music-container">
         <h2 class="section-title">Trending Songs</h2>
-        
         <div class="music-grid" id="musicGrid">
             </div>
     </main>
 
     <div class="player-bar">
-        <div class="progress-container">
-            <span class="time current">0:00</span>
-            <input type="range" id="progressBar" value="0" max="100">
-            <span class="time total">3:45</span>
+        
+        <div class="now-playing-info">
+            <div class="now-playing-art" id="nowPlayingImg"></div>
+            <div class="track-details">
+                <span id="trackTitle">Select a song</span>
+                <span id="trackArtist">-</span>
+            </div>
         </div>
 
-        <div class="controls">
-            <button class="btn-control"><i class="fa-solid fa-shuffle"></i></button>
-            <button class="btn-control"><i class="fa-solid fa-backward-step fa-lg"></i></button>
+        <div class="player-center">
+            <div class="controls">
+                <button class="btn-control"><i class="fa-solid fa-shuffle"></i></button>
+                <button class="btn-control"><i class="fa-solid fa-backward-step fa-lg"></i></button>
+                <button class="btn-play" id="playBtn">
+                    <i class="fa-solid fa-play" id="playIcon"></i>
+                </button>
+                <button class="btn-control"><i class="fa-solid fa-forward-step fa-lg"></i></button>
+                <button class="btn-control"><i class="fa-solid fa-repeat"></i></button>
+            </div>
             
-            <button class="btn-play" id="playBtn">
-                <i class="fa-solid fa-play" id="playIcon"></i>
-            </button>
-            
-            <button class="btn-control"><i class="fa-solid fa-forward-step fa-lg"></i></button>
-            <button class="btn-control"><i class="fa-solid fa-repeat"></i></button>
+            <div class="progress-container">
+                <span class="time current">0:00</span>
+                <input type="range" id="progressBar" value="0" max="100">
+                <span class="time total">0:00</span>
+            </div>
         </div>
 
         <div class="volume-control">
