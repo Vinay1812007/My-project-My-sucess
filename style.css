@@ -38,6 +38,68 @@ body {
     100% { transform: scale(1.2); opacity: 0.8; }
 }
 
+/* Navigation - Updated Layout */
+nav {
+    display: flex;
+    align-items: center; /* Vertically center */
+    padding: 1.5rem 4rem;
+    position: fixed;
+    width: 100%;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Container for Logo + Menu side-by-side */
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 40px; /* Space between Logo and Menu */
+}
+
+.logo { 
+    font-weight: 800; 
+    letter-spacing: 1px; 
+    font-size: 1.1rem;
+    color: white;
+}
+
+/* New Animated Menu */
+.animated-menu {
+    display: flex;
+    gap: 25px;
+    list-style: none;
+}
+
+.animated-menu li a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+    position: relative;
+    transition: color 0.3s ease;
+    padding: 5px 0;
+}
+
+.animated-menu li a:hover {
+    color: white;
+}
+
+/* The Animated Underline Effect */
+.animated-menu li a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: white;
+    transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.animated-menu li a:hover::after {
+    width: 100%;
+}
+
 /* Buttons */
 .btn-primary {
     background: white;
@@ -59,7 +121,7 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
-    /* Removed padding-top since nav is gone */
+    padding-top: 60px;
 }
 
 .hero h1 {
@@ -79,10 +141,7 @@ body {
 }
 
 /* Grid Layout */
-.grid-section { 
-    padding: 4rem; 
-    padding-bottom: 8rem; /* Extra padding at bottom since footer is gone */
-}
+.grid-section { padding: 4rem; }
 .section-title { font-size: 2rem; margin-bottom: 2rem; }
 
 .bento-grid {
@@ -131,7 +190,7 @@ body {
 .gradient-1 { background: linear-gradient(45deg, #3d3dff, #8a2be2); }
 .gradient-2 { background: linear-gradient(45deg, #00d2ff, #3a7bd5); }
 
-/* Animation Setup (Hidden state) */
+/* Animation Setup */
 .scroll-reveal {
     opacity: 0;
     transform: translateY(50px) scale(0.95);
@@ -139,12 +198,17 @@ body {
                 transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Active State (Triggered by JS) */
 .scroll-reveal.active {
     opacity: 1;
     transform: translateY(0) scale(1);
 }
 
-/* Stagger Delays */
 .delay-1 { transition-delay: 0.1s; }
 .delay-2 { transition-delay: 0.2s; }
+
+footer {
+    text-align: center;
+    padding: 4rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+}
