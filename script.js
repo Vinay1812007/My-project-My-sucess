@@ -9,51 +9,58 @@ document.addEventListener('DOMContentLoaded', () => {
     const albumArt = document.getElementById('albumArt');
     const beatBg = document.getElementById('beatBg');
     const gridTitle = document.getElementById('gridTitle');
+    const loader = document.getElementById('loader');
     
-    // Default search to show something on load
+    // Initial Load
     searchSongs('Top Indian Hits');
 
-    // --- SEARCH ---
+    // --- SEARCH LOGIC (Direct API Access) ---
     let debounceTimer;
     searchInput.addEventListener('input', (e) => {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
-            const query = e.target.value;
+            const query = e.target.value.trim();
             if (query.length > 0) searchSongs(query);
             else searchSongs('Top Indian Hits');
-        }, 500); // Wait 500ms after typing stops
+        }, 800);
     });
 
     async function searchSongs(query) {
-        grid.innerHTML = '<div class="loader"></div>'; // Show loader
+        // Show loader
+        grid.innerHTML = '';
+        grid.appendChild(loader);
+        loader.classList.remove('hidden');
         gridTitle.innerText = `Results for "${query}"`;
         
         try {
-            // Fetch from OUR Python Backend
-            const res = await fetch(`/search?q=${encodeURIComponent(query)}`);
-            const data = await res.json();
+            // DIRECT CALL TO ITUNES API (Bypasses backend requirement)
+            const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=25`);
+            const data = await response.json();
+            
+            loader.classList.add('hidden');
             
             if (data.results && data.results.length > 0) {
                 renderGrid(data.results);
             } else {
-                grid.innerHTML = '<h3 style="color:#aaa; text-align:center;">No songs found.</h3>';
+                grid.innerHTML = '<h3 style="color:#aaa; text-align:center; grid-column:1/-1;">No songs found. Try a different search.</h3>';
             }
         } catch (error) {
             console.error("Search failed:", error);
-            grid.innerHTML = '<h3 style="color:red; text-align:center;">Error connecting to server. Run python app.py</h3>';
+            // Fallback if API is blocked (e.g. by strict firewall)
+            grid.innerHTML = '<h3 style="color:#ff5555; text-align:center; grid-column:1/-1;">Connection Error. Please check your internet.</h3>';
         }
     }
 
     function renderGrid(songs) {
-        grid.innerHTML = '';
+        grid.innerHTML = ''; // Clear loader
         songs.forEach(song => {
-            // Only show if it has a preview url
+            // Only show songs with previews
             if (!song.previewUrl) return;
 
             const card = document.createElement('div');
             card.className = 'song-card';
             
-            // Get high res image (replace 100x100 with 600x600 in url)
+            // Get higher resolution image
             const highResImg = song.artworkUrl100.replace('100x100', '400x400');
             
             card.innerHTML = `
@@ -72,22 +79,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- PLAYBACK ---
+    let isPlaying = false;
+
     function playTrack(song, img) {
-        // UI Updates
         document.getElementById('trackTitle').innerText = song.trackName;
         document.getElementById('trackArtist').innerText = song.artistName;
         albumArt.style.backgroundImage = `url('${img}')`;
         
-        // Audio Source
         audio.src = song.previewUrl;
-        audio.play();
-        
-        isPlaying = true;
-        updatePlayState();
+        audio.play().then(() => {
+            isPlaying = true;
+            updatePlayState();
+        }).catch(err => console.error("Play error", err));
     }
 
-    let isPlaying = false;
-    
     playBtn.addEventListener('click', () => {
         if (audio.src) {
             if (audio.paused) {
@@ -116,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Auto update state on audio events
     audio.addEventListener('play', () => { isPlaying = true; updatePlayState(); });
     audio.addEventListener('pause', () => { isPlaying = false; updatePlayState(); });
+    audio.addEventListener('ended', () => { isPlaying = false; updatePlayState(); });
     
     // Progress Bar
     audio.addEventListener('timeupdate', () => {
