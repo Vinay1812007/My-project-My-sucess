@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- Configuration ---
-    // Reliable test audio that works without API keys
+    // --- 1. CONFIGURATION ---
+    // Reliable test audio source
     const MP3_SOURCE = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
     
-    // --- Data Library ---
+    // Song Data
     const songLibrary = [
         { title: "Starboy", artist: "The Weeknd", img: "https://images.unsplash.com/photo-1619983081563-430f63602796?w=500&q=80" },
         { title: "Espresso", artist: "Sabrina Carpenter", img: "https://images.unsplash.com/photo-1514525253440-b393452e8d26?w=500&q=80" },
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { title: "Flowers", artist: "Miley Cyrus", img: "https://images.unsplash.com/photo-1487180144351-b8472da7d491?w=500&q=80" }
     ];
 
-    // --- DOM Elements ---
+    // --- 2. ELEMENTS ---
     const grid = document.getElementById('musicGrid');
     const searchInput = document.getElementById('searchInput');
     const playBtn = document.getElementById('playBtn');
@@ -29,11 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const trackArtist = document.getElementById('trackArtist');
     const progressBar = document.getElementById('progressBar');
     
-    // Audio Object
+    // Audio Player
     const audio = new Audio();
     let isPlaying = false;
 
-    // --- 1. Render Function ---
+    // --- 3. RENDER FUNCTION (Fix for Empty Grid) ---
     function render(songs) {
         grid.innerHTML = '';
         
@@ -52,16 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p>${song.artist}</p>
                 </div>
             `;
-            // Add Click Event
             card.addEventListener('click', () => loadTrack(song));
             grid.appendChild(card);
         });
     }
 
-    // Call render IMMEDIATELY
+    // Call render immediately to show songs
     render(songLibrary);
 
-    // --- 2. Search Logic ---
+    // --- 4. SEARCH FUNCTION (Fix for Search) ---
     searchInput.addEventListener('input', (e) => {
         const term = e.target.value.toLowerCase().trim();
         const filtered = songLibrary.filter(song => 
@@ -71,32 +70,27 @@ document.addEventListener('DOMContentLoaded', () => {
         render(filtered);
     });
 
-    // --- 3. Playback Logic ---
+    // --- 5. PLAYER LOGIC ---
     function loadTrack(song) {
-        // Update UI
         trackTitle.innerText = song.title;
         trackArtist.innerText = song.artist;
         albumArt.style.backgroundImage = `url('${song.img}')`;
         
-        // Load Audio
         audio.src = MP3_SOURCE;
         audio.load();
-        
-        // Play
         togglePlay(true);
     }
 
     function togglePlay(forcePlay = null) {
         if (forcePlay === true) {
-            audio.play().catch(e => console.error("Audio error:", e));
+            audio.play().catch(e => console.error("Play Error:", e));
             isPlaying = true;
         } else if (forcePlay === false) {
             audio.pause();
             isPlaying = false;
         } else {
-            // Toggle
             if (isPlaying) audio.pause();
-            else audio.play().catch(e => console.error("Audio error:", e));
+            else audio.play().catch(e => console.error("Play Error:", e));
             isPlaying = !isPlaying;
         }
         updateUI();
@@ -119,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else togglePlay();
     });
 
-    // --- 4. Progress Bar ---
+    // Progress Bar
     audio.addEventListener('timeupdate', () => {
         if(audio.duration) {
             const pct = (audio.currentTime / audio.duration) * 100;
