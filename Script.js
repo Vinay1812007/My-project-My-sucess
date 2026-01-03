@@ -1,36 +1,34 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
     
-    // 1. Scroll Reveal Animation
-    const reveals = document.querySelectorAll(".reveal");
-
-    const revealOnScroll = () => {
-        const windowHeight = window.innerHeight;
-        const elementVisible = 100;
-
-        reveals.forEach((reveal) => {
-            const elementTop = reveal.getBoundingClientRect().top;
-            if (elementTop < windowHeight - elementVisible) {
-                reveal.classList.add("active");
-            }
-        });
+    // 1. Setup the Intersection Observer
+    const observerOptions = {
+        root: null, // Use the viewport
+        rootMargin: '0px',
+        threshold: 0.1 // Trigger when 10% of the element is visible
     };
 
-    window.addEventListener("scroll", revealOnScroll);
-    // Trigger once on load
-    revealOnScroll();
-
-
-    // 2. Spotlight / Mouse Tracking Effect on Cards
-    const cards = document.querySelectorAll(".spotlight");
-
-    cards.forEach((card) => {
-        card.addEventListener("mousemove", (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            card.style.setProperty("--mouse-x", `${x}px`);
-            card.style.setProperty("--mouse-y", `${y}px`);
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Add the class that forces the CSS transition
+                entry.target.classList.add('active');
+                // Optional: Stop observing once animated (for performance)
+                observer.unobserve(entry.target);
+            }
         });
+    }, observerOptions);
+
+    // 2. Target all elements with the 'scroll-reveal' class
+    const scrollElements = document.querySelectorAll('.scroll-reveal');
+    scrollElements.forEach(el => observer.observe(el));
+
+    // 3. Optional: Mouse Parallax Effect for the Ambient Glow
+    const glow = document.querySelector('.ambient-glow');
+    document.addEventListener('mousemove', (e) => {
+        const x = e.clientX / window.innerWidth;
+        const y = e.clientY / window.innerHeight;
+        
+        // Move the glow slightly opposite to mouse direction
+        glow.style.transform = `translate(-${x * 30}px, -${y * 30}px)`;
     });
 });
