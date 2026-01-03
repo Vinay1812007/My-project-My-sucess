@@ -1,29 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    // --- 1. SETUP AUDIO PLAYER ---
     const audioPlayer = new Audio();
-    // Using a reliable, fast-loading demo track for all songs (Copyright Free)
-    const DEMO_TRACK = 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3';
+    // Reliable, fast-loading test track (Copyright Free)
+    const TEST_TRACK = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
 
-    // --- 1. EXPANDED LIBRARY (18 Albums) ---
-    const mockSongs = [
+    // --- 2. SONG LIBRARY ---
+    const songs = [
         { title: "Seet Lehar", artist: "Filmy, Riyaazi", img: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&q=80" },
         { title: "End of Beginning", artist: "Djo", img: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?w=500&q=80" },
-        { title: "Aadat", artist: "Yo Yo Honey Singh", img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&q=80" },
         { title: "Starboy", artist: "The Weeknd", img: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=500&q=80" },
-        { title: "Softly", artist: "Karan Aujla", img: "https://images.unsplash.com/photo-1459749411177-0473ef71607b?w=500&q=80" },
         { title: "Espresso", artist: "Sabrina Carpenter", img: "https://images.unsplash.com/photo-1514525253440-b393452e8d26?w=500&q=80" },
+        { title: "Softly", artist: "Karan Aujla", img: "https://images.unsplash.com/photo-1459749411177-0473ef71607b?w=500&q=80" },
         { title: "Midnight City", artist: "M83", img: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=500&q=80" },
         { title: "Levitating", artist: "Dua Lipa", img: "https://images.unsplash.com/photo-1487180144351-b8472da7d491?w=500&q=80" },
         { title: "Blinding Lights", artist: "The Weeknd", img: "https://images.unsplash.com/photo-1621360841012-3f6e2b95b81a?w=500&q=80" },
         { title: "Heat Waves", artist: "Glass Animals", img: "https://images.unsplash.com/photo-1494232410401-ad00d5433cfa?w=500&q=80" },
-        { title: "Stay", artist: "Kid Laroi & Bieber", img: "https://images.unsplash.com/photo-1624471929367-873528b1db77?w=500&q=80" },
-        { title: "Peaches", artist: "Justin Bieber", img: "https://images.unsplash.com/photo-1520282498522-6b9872e411c5?w=500&q=80" },
         { title: "As It Was", artist: "Harry Styles", img: "https://images.unsplash.com/photo-1506157786151-b8491531f063?w=500&q=80" },
         { title: "Bad Habit", artist: "Steve Lacy", img: "https://images.unsplash.com/photo-1621112904891-5af48742420d?w=500&q=80" },
-        { title: "Anti-Hero", artist: "Taylor Swift", img: "https://images.unsplash.com/photo-1496293455970-f8581aae0e3c?w=500&q=80" },
-        { title: "Unholy", artist: "Sam Smith", img: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=500&q=80" },
-        { title: "Rich Flex", artist: "Drake", img: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=500&q=80" },
-        { title: "Kill Bill", artist: "SZA", img: "https://images.unsplash.com/photo-1619983081593-e2ba5b543e68?w=500&q=80" }
+        { title: "Anti-Hero", artist: "Taylor Swift", img: "https://images.unsplash.com/photo-1496293455970-f8581aae0e3c?w=500&q=80" }
     ];
 
     // DOM Elements
@@ -31,8 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     const playBtn = document.getElementById('playBtn');
     const playIcon = document.getElementById('playIcon');
-    const neonBg = document.getElementById('neonBg');
-    const nowPlayingImg = document.getElementById('nowPlayingImg');
+    const neonBg = document.getElementById('neonBg'); // The Beat Background
+    const nowPlayingImg = document.getElementById('nowPlayingImg'); // The CD
     const trackTitle = document.getElementById('trackTitle');
     const trackArtist = document.getElementById('trackArtist');
     const progressBar = document.getElementById('progressBar');
@@ -41,16 +36,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let isPlaying = false;
 
-    // --- 2. RENDER FUNCTION ---
-    function renderSongs(songsToRender) {
-        grid.innerHTML = ''; // Clear existing
+    // --- 3. RENDER & SEARCH FUNCTION ---
+    function renderSongs(data) {
+        grid.innerHTML = ''; // Clear grid
         
-        if (songsToRender.length === 0) {
-            grid.innerHTML = '<p style="color: #666; font-size: 1.2rem; grid-column: 1/-1; text-align: center;">No songs found.</p>';
+        if (data.length === 0) {
+            grid.innerHTML = '<p style="color:white; font-size:1.2rem; text-align:center; grid-column:1/-1;">No songs found</p>';
             return;
         }
 
-        songsToRender.forEach(song => {
+        data.forEach(song => {
             const card = document.createElement('div');
             card.className = 'song-card';
             card.innerHTML = `
@@ -61,96 +56,85 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             // Click to Play
-            card.addEventListener('click', () => loadSong(song));
+            card.addEventListener('click', () => loadAndPlay(song));
             grid.appendChild(card);
         });
     }
 
-    // Initial Load
-    renderSongs(mockSongs);
+    // Initialize with all songs
+    renderSongs(songs);
 
-    // --- 3. SEARCH FUNCTIONALITY (FIXED) ---
+    // Search Listener
     searchInput.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase().trim();
-        
-        const filteredSongs = mockSongs.filter(song => 
-            song.title.toLowerCase().includes(searchTerm) || 
-            song.artist.toLowerCase().includes(searchTerm)
+        const query = e.target.value.toLowerCase().trim();
+        const filtered = songs.filter(s => 
+            s.title.toLowerCase().includes(query) || 
+            s.artist.toLowerCase().includes(query)
         );
-        
-        renderSongs(filteredSongs);
+        renderSongs(filtered);
     });
 
     // --- 4. PLAYBACK LOGIC ---
-    function loadSong(song) {
-        // 1. Update Visuals
+    function loadAndPlay(song) {
+        // Update UI Text & Image
         trackTitle.textContent = song.title;
         trackArtist.textContent = song.artist;
         nowPlayingImg.style.backgroundImage = `url('${song.img}')`;
+
+        // Load Audio
+        audioPlayer.src = TEST_TRACK;
         
-        // 2. Load Audio
-        audioPlayer.src = DEMO_TRACK; 
-        audioPlayer.load();
-        
-        // 3. Play
-        playAudio();
+        // Play
+        playMusic();
     }
 
-    function playAudio() {
-        // Attempt play
-        const playPromise = audioPlayer.play();
-
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                isPlaying = true;
-                updateUI(true);
-            }).catch(error => {
-                console.error("Playback prevented:", error);
-            });
-        }
+    function playMusic() {
+        audioPlayer.play().then(() => {
+            isPlaying = true;
+            updateVisuals(true);
+        }).catch(err => console.error("Play error:", err));
     }
 
-    function pauseAudio() {
+    function pauseMusic() {
         audioPlayer.pause();
         isPlaying = false;
-        updateUI(false);
+        updateVisuals(false);
     }
 
-    // Main Play/Pause Button Toggle
+    // Toggle Button
     playBtn.addEventListener('click', () => {
         if (!audioPlayer.src || audioPlayer.src === "") {
-            loadSong(mockSongs[0]); // Auto-load first song if nothing ready
+            // If no song loaded, pick the first one
+            loadAndPlay(songs[0]);
         } else {
-            if (isPlaying) pauseAudio();
-            else playAudio();
+            if (isPlaying) pauseMusic();
+            else playMusic();
         }
     });
 
-    // Update UI Elements (Neon, Spinning CD, Icon)
-    function updateUI(active) {
+    // --- 5. VISUAL EFFECTS (Glass + Neon + Beat) ---
+    function updateVisuals(active) {
         if (active) {
             playIcon.className = 'fa-solid fa-pause';
-            neonBg.classList.add('active');
-            nowPlayingImg.classList.add('spinning');
+            nowPlayingImg.classList.add('spinning'); // Spin CD
+            if(neonBg) neonBg.classList.add('active'); // Start Beat Animation
         } else {
             playIcon.className = 'fa-solid fa-play';
-            neonBg.classList.remove('active');
-            nowPlayingImg.classList.remove('spinning');
+            nowPlayingImg.classList.remove('spinning'); // Stop CD
+            if(neonBg) neonBg.classList.remove('active'); // Stop Beat Animation
         }
     }
 
-    // --- 5. PROGRESS BAR LOGIC ---
+    // --- 6. PROGRESS BAR ---
     audioPlayer.addEventListener('timeupdate', () => {
         if (audioPlayer.duration) {
             const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
             progressBar.value = percent;
-            
             currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
             totalTimeEl.textContent = formatTime(audioPlayer.duration);
         }
     });
 
-    // Allow user to drag progress bar
     progressBar.addEventListener('input', (e) => {
         const seekTime = (audioPlayer.duration / 100) * e.target.value;
         audioPlayer.currentTime = seekTime;
