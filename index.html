@@ -3,39 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Winter Music '26</title>
+    <title>Neon Glass Music '26</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <div class="neon-bg" id="neonBg"></div>
-    <div class="ambient-glow"></div>
+    <div class="beat-overlay" id="neonBg"></div>
+    <div class="glass-bg-base"></div>
 
-    <nav>
+    <nav class="glass-panel">
         <div class="nav-left">
-            <div class="logo">Music</div>
+            <div class="logo">NEON<span class="highlight">BEATS</span></div>
             <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="searchInput" placeholder="What do you want to play?">
-                <i class="fa-solid fa-box-archive"></i>
+                <input type="text" id="searchInput" placeholder="Search for artists, songs...">
             </div>
         </div>
     </nav>
 
     <main class="music-container">
-        <h2 class="section-title">Trending Songs</h2>
+        <h2 class="section-title">Trending Now</h2>
         <div class="music-grid" id="musicGrid">
             </div>
     </main>
 
-    <div class="player-bar">
+    <div class="player-bar glass-panel">
         
         <div class="now-playing-info">
-            <div class="now-playing-art" id="nowPlayingImg"></div>
+            <div class="now-playing-art" id="nowPlayingImg">
+                <div class="center-hole"></div>
+            </div>
             <div class="track-details">
-                <span id="trackTitle">Select a song</span>
-                <span id="trackArtist">-</span>
+                <span id="trackTitle">Select a track</span>
+                <span id="trackArtist">--</span>
             </div>
         </div>
 
@@ -59,7 +60,9 @@
 
         <div class="volume-control">
             <i class="fa-solid fa-volume-high"></i>
-            <div class="vol-bar"></div>
+            <div class="vol-bar-container">
+                <div class="vol-bar-fill"></div>
+            </div>
         </div>
     </div>
 
