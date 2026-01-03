@@ -15,7 +15,7 @@ body {
     min-height: 100vh;
 }
 
-/* Backgrounds */
+/* --- Background Effects --- */
 .glass-bg-base {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: radial-gradient(circle at 15% 50%, rgba(76, 0, 255, 0.1), transparent 40%),
@@ -35,7 +35,7 @@ body {
     100% { transform: scale(1.1); opacity: 0.6; }
 }
 
-/* Glass UI */
+/* --- Glass UI Panels --- */
 .glass-panel {
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(20px);
@@ -43,7 +43,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Nav */
+/* --- Navigation --- */
 nav {
     display: flex; align-items: center; justify-content: space-between;
     padding: 1.2rem 3rem; margin: 20px; border-radius: 20px; position: sticky; top: 20px; z-index: 100;
@@ -59,7 +59,7 @@ nav {
 .search-bar input { background: transparent; border: none; color: white; width: 100%; outline: none; }
 .search-bar i { color: #888; }
 
-/* Grid */
+/* --- Music Grid --- */
 .music-container { padding: 3rem; max-width: 1600px; margin: 0 auto; }
 .section-title { font-size: 2rem; margin-bottom: 2rem; }
 
@@ -67,7 +67,7 @@ nav {
     display: grid; 
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
     gap: 30px;
-    min-height: 200px; /* Essential for visibility */
+    min-height: 200px;
 }
 
 .song-card {
@@ -75,6 +75,7 @@ nav {
     border: 1px solid rgba(255,255,255,0.1);
     padding: 20px; border-radius: 24px;
     cursor: pointer; transition: 0.3s;
+    position: relative; overflow: hidden;
 }
 .song-card:hover { 
     transform: translateY(-10px); 
@@ -87,12 +88,30 @@ nav {
     width: 100%; aspect-ratio: 1; border-radius: 16px; margin-bottom: 15px;
     background-size: cover; background-position: center;
     background-color: #222;
+    position: relative;
 }
+
+/* Play Icon Overlay */
+.play-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
+    border-radius: 16px; opacity: 0; transition: 0.3s;
+}
+.song-card:hover .play-overlay { opacity: 1; }
+.play-overlay i { font-size: 2rem; color: white; }
 
 .song-info h3 { font-size: 1.1rem; margin-bottom: 5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .song-info p { font-size: 0.9rem; color: #aaa; }
 
-/* Player */
+/* Language Tag Styling */
+.lang-tag {
+    display: inline-block; margin-top: 8px;
+    font-size: 0.7rem; color: var(--neon-lime);
+    border: 1px solid var(--neon-lime);
+    padding: 2px 8px; border-radius: 10px;
+}
+
+/* --- Player Bar --- */
 .player-bar {
     position: fixed; bottom: 20px; left: 20px; right: 20px; height: 100px;
     border-radius: 25px; display: flex; align-items: center; justify-content: space-between;
