@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    // DOM Elements
     const grid = document.getElementById('musicGrid');
     const searchInput = document.getElementById('searchInput');
     const audio = document.getElementById('audioPlayer');
@@ -10,11 +11,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const beatBg = document.getElementById('beatBg');
     const gridTitle = document.getElementById('gridTitle');
     const loader = document.getElementById('loader');
-    
+    const downloadLink = document.getElementById('downloadLink');
+    const lyricsBtn = document.getElementById('lyricsBtn');
+    const lyricsPanel = document.getElementById('lyricsPanel');
+    const closeLyrics = document.getElementById('closeLyrics');
+    const lyricsText = document.getElementById('lyricsText');
+    const fullLyricsBtn = document.getElementById('fullLyricsBtn');
+
+    // Current Song Info
+    let currentSong = null;
+
     // Initial Load
     searchSongs('Top Indian Hits');
 
-    // --- SEARCH LOGIC (Direct API Access) ---
+    // --- COLOR GENERATOR (Song Based) ---
+    // Generates a unique neon HSL color based on the song title string
+    function generateNeonColor(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        // Force high saturation (80-100%) and lightness (50-60%) for NEON look
+        const h = Math.abs(hash % 360);
+        return `hsl(${h}, 100%, 50%)`;
+    }
+
+    // --- SEARCH LOGIC ---
     let debounceTimer;
     searchInput.addEventListener('input', (e) => {
         clearTimeout(debounceTimer);
@@ -26,14 +48,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     async function searchSongs(query) {
-        // Show loader
         grid.innerHTML = '';
         grid.appendChild(loader);
         loader.classList.remove('hidden');
         gridTitle.innerText = `Results for "${query}"`;
         
         try {
-            // DIRECT CALL TO ITUNES API (Bypasses backend requirement)
             const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=25`);
             const data = await response.json();
             
@@ -42,25 +62,21 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.results && data.results.length > 0) {
                 renderGrid(data.results);
             } else {
-                grid.innerHTML = '<h3 style="color:#aaa; text-align:center; grid-column:1/-1;">No songs found. Try a different search.</h3>';
+                grid.innerHTML = '<h3 style="color:#aaa; text-align:center; grid-column:1/-1;">No songs found.</h3>';
             }
         } catch (error) {
             console.error("Search failed:", error);
-            // Fallback if API is blocked (e.g. by strict firewall)
-            grid.innerHTML = '<h3 style="color:#ff5555; text-align:center; grid-column:1/-1;">Connection Error. Please check your internet.</h3>';
+            grid.innerHTML = '<h3 style="color:#ff5555; text-align:center; grid-column:1/-1;">Connection Error. Check internet.</h3>';
         }
     }
 
     function renderGrid(songs) {
-        grid.innerHTML = ''; // Clear loader
+        grid.innerHTML = '';
         songs.forEach(song => {
-            // Only show songs with previews
             if (!song.previewUrl) return;
 
             const card = document.createElement('div');
             card.className = 'song-card';
-            
-            // Get higher resolution image
             const highResImg = song.artworkUrl100.replace('100x100', '400x400');
             
             card.innerHTML = `
@@ -78,19 +94,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- PLAYBACK ---
+    // --- PLAYBACK & DYNAMIC NEON ---
     let isPlaying = false;
 
     function playTrack(song, img) {
+        currentSong = song; // Store for lyrics/download
+
+        // 1. Update Text
         document.getElementById('trackTitle').innerText = song.trackName;
         document.getElementById('trackArtist').innerText = song.artistName;
         albumArt.style.backgroundImage = `url('${img}')`;
         
+        // 2. Dynamic Neon Color
+        const neonColor = generateNeonColor(song.trackName + song.artistName);
+        document.documentElement.style.setProperty('--neon-main', neonColor);
+
+        // 3. Audio Source
         audio.src = song.previewUrl;
         audio.play().then(() => {
             isPlaying = true;
             updatePlayState();
         }).catch(err => console.error("Play error", err));
+
+        // 4. Setup Download Link
+        // iTunes previews are usually m4a. We allow download.
+        downloadLink.href = song.previewUrl;
+        // Note: 'download' attribute only works for same-origin, 
+        // so it might open in new tab for external links (standard browser security).
+        downloadLink.setAttribute('target', '_blank'); 
     }
 
     playBtn.addEventListener('click', () => {
@@ -118,12 +149,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Auto update state on audio events
     audio.addEventListener('play', () => { isPlaying = true; updatePlayState(); });
     audio.addEventListener('pause', () => { isPlaying = false; updatePlayState(); });
     audio.addEventListener('ended', () => { isPlaying = false; updatePlayState(); });
     
-    // Progress Bar
+    // --- LYRICS FEATURE ---
+    lyricsBtn.addEventListener('click', () => {
+        if (!currentSong) return alert("Play a song first!");
+        
+        lyricsPanel.classList.remove('hidden');
+        lyricsText.innerHTML = `<h3>${currentSong.trackName}</h3><p>Lyrics are provided by external search.</p>`;
+        
+        // Setup the "Find Full Lyrics" button
+        fullLyricsBtn.onclick = () => {
+            const query = `${currentSong.trackName} ${currentSong.artistName} lyrics`;
+            window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+        };
+    });
+
+    closeLyrics.addEventListener('click', () => {
+        lyricsPanel.classList.add('hidden');
+    });
+
+    // --- CONTROLS ---
     audio.addEventListener('timeupdate', () => {
         if (audio.duration) {
             const percent = (audio.currentTime / audio.duration) * 100;
@@ -138,7 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
         audio.currentTime = time;
     });
 
-    // Volume
     const volumeBar = document.getElementById('volumeBar');
     volumeBar.addEventListener('input', (e) => {
         audio.volume = e.target.value / 100;
