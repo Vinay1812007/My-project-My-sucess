@@ -1,0 +1,8 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/music.html" },
+    { "source": "/music", "destination": "/music.html" },
+    { "source": "/videodownloader", "destination": "/videodownloader.html" }
+  ]
+}
