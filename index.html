@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
-    <title>Neon Beats: Ultimate Edition</title>
-    <meta name="description" content="Stream music and download 8K videos. Features AI lyrics, custom cursors, and 3D parallax.">
+    <title>Neon Beats - Music Player</title>
+    <meta name="description" content="Stream free music in Telugu, Hindi, and English with AI lyrics and 3D neon visuals.">
+    <link rel="canonical" href="https://sirimillavinay.online/">
     
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,7 +13,7 @@
 <body>
 
     <div class="cursor-dot" id="cursorDot"></div>
-    <div class="cursor-outline" id="cursorOutline"><i id="cursorIcon" class="fa-solid fa-music"></i></div>
+    <div class="cursor-outline" id="cursorOutline"><i class="fa-solid fa-music"></i></div>
 
     <div class="parallax-layer layer-1" id="layer1"></div>
     <div class="beat-overlay" id="beatBg"></div>
@@ -34,13 +34,13 @@
             <div class="logo pulse-logo">NEON<span class="highlight">BEATS</span></div>
             
             <div class="tab-switcher">
-                <button class="tab-btn active magnetic" onclick="switchTab('music')">Music</button>
-                <button class="tab-btn magnetic" onclick="switchTab('video')">Video DL</button>
+                <a href="index.html" class="tab-btn active magnetic">Music</a>
+                <a href="videodownloader.html" class="tab-btn magnetic">Video DL</a>
             </div>
         </div>
     </nav>
 
-    <main id="musicSection" class="active-section">
+    <main class="active-section">
         <div class="search-container fade-in-up">
             <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -50,47 +50,14 @@
 
         <div class="horizontal-scroll-wrapper">
             <h2 class="section-title fade-in-up" id="gridTitle">Trending Now</h2>
+            
+            <div class="seo-placeholder" style="display:none;">
+                <h1>Free Music Streaming</h1>
+                <p>Listen to trending hits in Telugu, Hindi, and English with dynamic neon visuals and lyrics.</p>
+            </div>
+
             <div class="music-grid" id="musicGrid">
                 <div class="loader hidden" id="loader"></div>
-            </div>
-        </div>
-    </main>
-
-    <main id="videoSection" class="hidden-section">
-        <div class="video-dl-container glass-panel fade-in-up">
-            <div class="dl-header">
-                <h2><i class="fa-solid fa-bolt" style="color:var(--neon-main);"></i> 8K Downloader</h2>
-                <p>YouTube • Terabox • Instagram • No Redirects</p>
-            </div>
-
-            <div class="dl-input-group">
-                <input type="text" id="videoUrl" placeholder="Paste link (YouTube, Insta, Terabox)...">
-                <button class="magnetic" id="fetchVideoBtn">Fetch</button>
-            </div>
-
-            <div id="dlResult" class="dl-result hidden">
-                <div class="video-preview-box">
-                    <video id="previewPlayer" controls class="preview-video"></video>
-                    <div class="video-meta">
-                        <h3 id="vidTitle">Video Title</h3>
-                        <span id="vidDuration">00:00</span>
-                    </div>
-                </div>
-
-                <div class="format-selector">
-                    <label>Select Quality:</label>
-                    <select id="qualitySelect" class="magnetic">
-                        <option value="8k">8K Ultra HD (WebM)</option>
-                        <option value="4k">4K (MP4)</option>
-                        <option value="1080">1080p (MP4)</option>
-                        <option value="720" selected>720p (MP4)</option>
-                        <option value="mp3">Audio Only (MP3)</option>
-                    </select>
-                </div>
-
-                <button class="btn-download magnetic" id="finalDownloadBtn">
-                    <i class="fa-solid fa-download"></i> Download Now
-                </button>
             </div>
         </div>
     </main>
