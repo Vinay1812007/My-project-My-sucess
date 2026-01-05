@@ -126,3 +126,18 @@ input[type=range] { width: 100%; height: 4px; background: #333; }
 .hidden { display: none; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 @media (max-width: 768px) { .player-bar { flex-direction: column; height: 140px; padding: 15px; } .volume-control { display: none; } .now-playing-info, .player-center { width: 100%; } }
+
+/* Parallax Background */
+.parallax-layer {
+    position: fixed; top: -10%; left: -10%; width: 120%; height: 120%;
+    z-index: -2; pointer-events: none;
+    background: radial-gradient(circle at 50% 50%, rgba(0, 255, 255, 0.05), transparent 60%);
+    transition: transform 0.1s linear;
+}
+.beat-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle, var(--neon-main), transparent 60%);
+    opacity: 0; transition: opacity 0.1s; pointer-events: none; z-index: -1;
+}
+.beat-overlay.active { opacity: 0.3; animation: pulseBeat 0.4s infinite alternate; }
+@keyframes pulseBeat { 0% { transform: scale(1); } 100% { transform: scale(1.02); } }
