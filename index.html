@@ -4,82 +4,100 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <title>Neon Beats - Music Player & Video Downloader</title>
-    <meta name="description" content="Stream trending music and download videos. Features AI lyrics, neon themes, and 3D effects.">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://sirimillavinay.online/">
-
+    <title>Neon Beats: Ultimate Edition</title>
+    <meta name="description" content="Stream music and download 8K videos. Features AI lyrics, custom cursors, and 3D parallax.">
+    
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-outline" id="cursorOutline"><i id="cursorIcon" class="fa-solid fa-music"></i></div>
+
     <div class="parallax-layer layer-1" id="layer1"></div>
     <div class="beat-overlay" id="beatBg"></div>
 
     <div class="lyrics-overlay hidden" id="lyricsPanel">
-        <div class="lyrics-content">
+        <div class="lyrics-content glass-panel">
             <div class="lyrics-header">
-                <h3><i class="fa-solid fa-music"></i> Lyrics AI</h3>
-                <button class="btn-close" id="closeLyrics"><i class="fa-solid fa-xmark"></i></button>
+                <h3><i class="fa-solid fa-robot"></i> Lyrics AI</h3>
+                <button class="btn-close magnetic" id="closeLyrics"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            
-            <div class="lyrics-body" id="lyricsText">
-                <p>Select a song to generate lyrics...</p>
-            </div>
-            
-            <button class="btn-primary" id="fullLyricsBtn">Find Full Lyrics on Google</button>
+            <div class="lyrics-body" id="lyricsText"></div>
+            <button class="btn-primary magnetic" id="fullLyricsBtn">Find Full Lyrics on Google</button>
         </div>
     </div>
 
-    <nav class="glass-panel">
+    <nav class="glass-panel sticky-nav">
         <div class="nav-container">
-            <div class="logo">NEON<span class="highlight">BEATS</span></div>
+            <div class="logo pulse-logo">NEON<span class="highlight">BEATS</span></div>
             
             <div class="tab-switcher">
-                <button class="tab-btn active" onclick="switchTab('music')">Music</button>
-                <button class="tab-btn" onclick="switchTab('video')">Video DL</button>
+                <button class="tab-btn active magnetic" onclick="switchTab('music')">Music</button>
+                <button class="tab-btn magnetic" onclick="switchTab('video')">Video DL</button>
             </div>
         </div>
     </nav>
 
     <main id="musicSection" class="active-section">
-        <div class="search-container">
+        <div class="search-container fade-in-up">
             <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="searchInput" placeholder="Search songs (Telugu, Hindi, English)...">
             </div>
         </div>
 
-        <h2 class="section-title" id="gridTitle">Trending Now</h2>
-        
-        <div class="seo-placeholder">
-            <h1>Free Music Streaming</h1>
-            <p>Listen to Telugu, Hindi, and English songs for free.</p>
-        </div>
-
-        <div class="music-grid" id="musicGrid">
-            <div class="loader hidden" id="loader"></div>
+        <div class="horizontal-scroll-wrapper">
+            <h2 class="section-title fade-in-up" id="gridTitle">Trending Now</h2>
+            <div class="music-grid" id="musicGrid">
+                <div class="loader hidden" id="loader"></div>
+            </div>
         </div>
     </main>
 
     <main id="videoSection" class="hidden-section">
-        <div class="video-container glass-panel">
-            <h2><i class="fa-brands fa-youtube" style="color:red;"></i> Video Downloader</h2>
-            <p>Paste a link to download MP4</p>
-            <div class="downloader-input">
-                <input type="text" id="videoUrl" placeholder="Paste video link here...">
-                <button id="downloadVideoBtn"><i class="fa-solid fa-download"></i></button>
+        <div class="video-dl-container glass-panel fade-in-up">
+            <div class="dl-header">
+                <h2><i class="fa-solid fa-bolt" style="color:var(--neon-main);"></i> 8K Downloader</h2>
+                <p>YouTube • Terabox • Instagram • No Redirects</p>
             </div>
-            <div class="status-msg" id="videoStatus"></div>
+
+            <div class="dl-input-group">
+                <input type="text" id="videoUrl" placeholder="Paste link (YouTube, Insta, Terabox)...">
+                <button class="magnetic" id="fetchVideoBtn">Fetch</button>
+            </div>
+
+            <div id="dlResult" class="dl-result hidden">
+                <div class="video-preview-box">
+                    <video id="previewPlayer" controls class="preview-video"></video>
+                    <div class="video-meta">
+                        <h3 id="vidTitle">Video Title</h3>
+                        <span id="vidDuration">00:00</span>
+                    </div>
+                </div>
+
+                <div class="format-selector">
+                    <label>Select Quality:</label>
+                    <select id="qualitySelect" class="magnetic">
+                        <option value="8k">8K Ultra HD (WebM)</option>
+                        <option value="4k">4K (MP4)</option>
+                        <option value="1080">1080p (MP4)</option>
+                        <option value="720" selected>720p (MP4)</option>
+                        <option value="mp3">Audio Only (MP3)</option>
+                    </select>
+                </div>
+
+                <button class="btn-download magnetic" id="finalDownloadBtn">
+                    <i class="fa-solid fa-download"></i> Download Now
+                </button>
+            </div>
         </div>
     </main>
 
-    <div class="player-bar glass-panel" id="musicPlayerBar">
+    <div class="player-bar glass-panel slide-up" id="musicPlayerBar">
         <div class="now-playing-info">
-            <div class="now-playing-art" id="albumArt">
-                <div class="center-hole"></div>
-            </div>
+            <div class="now-playing-art" id="albumArt"><div class="center-hole"></div></div>
             <div class="track-details">
                 <span id="trackTitle">Select a track</span>
                 <span id="trackArtist">...</span>
@@ -88,15 +106,12 @@
 
         <div class="player-center">
             <div class="controls">
-                <button class="btn-control" id="lyricsBtn" title="Lyrics"><i class="fa-solid fa-align-left"></i></button>
-                <button class="btn-control" id="prevBtn"><i class="fa-solid fa-backward-step"></i></button>
-                <button class="btn-play" id="playBtn"><i class="fa-solid fa-play" id="playIcon"></i></button>
-                <button class="btn-control" id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
-                <a id="downloadLink" href="#" class="btn-control" title="Download" download target="_blank">
-                    <i class="fa-solid fa-download"></i>
-                </a>
+                <button class="btn-control magnetic" id="lyricsBtn"><i class="fa-solid fa-align-left"></i></button>
+                <button class="btn-control magnetic" id="prevBtn"><i class="fa-solid fa-backward-step"></i></button>
+                <button class="btn-play magnetic" id="playBtn"><i class="fa-solid fa-play" id="playIcon"></i></button>
+                <button class="btn-control magnetic" id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
+                <a id="downloadLink" href="#" class="btn-control magnetic" download target="_blank"><i class="fa-solid fa-cloud-arrow-down"></i></a>
             </div>
-            
             <div class="progress-container">
                 <span class="time" id="currTime">0:00</span>
                 <input type="range" id="progressBar" value="0" max="100">
@@ -111,7 +126,6 @@
     </div>
 
     <audio id="audioPlayer" crossorigin="anonymous"></audio>
-
     <script src="script.js"></script>
 </body>
 </html>
