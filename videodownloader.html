@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Beats - Video Downloader</title>
+    <meta name="description" content="Download 8K/4K videos from YouTube, Instagram, and Terabox instantly.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-outline" id="cursorOutline"><i class="fa-solid fa-video"></i></div>
+
+    <div class="parallax-layer layer-1" id="layer1"></div>
+    
+    <nav class="glass-panel sticky-nav">
+        <div class="nav-container">
+            <div class="logo pulse-logo">NEON<span class="highlight">BEATS</span></div>
+            
+            <div class="tab-switcher">
+                <a href="index.html" class="tab-btn magnetic">Music</a>
+                <a href="videodownloader.html" class="tab-btn active magnetic">Video DL</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="active-section">
+        <div class="video-dl-container glass-panel fade-in-up">
+            <div class="dl-header">
+                <h2><i class="fa-solid fa-bolt" style="color:var(--neon-main);"></i> 8K Downloader</h2>
+                <p>YouTube • Terabox • Instagram • No Redirects</p>
+            </div>
+
+            <div class="dl-input-group">
+                <input type="text" id="videoUrl" placeholder="Paste link (YouTube, Insta, Terabox)...">
+                <button class="magnetic" id="fetchVideoBtn">Fetch</button>
+            </div>
+
+            <div id="dlResult" class="dl-result hidden">
+                <div class="video-preview-box">
+                    <video id="previewPlayer" controls class="preview-video"></video>
+                    <div class="video-meta">
+                        <h3 id="vidTitle">Video Title</h3>
+                        <span id="vidDuration">00:00</span>
+                    </div>
+                </div>
+
+                <div class="format-selector">
+                    <label>Select Quality:</label>
+                    <select id="qualitySelect" class="magnetic">
+                        <option value="8k">8K Ultra HD (WebM)</option>
+                        <option value="4k">4K (MP4)</option>
+                        <option value="1080">1080p (MP4)</option>
+                        <option value="720" selected>720p (MP4)</option>
+                        <option value="mp3">Audio Only (MP3)</option>
+                    </select>
+                </div>
+
+                <button class="btn-download magnetic" id="finalDownloadBtn">
+                    <i class="fa-solid fa-download"></i> Download Now
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
