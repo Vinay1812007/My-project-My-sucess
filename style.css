@@ -36,6 +36,12 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* === VISUALIZER CANVAS === */
+#visualizerCanvas {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1; opacity: 0.6; pointer-events: none;
+}
+
 /* === THEME BUTTON === */
 .nav-right { display: flex; align-items: center; gap: 15px; }
 .theme-btn {
@@ -65,8 +71,9 @@ nav { position: sticky; top: 0; z-index: 100; padding: 1rem 0; margin-bottom: 20
 
 /* Tab Switcher */
 .tab-switcher { display: flex; gap: 5px; background: var(--input-bg); padding: 5px; border-radius: 30px; border: 1px solid var(--glass-border); }
-.tab-btn { text-decoration: none; color: var(--text-secondary); padding: 8px 15px; border-radius: 25px; font-weight: 600; font-size: 0.9rem; transition: 0.3s; }
+.tab-btn { text-decoration: none; color: var(--text-secondary); padding: 8px 15px; border-radius: 25px; font-weight: 600; font-size: 0.9rem; transition: 0.3s; background: none; border: none; cursor: pointer;}
 .tab-btn.active { background: var(--neon-main); color: black; box-shadow: 0 0 10px var(--neon-main); }
+.tab-btn:hover { color: var(--text-color); }
 
 /* Main Layout */
 main { max-width: 1400px; margin: 0 auto; padding: 0 20px 120px; }
@@ -109,6 +116,12 @@ main { max-width: 1400px; margin: 0 auto; padding: 0 20px 120px; }
 .now-playing-art.spinning { animation-play-state: running; border-color: var(--neon-main); }
 .track-details span { display: block; color: var(--text-color); }
 #trackArtist { color: var(--text-secondary); font-size: 0.8rem; }
+.center-hole { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 12px; height: 12px; background: #111; border-radius: 50%; }
+
+/* Action Buttons (Heart/Share) */
+.action-btn { background: none; border: none; color: #aaa; font-size: 1.2rem; cursor: pointer; transition: 0.2s; margin-left: 10px;}
+.action-btn:hover { color: var(--neon-main); transform: scale(1.2); }
+.action-btn.active { color: #ff0055; } /* Heart active color */
 
 .controls { display: flex; align-items: center; gap: 20px; }
 .btn-control { background: none; border: none; color: var(--text-secondary); font-size: 1.2rem; }
@@ -119,13 +132,23 @@ main { max-width: 1400px; margin: 0 auto; padding: 0 20px 120px; }
 input[type=range] { width: 100%; height: 4px; background: var(--text-secondary); border-radius: 2px; -webkit-appearance: none; }
 .volume-control { width: 30%; display: flex; justify-content: flex-end; align-items: center; gap: 10px; color: var(--text-secondary); }
 
-/* Lyrics Modal */
+/* Lyrics & Library Overlay */
 .lyrics-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 300; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
 .lyrics-content { width: 90%; max-width: 500px; height: 70vh; padding: 2rem; border-radius: 25px; background: var(--modal-bg); border: 1px solid var(--neon-main); display: flex; flex-direction: column; color: var(--text-color); }
 .lyrics-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; }
 .lyrics-body { flex: 1; overflow-y: auto; color: var(--text-color); line-height: 1.6; }
 .btn-primary { background: var(--neon-main); border: none; padding: 12px; border-radius: 50px; font-weight: bold; width: 100%; margin-top: 20px; color: black; }
 .btn-close { color: var(--text-color); background: none; border: none; font-size: 1.2rem; }
+
+/* Library Specifics */
+.library-tabs { display: flex; border-bottom: 1px solid #333; margin-bottom: 10px; }
+.lib-tab { flex: 1; background: none; border: none; color: #aaa; padding: 10px; cursor: pointer; font-weight: bold; }
+.lib-tab.active { color: var(--neon-main); border-bottom: 2px solid var(--neon-main); }
+.lib-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #222; cursor: pointer; transition: 0.2s; }
+.lib-item:hover { background: rgba(255,255,255,0.05); }
+.lib-item img { width: 40px; height: 40px; border-radius: 5px; }
+.lib-info h4 { font-size: 0.9rem; margin-bottom: 2px; }
+.lib-info p { font-size: 0.7rem; color: #888; }
 
 /* Parallax */
 .parallax-layer { position: fixed; top: -10%; left: -10%; width: 120%; height: 120%; z-index: -2; pointer-events: none; transition: transform 0.1s linear; }
