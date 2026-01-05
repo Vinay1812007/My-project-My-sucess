@@ -4,31 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Neon Beats - Video Downloader</title>
-    <meta name="description" content="Download 8K/4K videos from YouTube, Instagram, and Terabox instantly.">
     <link rel="canonical" href="https://www.sirimillavinay.online/videodownloader">
-
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-
     <div class="cursor-dot" id="cursorDot"></div>
     <div class="cursor-outline" id="cursorOutline"><i class="fa-solid fa-video"></i></div>
-
     <div class="parallax-layer layer-1" id="layer1"></div>
     
     <nav class="glass-panel sticky-nav">
         <div class="nav-container">
             <div class="logo pulse-logo">NEON<span class="highlight">BEATS</span></div>
-            
             <div class="nav-right">
                 <div class="tab-switcher">
                     <a href="/music" class="tab-btn magnetic">Music</a>
                     <a href="/videodownloader" class="tab-btn active magnetic">Video DL</a>
                 </div>
-                 <button class="theme-btn magnetic" id="themeToggle" title="Change Theme">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
+                 <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
             </div>
         </div>
     </nav>
@@ -39,14 +32,11 @@
                 <h2><i class="fa-solid fa-bolt" style="color:var(--neon-main);"></i> Ultimate Downloader</h2>
                 <p>Supports YouTube • Instagram • TikTok • Terabox</p>
             </div>
-
             <div class="dl-input-group">
                 <input type="text" id="videoUrl" placeholder="Paste video link here...">
                 <button class="magnetic" id="fetchVideoBtn">Fetch</button>
             </div>
-
             <div id="dlResult" class="dl-result hidden">
-                
                 <div class="video-preview-box">
                     <img id="thumbPreview" src="" alt="Video Thumbnail" class="preview-img">
                     <div class="video-meta">
@@ -54,7 +44,6 @@
                         <span id="vidPlatform" style="color:var(--neon-main);">YouTube</span>
                     </div>
                 </div>
-
                 <div class="format-selector">
                     <label>Select Format:</label>
                     <select id="qualitySelect" class="magnetic">
@@ -62,16 +51,13 @@
                         <option value="mp3">Audio (MP3)</option>
                     </select>
                 </div>
-
                 <button class="btn-download magnetic" id="finalDownloadBtn">
                     <i class="fa-solid fa-download"></i> Download File
                 </button>
             </div>
-            
             <div id="errorMsg" class="hidden" style="color: #ff5555; margin-top: 15px;"></div>
         </div>
     </main>
-
     <script src="script.js"></script>
 </body>
 </html>
