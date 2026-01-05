@@ -3,21 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Beats - Music Player</title>
-    <meta name="description" content="Stream free music in Telugu, Hindi, and English with AI lyrics and 3D neon visuals.">
-    
+    <title>Neon Beats - Music</title>
     <link rel="canonical" href="https://www.sirimillavinay.online/music">
-    
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <div class="cursor-dot" id="cursorDot"></div>
-    <div class="cursor-outline" id="cursorOutline"><i class="fa-solid fa-music"></i></div>
-
     <div class="parallax-layer layer-1" id="layer1"></div>
     <div class="beat-overlay" id="beatBg"></div>
+
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-outline" id="cursorOutline"><i class="fa-solid fa-music"></i></div>
 
     <div class="lyrics-overlay hidden" id="lyricsPanel">
         <div class="lyrics-content glass-panel">
@@ -26,7 +23,7 @@
                 <button class="btn-close magnetic" id="closeLyrics"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="lyrics-body" id="lyricsText"></div>
-            <button class="btn-primary magnetic" id="fullLyricsBtn">Find Full Lyrics on Google</button>
+            <button class="btn-primary magnetic" id="fullLyricsBtn">Find on Google</button>
         </div>
     </div>
 
@@ -34,9 +31,15 @@
         <div class="nav-container">
             <div class="logo pulse-logo">NEON<span class="highlight">BEATS</span></div>
             
-            <div class="tab-switcher">
-                <a href="/music" class="tab-btn active magnetic">Music</a>
-                <a href="/videodownloader" class="tab-btn magnetic">Video DL</a>
+            <div class="nav-right">
+                <div class="tab-switcher">
+                    <a href="/music" class="tab-btn active magnetic">Music</a>
+                    <a href="/videodownloader" class="tab-btn magnetic">Video</a>
+                </div>
+                
+                <button class="theme-btn magnetic" id="themeToggle" title="Change Theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
             </div>
         </div>
     </nav>
@@ -45,7 +48,7 @@
         <div class="search-container fade-in-up">
             <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="searchInput" placeholder="Search songs (Telugu, Hindi, English)...">
+                <input type="text" id="searchInput" placeholder="Search songs...">
             </div>
         </div>
 
