@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 1. MUSIC PAGE LOGIC ---
     const grid = document.getElementById('musicGrid');
     if (grid) {
+        // We are on the music page
         const searchInput = document.getElementById('searchInput');
         const audio = document.getElementById('audioPlayer');
         const playBtn = document.getElementById('playBtn');
@@ -159,6 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 2. VIDEO DOWNLOADER LOGIC ---
     const fetchBtn = document.getElementById('fetchVideoBtn');
     if (fetchBtn) {
+        // We are on the video page
         const dlResult = document.getElementById('dlResult');
         const previewPlayer = document.getElementById('previewPlayer');
         
