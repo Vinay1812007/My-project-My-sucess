@@ -32,39 +32,39 @@
     <main class="active-section">
         <div class="video-dl-container glass-panel fade-in-up">
             <div class="dl-header">
-                <h2><i class="fa-solid fa-bolt" style="color:var(--neon-main);"></i> 8K Downloader</h2>
-                <p>YouTube • Terabox • Instagram • No Redirects</p>
+                <h2><i class="fa-solid fa-bolt" style="color:var(--neon-main);"></i> Ultimate Downloader</h2>
+                <p>Supports YouTube • Instagram • TikTok • Terabox</p>
             </div>
 
             <div class="dl-input-group">
-                <input type="text" id="videoUrl" placeholder="Paste link (YouTube, Insta, Terabox)...">
+                <input type="text" id="videoUrl" placeholder="Paste video link here...">
                 <button class="magnetic" id="fetchVideoBtn">Fetch</button>
             </div>
 
             <div id="dlResult" class="dl-result hidden">
+                
                 <div class="video-preview-box">
-                    <video id="previewPlayer" controls class="preview-video"></video>
+                    <img id="thumbPreview" src="" alt="Video Thumbnail" class="preview-img">
                     <div class="video-meta">
-                        <h3 id="vidTitle">Video Title</h3>
-                        <span id="vidDuration">00:00</span>
+                        <h3 id="vidTitle">Video Found</h3>
+                        <span id="vidPlatform" style="color:var(--neon-main);">YouTube</span>
                     </div>
                 </div>
 
                 <div class="format-selector">
-                    <label>Select Quality:</label>
+                    <label>Select Format:</label>
                     <select id="qualitySelect" class="magnetic">
-                        <option value="8k">8K Ultra HD (WebM)</option>
-                        <option value="4k">4K (MP4)</option>
-                        <option value="1080">1080p (MP4)</option>
-                        <option value="720" selected>720p (MP4)</option>
-                        <option value="mp3">Audio Only (MP3)</option>
+                        <option value="mp4">Video (MP4 - HD)</option>
+                        <option value="mp3">Audio (MP3)</option>
                     </select>
                 </div>
 
                 <button class="btn-download magnetic" id="finalDownloadBtn">
-                    <i class="fa-solid fa-download"></i> Download Now
+                    <i class="fa-solid fa-download"></i> Download File
                 </button>
             </div>
+            
+            <div id="errorMsg" class="hidden" style="color: #ff5555; margin-top: 15px;"></div>
         </div>
     </main>
 
