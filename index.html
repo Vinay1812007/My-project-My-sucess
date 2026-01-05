@@ -5,49 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <title>Neon Beats - Music Player & Video Downloader</title>
-    <meta name="description" content="Ultimate platform for free music streaming (Telugu, Hindi, English) and HD video downloading. Experience neon visuals, lyrics finder, and 3D audio effects.">
-    <meta name="keywords" content="music player, video downloader, mp3 download, youtube downloader, telugu songs, neon beats, 3d music">
+    <meta name="description" content="Stream trending music and download videos. Features AI lyrics, neon themes, and 3D effects.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://sirimillavinay.online/">
-    
-    <meta property="og:title" content="Neon Beats: Music & Video Hub">
-    <meta property="og:description" content="Stream music and download videos with a futuristic neon interface.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://sirimillavinay.online/">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&q=80">
+
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
     <div class="parallax-layer layer-1" id="layer1"></div>
-    <div class="parallax-layer layer-2" id="layer2"></div>
     <div class="beat-overlay" id="beatBg"></div>
 
     <div class="lyrics-overlay hidden" id="lyricsPanel">
-        <div class="lyrics-content glass-panel">
+        <div class="lyrics-content">
             <div class="lyrics-header">
                 <h3><i class="fa-solid fa-music"></i> Lyrics AI</h3>
                 <button class="btn-close" id="closeLyrics"><i class="fa-solid fa-xmark"></i></button>
             </div>
+            
             <div class="lyrics-body" id="lyricsText">
-                </div>
+                <p>Select a song to generate lyrics...</p>
+            </div>
+            
             <button class="btn-primary" id="fullLyricsBtn">Find Full Lyrics on Google</button>
         </div>
     </div>
 
-    <nav class="glass-panel slide-down">
+    <nav class="glass-panel">
         <div class="nav-container">
             <div class="logo">NEON<span class="highlight">BEATS</span></div>
             
             <div class="tab-switcher">
-                <button class="tab-btn active" onclick="switchTab('music')"><i class="fa-solid fa-headphones"></i> Music</button>
-                <button class="tab-btn" onclick="switchTab('video')"><i class="fa-solid fa-video"></i> Video Downloader</button>
+                <button class="tab-btn active" onclick="switchTab('music')">Music</button>
+                <button class="tab-btn" onclick="switchTab('video')">Video DL</button>
             </div>
         </div>
     </nav>
 
-    <main id="musicSection" class="active-section fade-in">
+    <main id="musicSection" class="active-section">
         <div class="search-container">
             <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -58,8 +54,8 @@
         <h2 class="section-title" id="gridTitle">Trending Now</h2>
         
         <div class="seo-placeholder">
-            <h1>Free Music & Video Downloader</h1>
-            <p>Stream trending Telugu, Hindi, and English songs. Download MP3 and MP4 videos instantly.</p>
+            <h1>Free Music Streaming</h1>
+            <p>Listen to Telugu, Hindi, and English songs for free.</p>
         </div>
 
         <div class="music-grid" id="musicGrid">
@@ -67,28 +63,19 @@
         </div>
     </main>
 
-    <main id="videoSection" class="hidden-section fade-in">
+    <main id="videoSection" class="hidden-section">
         <div class="video-container glass-panel">
             <h2><i class="fa-brands fa-youtube" style="color:red;"></i> Video Downloader</h2>
-            <p>Paste any video link to download in HD</p>
-            
+            <p>Paste a link to download MP4</p>
             <div class="downloader-input">
-                <input type="text" id="videoUrl" placeholder="Paste link here (YouTube, Insta, etc)...">
+                <input type="text" id="videoUrl" placeholder="Paste video link here...">
                 <button id="downloadVideoBtn"><i class="fa-solid fa-download"></i></button>
             </div>
-
             <div class="status-msg" id="videoStatus"></div>
-
-            <div class="supported-icons">
-                <i class="fa-brands fa-youtube"></i>
-                <i class="fa-brands fa-instagram"></i>
-                <i class="fa-brands fa-facebook"></i>
-                <i class="fa-brands fa-tiktok"></i>
-            </div>
         </div>
     </main>
 
-    <div class="player-bar glass-panel slide-up" id="musicPlayerBar">
+    <div class="player-bar glass-panel" id="musicPlayerBar">
         <div class="now-playing-info">
             <div class="now-playing-art" id="albumArt">
                 <div class="center-hole"></div>
@@ -101,12 +88,12 @@
 
         <div class="player-center">
             <div class="controls">
-                <button class="btn-control" id="lyricsBtn" title="Auto Lyrics"><i class="fa-solid fa-align-left"></i></button>
+                <button class="btn-control" id="lyricsBtn" title="Lyrics"><i class="fa-solid fa-align-left"></i></button>
                 <button class="btn-control" id="prevBtn"><i class="fa-solid fa-backward-step"></i></button>
                 <button class="btn-play" id="playBtn"><i class="fa-solid fa-play" id="playIcon"></i></button>
                 <button class="btn-control" id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
-                <a id="downloadLink" href="#" class="btn-control" title="Download MP3" download target="_blank">
-                    <i class="fa-solid fa-cloud-arrow-down"></i>
+                <a id="downloadLink" href="#" class="btn-control" title="Download" download target="_blank">
+                    <i class="fa-solid fa-download"></i>
                 </a>
             </div>
             
