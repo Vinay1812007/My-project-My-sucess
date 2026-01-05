@@ -1,48 +1,68 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- CUSTOM CURSOR ---
-    const cursorDot = document.getElementById('cursorDot');
-    const cursorOutline = document.getElementById('cursorOutline');
+    // --- THEME SWITCHER LOGIC ---
+    const themeBtn = document.getElementById('themeToggle');
+    const icon = themeBtn ? themeBtn.querySelector('i') : null;
     
-    if (cursorDot && cursorOutline) {
-        window.addEventListener('mousemove', (e) => {
-            const posX = e.clientX;
-            const posY = e.clientY;
+    // Check saved theme or default to system
+    const savedTheme = localStorage.getItem('neon_theme') || 'system';
+    applyTheme(savedTheme);
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            let current = document.documentElement.getAttribute('data-theme');
+            let nextTheme = 'light';
             
-            cursorDot.style.left = `${posX}px`;
-            cursorDot.style.top = `${posY}px`;
+            if (current === 'dark') nextTheme = 'light';
+            else if (current === 'light') nextTheme = 'system';
+            else nextTheme = 'dark'; // From system to dark
 
-            cursorOutline.animate({
-                left: `${posX}px`,
-                top: `${posY}px`
-            }, { duration: 500, fill: "forwards" });
-        });
-
-        // Magnetic Effect
-        document.querySelectorAll('.magnetic').forEach(btn => {
-            btn.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
-            btn.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+            applyTheme(nextTheme);
         });
     }
 
-    // --- PARALLAX BACKGROUND ---
+    function applyTheme(theme) {
+        if (theme === 'system') {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.removeItem('neon_theme');
+            if (icon) icon.className = 'fa-solid fa-desktop';
+        } else {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('neon_theme', theme);
+            if (icon) icon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+        }
+    }
+
+    // --- CURSOR & PARALLAX ---
+    const cursorDot = document.getElementById('cursorDot');
+    const cursorOutline = document.getElementById('cursorOutline');
     const layer1 = document.getElementById('layer1');
-    if (layer1) {
-        document.addEventListener('mousemove', (e) => {
+
+    window.addEventListener('mousemove', (e) => {
+        const posX = e.clientX;
+        const posY = e.clientY;
+        
+        if (cursorDot) {
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
+            cursorOutline.animate({ left: `${posX}px`, top: `${posY}px` }, { duration: 500, fill: "forwards" });
+        }
+
+        if (layer1) {
             const x = (window.innerWidth - e.pageX * 2) / 100;
             const y = (window.innerHeight - e.pageY * 2) / 100;
             layer1.style.transform = `translate(${x}px, ${y}px)`;
-        });
-    }
+        }
+    });
 
-    // ============================================
-    // PAGE SPECIFIC LOGIC
-    // ============================================
+    document.querySelectorAll('.magnetic').forEach(btn => {
+        btn.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+        btn.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+    });
 
-    // --- 1. MUSIC PAGE LOGIC ---
+    // --- MUSIC PAGE LOGIC ---
     const grid = document.getElementById('musicGrid');
     if (grid) {
-        // We are on the music page
         const searchInput = document.getElementById('searchInput');
         const audio = document.getElementById('audioPlayer');
         const playBtn = document.getElementById('playBtn');
@@ -50,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const progressBar = document.getElementById('progressBar');
         const albumArt = document.getElementById('albumArt');
         const beatBg = document.getElementById('beatBg');
-        const gridTitle = document.getElementById('gridTitle');
         const loader = document.getElementById('loader');
         const downloadLink = document.getElementById('downloadLink');
         const lyricsBtn = document.getElementById('lyricsBtn');
@@ -60,8 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const fullLyricsBtn = document.getElementById('fullLyricsBtn');
 
         let currentSong = null;
-
-        searchSongs('Top Indian Hits');
+        searchSongs('Top Hits India');
 
         let debounceTimer;
         searchInput.addEventListener('input', (e) => {
@@ -75,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
             grid.innerHTML = '';
             grid.appendChild(loader);
             loader.classList.remove('hidden');
-            gridTitle.innerText = `Results for "${query}"`;
             
             try {
                 const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=24`);
@@ -100,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         grid.appendChild(card);
                     });
                 } else {
-                    grid.innerHTML = '<h3>No songs found.</h3>';
+                    grid.innerHTML = '<h3 style="color:var(--text-color);">No songs found.</h3>';
                 }
             } catch(e) { console.error(e); }
         }
@@ -124,66 +141,61 @@ document.addEventListener('DOMContentLoaded', () => {
 
         playBtn.addEventListener('click', () => {
             if(audio.src) {
-                if(audio.paused) { 
-                    audio.play(); 
-                    playIcon.className = 'fa-solid fa-pause'; 
-                    albumArt.classList.add('spinning');
-                } else { 
-                    audio.pause(); 
-                    playIcon.className = 'fa-solid fa-play'; 
-                    albumArt.classList.remove('spinning');
-                }
+                if(audio.paused) { audio.play(); playIcon.className = 'fa-solid fa-pause'; albumArt.classList.add('spinning'); } 
+                else { audio.pause(); playIcon.className = 'fa-solid fa-play'; albumArt.classList.remove('spinning'); }
             }
         });
 
-        // Lyrics
         lyricsBtn.addEventListener('click', () => {
             if(!currentSong) return alert("Play a song first!");
             lyricsPanel.classList.remove('hidden');
-            lyricsText.innerHTML = `<p style="color:var(--neon-main)">Connecting AI...</p>`;
-            setTimeout(() => {
-                lyricsText.innerHTML = `<h3>${currentSong.trackName}</h3><p>Full lyrics found via Google Search.</p>`;
-            }, 1000);
+            lyricsText.innerHTML = `<p style="color:var(--neon-main)">Searching Database...</p>`;
+            setTimeout(() => lyricsText.innerHTML = `<h3>${currentSong.trackName}</h3><p>Lyrics found. Click below to view.</p>`, 800);
             fullLyricsBtn.onclick = () => window.open(`https://www.google.com/search?q=${encodeURIComponent(currentSong.trackName + " lyrics")}`, '_blank');
         });
         closeLyrics.addEventListener('click', () => lyricsPanel.classList.add('hidden'));
 
-        // Progress
         audio.addEventListener('timeupdate', () => {
             if(audio.duration) progressBar.value = (audio.currentTime/audio.duration)*100;
         });
-        progressBar.addEventListener('input', (e) => {
-            audio.currentTime = (audio.duration/100)*e.target.value;
-        });
+        progressBar.addEventListener('input', (e) => audio.currentTime = (audio.duration/100)*e.target.value);
     }
 
-    // --- 2. VIDEO DOWNLOADER LOGIC ---
+    // --- VIDEO DL LOGIC ---
     const fetchBtn = document.getElementById('fetchVideoBtn');
     if (fetchBtn) {
-        // We are on the video page
         const dlResult = document.getElementById('dlResult');
-        const previewPlayer = document.getElementById('previewPlayer');
-        
+        const thumbPreview = document.getElementById('thumbPreview');
+        const errorMsg = document.getElementById('errorMsg');
+        const videoInput = document.getElementById('videoUrl');
+
         fetchBtn.addEventListener('click', () => {
-            const url = document.getElementById('videoUrl').value;
-            if(!url) return alert("Paste a link first!");
-            
-            fetchBtn.innerText = "Fetching Info...";
+            const url = videoInput.value.trim();
+            errorMsg.classList.add('hidden');
+            dlResult.classList.add('hidden');
+
+            if(!url) return alert("Please paste a link first!");
+            fetchBtn.innerText = "Fetching...";
             
             setTimeout(() => {
                 fetchBtn.innerText = "Fetch";
                 dlResult.classList.remove('hidden');
                 
-                // Demo Logic
-                previewPlayer.src = "https://www.w3schools.com/html/mov_bbb.mp4"; 
-                document.getElementById('vidTitle').innerText = "Video Ready for Download";
-                document.getElementById('vidDuration').innerText = "03:45 • Source Detected";
-            }, 1500);
+                // Simple Thumb Logic
+                let thumb = "https://cdn-icons-png.flaticon.com/512/5663/5663364.png";
+                if(url.includes('youtube') || url.includes('youtu.be')) {
+                    const id = url.match(/(?:v=|youtu\.be\/)([^&]+)/)?.[1];
+                    if(id) thumb = `https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
+                }
+                thumbPreview.src = thumb;
+                document.getElementById('vidTitle').innerText = "Media Found";
+            }, 1000);
         });
 
         document.getElementById('finalDownloadBtn').addEventListener('click', () => {
-            const url = document.getElementById('videoUrl').value;
-            window.open(`https://savefrom.net/${url}`, '_blank');
+            const url = videoInput.value.trim();
+            if(url.includes('youtube') || url.includes('youtu.be')) window.open(`https://ssyoutube.com/en/download?url=${url}`, '_blank');
+            else window.open(`https://savefrom.net/${url}`, '_blank');
         });
     }
 });
