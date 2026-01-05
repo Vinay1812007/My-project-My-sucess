@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- DOM Elements ---
+    // DOM Elements
     const grid = document.getElementById('musicGrid');
     const searchInput = document.getElementById('searchInput');
     const audio = document.getElementById('audioPlayer');
@@ -18,32 +18,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const lyricsText = document.getElementById('lyricsText');
     const fullLyricsBtn = document.getElementById('fullLyricsBtn');
     
-    // Background Layers
+    // Background Layer for Parallax
     const layer1 = document.getElementById('layer1');
-    const layer2 = document.getElementById('layer2');
 
     let currentSong = null;
 
-    // --- GYROSCOPIC / PARALLAX EFFECT ---
-    // PC: Mouse Movement
+    // --- GYROSCOPIC EFFECT ---
     document.addEventListener('mousemove', (e) => {
         const x = (window.innerWidth - e.pageX * 2) / 100;
         const y = (window.innerHeight - e.pageY * 2) / 100;
-        
         layer1.style.transform = `translate(${x}px, ${y}px)`;
-        layer2.style.transform = `translate(${x * 2}px, ${y * 2}px)`;
     });
-
-    // Mobile: Device Orientation (Tilt)
-    if (window.DeviceOrientationEvent) {
-        window.addEventListener('deviceorientation', (e) => {
-            const x = e.gamma / 5; // Left-to-right tilt
-            const y = e.beta / 5;  // Front-to-back tilt
-            
-            layer1.style.transform = `translate(${x}px, ${y}px)`;
-            layer2.style.transform = `translate(${x * 2}px, ${y * 2}px)`;
-        });
-    }
 
     // --- TAB SWITCHER ---
     window.switchTab = function(tab) {
@@ -66,9 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- MUSIC SEARCH LOGIC ---
+    // --- SEARCH ---
     searchSongs('Top Indian Hits');
-
     let debounceTimer;
     searchInput.addEventListener('input', (e) => {
         clearTimeout(debounceTimer);
@@ -83,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         grid.innerHTML = '';
         grid.appendChild(loader);
         loader.classList.remove('hidden');
-        document.querySelector('.seo-placeholder').style.display = 'none'; // Hide SEO text
+        document.querySelector('.seo-placeholder').style.display = 'none';
         gridTitle.innerText = `Results for "${query}"`;
         
         try {
@@ -98,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error("Search error:", error);
-            grid.innerHTML = '<h3 style="color:#ff5555; text-align:center; grid-column:1/-1;">Connection Error. Check internet.</h3>';
+            grid.innerHTML = '<h3 style="color:#ff5555; text-align:center; grid-column:1/-1;">Connection Error.</h3>';
         }
     }
 
@@ -136,14 +120,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         audio.src = song.previewUrl;
         audio.play().catch(e => console.log(e));
-        
-        // Update Download Link
         downloadLink.href = song.previewUrl;
-
         updatePlayState(true);
     }
 
-    playBtn.addEventListener('click', () => {
+    document.getElementById('playBtn').addEventListener('click', () => {
         if (audio.paused && audio.src) {
             audio.play();
             updatePlayState(true);
@@ -165,19 +146,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // --- AUTO LYRICS (Simulated) ---
+    // --- LYRICS ---
     lyricsBtn.addEventListener('click', () => {
         if (!currentSong) return alert("Play a song first!");
         lyricsPanel.classList.remove('hidden');
         
-        lyricsText.innerHTML = `<p style="color:var(--neon-main);">Connecting to Lyrics AI...</p>`;
+        // Immediate visual feedback
+        lyricsText.innerHTML = `<p style="color:var(--neon-main); font-weight:bold;">Connecting to AI Lyrics...</p>`;
         
-        // Simulate "Generating"
         setTimeout(() => {
             lyricsText.innerHTML = `
-                <p>Generating lyrics for <strong>${currentSong.trackName}</strong>...</p>
+                <h2 style="margin-bottom:10px;">${currentSong.trackName}</h2>
+                <p style="color:#ddd;">We found the full lyrics for this song.</p>
                 <br>
-                <p style="opacity:0.7;">(Note: Due to copyright, we auto-redirect to the full licensed lyrics below)</p>
+                <p>Click the button below to view them.</p>
             `;
         }, 1000);
 
@@ -188,25 +170,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     closeLyrics.addEventListener('click', () => lyricsPanel.classList.add('hidden'));
 
-    // --- VIDEO DOWNLOADER LOGIC ---
+    // --- VIDEO DOWNLOADER ---
     document.getElementById('downloadVideoBtn').addEventListener('click', () => {
         const url = document.getElementById('videoUrl').value;
         const status = document.getElementById('videoStatus');
-        
         if (!url) return alert("Please paste a URL!");
-        
-        status.innerHTML = '<p style="color:var(--neon-main);">Processing video...</p>';
-        
-        // Simulating process then redirect to a helper service
+        status.innerHTML = '<p style="color:var(--neon-main);">Generating Link...</p>';
         setTimeout(() => {
-            status.innerHTML = '<p style="color:#0f0;">Link generated! Opening downloader...</p>';
-            // Redirect to a common public downloader helper
             window.open(`https://savefrom.net/${url}`, '_blank');
             status.innerHTML = '';
         }, 1500);
     });
 
-    // Standard Audio Events
     audio.addEventListener('timeupdate', () => {
         if(audio.duration) progressBar.value = (audio.currentTime/audio.duration)*100;
     });
