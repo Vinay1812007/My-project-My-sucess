@@ -7,6 +7,7 @@
     <link rel="canonical" href="https://www.sirimillavinay.online/music">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -14,8 +15,8 @@
     <div class="cursor-outline" id="cursorOutline"><i class="fa-solid fa-music"></i></div>
 
     <div class="neon-blink-bg" id="neonBg"></div>
-    
     <div class="parallax-layer layer-1" id="layer1"></div>
+    <canvas id="visualizerCanvas"></canvas>
 
     <div class="full-player hidden" id="fullPlayer">
         <button class="btn-close-full magnetic" id="closeFullPlayer"><i class="fa-solid fa-chevron-down"></i></button>
@@ -25,6 +26,17 @@
             <button class="btn-control magnetic" id="fullPrevBtn"><i class="fa-solid fa-backward-step"></i></button>
             <button class="btn-play-large magnetic" id="fullPlayBtn"><i class="fa-solid fa-play" id="fullPlayIcon"></i></button>
             <button class="btn-control magnetic" id="fullNextBtn"><i class="fa-solid fa-forward-step"></i></button>
+        </div>
+    </div>
+
+    <div class="lyrics-overlay hidden" id="qrPanel">
+        <div class="lyrics-content glass-panel" style="align-items: center; text-align: center;">
+            <div class="lyrics-header" style="width: 100%;">
+                <h3><i class="fa-solid fa-qrcode"></i> Broadcast Party</h3>
+                <button class="btn-close magnetic" id="closeQr"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="qrCodeContainer" style="margin: 20px; padding: 10px; background: white; border-radius: 10px;"></div>
+            <p style="color: #aaa; margin-top: 10px;">Scan to sync play on another device.</p>
         </div>
     </div>
 
@@ -63,7 +75,16 @@
             <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="searchInput" placeholder="Search songs, artists...">
+                <button id="voiceBtn" class="voice-btn magnetic" title="Voice Search"><i class="fa-solid fa-microphone"></i></button>
             </div>
+        </div>
+
+        <div class="mood-container fade-in-up">
+            <button class="mood-chip" onclick="searchMood('Trending India')">🔥 Trending</button>
+            <button class="mood-chip" onclick="searchMood('lofi beats')">🌧️ Lo-Fi</button>
+            <button class="mood-chip" onclick="searchMood('gym workout phonk')">💪 Gym</button>
+            <button class="mood-chip" onclick="searchMood('romantic hindi')">❤️ Love</button>
+            <button class="mood-chip" onclick="searchMood('party remix')">🎉 Party</button>
         </div>
 
         <div class="horizontal-scroll-wrapper">
@@ -77,13 +98,20 @@
             <div class="now-playing-art magnetic" id="albumArt" title="Open Full Player"><div class="center-hole"></div></div>
             <div class="track-details"><span id="trackTitle">Select a track</span><span id="trackArtist">...</span></div>
             <button class="action-btn magnetic" id="likeBtn"><i class="fa-regular fa-heart"></i></button>
+            <button class="action-btn magnetic" id="qrBtn" title="Broadcast QR"><i class="fa-solid fa-qrcode"></i></button>
         </div>
 
         <div class="player-center">
             <div class="controls">
+                <button class="btn-control magnetic" id="speedBtn" title="Speed">1.0x</button>
+                <button class="btn-control magnetic" id="bassBtn" title="Bass Boost"><i class="fa-solid fa-wave-square"></i></button>
+                <button class="btn-control magnetic" id="audio8dBtn" title="8D Audio Mode">8D</button>
+                
                 <button class="btn-control magnetic" id="prevBtn"><i class="fa-solid fa-backward-step"></i></button>
                 <button class="btn-play magnetic" id="playBtn"><i class="fa-solid fa-play" id="playIcon"></i></button>
                 <button class="btn-control magnetic" id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
+                
+                <button class="btn-control magnetic" id="sleepBtn" title="Sleep Timer"><i class="fa-solid fa-stopwatch"></i></button>
             </div>
             <div class="progress-container">
                 <span class="time" id="currTime">0:00</span>
@@ -94,10 +122,7 @@
 
         <div class="volume-control">
             <button class="btn-control magnetic" id="lyricsBtn"><i class="fa-solid fa-align-left"></i></button>
-            
-            <button class="btn-control magnetic" id="downloadBtn" title="Download Song">
-                <i class="fa-solid fa-download"></i>
-            </button>
+            <button class="btn-control magnetic" id="downloadBtn" title="Download Song"><i class="fa-solid fa-download"></i></button>
         </div>
     </div>
 
