@@ -1,4 +1,3 @@
-// --- GLOBAL SCOPE FOR MOOD CHIPS ---
 window.searchMood = function(query) {
     const searchInput = document.getElementById('searchInput');
     searchInput.value = query;
@@ -46,11 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Controls
         const bassBtn = document.getElementById('bassBtn');
-        const audio8dBtn = document.getElementById('audio8dBtn'); // NEW
+        const audio8dBtn = document.getElementById('audio8dBtn');
         const likeBtn = document.getElementById('likeBtn');
         const qrBtn = document.getElementById('qrBtn');
         const speedBtn = document.getElementById('speedBtn');
-        const sleepBtn = document.getElementById('sleepBtn');
         const downloadBtn = document.getElementById('downloadBtn');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
@@ -68,6 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const fullPlayIcon = document.getElementById('fullPlayIcon');
         const fullPrevBtn = document.getElementById('fullPrevBtn');
         const fullNextBtn = document.getElementById('fullNextBtn');
+        const fullProgressBar = document.getElementById('fullProgressBar');
+        const fullCurrTime = document.getElementById('fullCurrTime');
+        const fullTotalTime = document.getElementById('fullTotalTime');
 
         // Overlays
         const qrPanel = document.getElementById('qrPanel');
@@ -82,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let isBassBoosted = false;
         let is8dActive = false;
         let pannerInterval;
-        let sleepTimer = null;
         const speeds = [1.0, 1.25, 1.5, 0.8];
         let speedIndex = 0;
 
@@ -146,15 +146,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             audio.src = song.previewUrl;
-            audio.currentTime = startTime;
+            // SYNC TIME
+            audio.addEventListener('loadedmetadata', () => { if(startTime > 0) audio.currentTime = startTime; }, { once: true });
+            
             audio.playbackRate = speeds[speedIndex];
             audio.play().then(() => { if(audioContext?.state === 'suspended') audioContext.resume(); playIcon.className = 'fa-solid fa-pause'; fullPlayIcon.className = 'fa-solid fa-pause'; albumArt.classList.add('spinning'); }).catch(console.error);
         }
 
         function togglePlay() {
             if(audio.src) {
-                if(audio.paused) { audio.play(); playIcon.className = 'fa-solid fa-pause'; fullPlayIcon.className = 'fa-solid fa-pause'; albumArt.classList.add('spinning'); neonBg.classList.add('active'); } 
-                else { audio.pause(); playIcon.className = 'fa-solid fa-play'; fullPlayIcon.className = 'fa-solid fa-play'; albumArt.classList.remove('spinning'); neonBg.classList.remove('active'); }
+                if(audio.paused) { 
+                    audio.play(); playIcon.className = 'fa-solid fa-pause'; fullPlayIcon.className = 'fa-solid fa-pause'; albumArt.classList.add('spinning'); neonBg.classList.add('active');
+                } else { 
+                    audio.pause(); playIcon.className = 'fa-solid fa-play'; fullPlayIcon.className = 'fa-solid fa-play'; albumArt.classList.remove('spinning'); neonBg.classList.remove('active');
+                }
             }
         }
         playBtn.addEventListener('click', togglePlay);
@@ -197,65 +202,70 @@ document.addEventListener('DOMContentLoaded', () => {
             } else { clearInterval(pannerInterval); pannerNode.pan.value = 0; }
         });
 
-        // 4. SPEED & SLEEP
+        // 4. SPEED
         speedBtn.addEventListener('click', () => {
             speedIndex = (speedIndex + 1) % speeds.length;
             audio.playbackRate = speeds[speedIndex];
             speedBtn.innerText = speeds[speedIndex] + "x";
         });
-        sleepBtn.addEventListener('click', () => {
-            if(sleepTimer) { clearTimeout(sleepTimer); sleepTimer=null; sleepBtn.classList.remove('active'); alert("Timer cancelled"); }
-            else { sleepBtn.classList.add('active'); alert("Stops in 30 mins"); sleepTimer=setTimeout(()=>{audio.pause(); playIcon.className='fa-solid fa-play';}, 30*60000); }
-        });
 
-        // 5. QUEUE CONTROLS
-        function playNext() {
-            if (currentIndex < songQueue.length - 1) { currentIndex++; let s = songQueue[currentIndex]; playTrack(s, s.artworkUrl100.replace('100x100', '400x400')); }
-        }
-        function playPrev() {
-            if (currentIndex > 0) { currentIndex--; let s = songQueue[currentIndex]; playTrack(s, s.artworkUrl100.replace('100x100', '400x400')); }
-        }
+        // 5. QUEUE CONTROLS (Main & Full)
+        function playNext() { if (currentIndex < songQueue.length - 1) { currentIndex++; let s = songQueue[currentIndex]; playTrack(s, s.artworkUrl100.replace('100x100', '400x400')); } }
+        function playPrev() { if (currentIndex > 0) { currentIndex--; let s = songQueue[currentIndex]; playTrack(s, s.artworkUrl100.replace('100x100', '400x400')); } }
         audio.addEventListener('ended', playNext);
         nextBtn.addEventListener('click', playNext); fullNextBtn.addEventListener('click', playNext);
         prevBtn.addEventListener('click', playPrev); fullPrevBtn.addEventListener('click', playPrev);
 
-        // 6. DOWNLOAD (Fixed)
+        // 6. DOWNLOAD
         downloadBtn.addEventListener('click', () => {
             if(!currentSong) return alert("Play a song!");
             downloadBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
             fetch(currentSong.previewUrl).then(r=>r.blob()).then(blob=>{
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a'); a.style.display='none'; a.href=url; a.download=currentSong.trackName+".m4a";
-                document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url);
-                downloadBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
-                setTimeout(()=>downloadBtn.innerHTML='<i class="fa-solid fa-download"></i>', 2000);
-            });
+                const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.style.display='none'; a.href=url; a.download=currentSong.trackName+".m4a"; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url);
+                downloadBtn.innerHTML = '<i class="fa-solid fa-check"></i>'; setTimeout(()=>downloadBtn.innerHTML='<i class="fa-solid fa-download"></i>', 2000);
+            }).catch(()=>{ alert("Browser blocked download. Opening tab."); window.open(currentSong.previewUrl,'_blank'); downloadBtn.innerHTML='<i class="fa-solid fa-download"></i>'; });
         });
 
-        // 7. SEEKING
+        // 7. SEEKING (Main & Full)
         audio.addEventListener('timeupdate', () => {
             if(audio.duration) {
                 const percent = (audio.currentTime / audio.duration) * 100;
                 progressBar.value = percent;
-                currTime.innerText = formatTime(audio.currentTime);
-                totalTime.innerText = formatTime(audio.duration);
+                fullProgressBar.value = percent; // Sync full player bar
+                let t = formatTime(audio.currentTime);
+                let d = formatTime(audio.duration);
+                currTime.innerText = t; totalTime.innerText = d;
+                fullCurrTime.innerText = t; fullTotalTime.innerText = d;
             }
         });
         progressBar.addEventListener('input', (e) => { audio.currentTime = (audio.duration / 100) * e.target.value; });
+        fullProgressBar.addEventListener('input', (e) => { audio.currentTime = (audio.duration / 100) * e.target.value; });
         function formatTime(s) { let m = Math.floor(s/60); let sec = Math.floor(s%60); return `${m}:${sec<10?'0':''}${sec}`; }
 
-        // 8. FAVORITES, QR, LIBRARY, FULLSCREEN, VOICE (Standard)
+        // 8. FAVORITES & QR
         function checkLikeStatus(song) { let f=JSON.parse(localStorage.getItem('neon_favorites'))||[]; const is=f.some(s=>s.trackName===song.trackName); likeBtn.innerHTML=is?'<i class="fa-solid fa-heart"></i>':'<i class="fa-regular fa-heart"></i>'; if(is) likeBtn.classList.add('active'); else likeBtn.classList.remove('active'); }
         likeBtn.addEventListener('click', () => { if(!currentSong) return; let f=JSON.parse(localStorage.getItem('neon_favorites'))||[]; const idx=f.findIndex(s=>s.trackName===currentSong.trackName); if(idx===-1) f.push(currentSong); else f.splice(idx,1); localStorage.setItem('neon_favorites',JSON.stringify(f)); checkLikeStatus(currentSong); renderLibrary('favorites'); });
-        qrBtn.addEventListener('click', () => { if(!currentSong) return; qrPanel.classList.remove('hidden'); qrContainer.innerHTML=""; new QRCode(qrContainer, { text: `${window.location.origin}${window.location.pathname}?song=${encodeURIComponent(currentSong.trackName+" "+currentSong.artistName)}&t=${audio.currentTime}`, width:200, height:200 }); });
-        closeQr.addEventListener('click', () => qrPanel.classList.add('hidden'));
-        albumArt.addEventListener('click', () => fullPlayer.classList.remove('hidden')); closeFullPlayer.addEventListener('click', () => fullPlayer.classList.add('hidden'));
         
+        // QR SYNC
+        qrBtn.addEventListener('click', () => { 
+            if(!currentSong) return; 
+            qrPanel.classList.remove('hidden'); 
+            qrContainer.innerHTML=""; 
+            // Generate link with Song + Current Time
+            new QRCode(qrContainer, { text: `${window.location.origin}${window.location.pathname}?song=${encodeURIComponent(currentSong.trackName+" "+currentSong.artistName)}&t=${audio.currentTime}`, width:200, height:200 }); 
+        });
+        document.getElementById('closeQr').addEventListener('click', () => qrPanel.classList.add('hidden'));
+
+        // 9. LIBRARY & HISTORY
         function saveHistory(song) { let h=JSON.parse(localStorage.getItem('neon_history'))||[]; h=h.filter(s=>s.trackName!==song.trackName); h.unshift(song); if(h.length>15) h.pop(); localStorage.setItem('neon_history',JSON.stringify(h)); }
         const openLibraryBtn=document.getElementById('openLibraryBtn'); const libraryPanel=document.getElementById('libraryPanel'); const libraryList=document.getElementById('libraryList');
         openLibraryBtn.addEventListener('click',()=>{libraryPanel.classList.remove('hidden');switchLib('favorites');}); document.getElementById('closeLibrary').addEventListener('click',()=>libraryPanel.classList.add('hidden'));
         window.switchLib=function(type){document.querySelectorAll('.lib-tab').forEach(t=>t.classList.remove('active'));event.target.classList.add('active');renderLibrary(type);}
         function renderLibrary(type){ const key=type==='favorites'?'neon_favorites':'neon_history'; const list=JSON.parse(localStorage.getItem(key))||[]; libraryList.innerHTML=''; if(list.length===0){libraryList.innerHTML=`<p style="text-align:center;color:#666">No songs.</p>`;return;} list.forEach(s=>{ const i=s.artworkUrl100.replace('100x100','150x150'); const d=document.createElement('div'); d.className='lib-item'; d.innerHTML=`<img src="${i}"><div><h4>${s.trackName}</h4><p>${s.artistName}</p></div>`; d.addEventListener('click',()=>{playTrack(s,i.replace('150x150','400x400'));libraryPanel.classList.add('hidden');}); libraryList.appendChild(d); }); }
+
+        // Full Screen Toggle
+        albumArt.addEventListener('click', () => fullPlayer.classList.remove('hidden'));
+        closeFullPlayer.addEventListener('click', () => fullPlayer.classList.add('hidden'));
 
         // VISUALIZER
         function initVisualizer() {
