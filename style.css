@@ -13,53 +13,24 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; cursor: none; }
 body { background-color: var(--bg-color); color: var(--text-color); overflow-x: hidden; min-height: 100vh; transition: 0.3s; }
 
-/* === NEW NEON GLASS ANIMATION === */
-/* This overlay activates when music plays */
-.neon-glass-bg {
+/* === NEW FULL NEON BLINK ANIMATION === */
+.neon-blink-bg {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle at 50% 50%, var(--neon-main), transparent 70%);
-    opacity: 0; z-index: -2; pointer-events: none; transition: opacity 1s ease;
-    mix-blend-mode: screen; filter: blur(80px);
+    background: radial-gradient(circle, var(--neon-main), transparent 80%);
+    opacity: 0; z-index: -2; pointer-events: none; transition: opacity 0.5s;
+    mix-blend-mode: screen;
 }
-.neon-glass-bg.active {
+.neon-blink-bg.active {
     opacity: 0.4;
-    animation: neonFlow 10s infinite alternate;
+    animation: fullPulse 2s infinite alternate;
 }
-@keyframes neonFlow {
-    0% { transform: scale(1) translate(0,0); filter: hue-rotate(0deg) blur(80px); }
-    50% { transform: scale(1.2) translate(50px, -20px); filter: hue-rotate(45deg) blur(100px); }
-    100% { transform: scale(1) translate(-20px, 50px); filter: hue-rotate(90deg) blur(80px); }
+@keyframes fullPulse {
+    0% { opacity: 0.2; transform: scale(1); filter: hue-rotate(0deg); }
+    100% { opacity: 0.5; transform: scale(1.1); filter: hue-rotate(90deg); }
 }
 
-/* === VISUALIZER === */
-#visualizerCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; pointer-events: none; }
-
-/* === FULL PLAYER === */
-.full-player {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: var(--bg-color); z-index: 500; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; padding: 20px;
-    animation: slideUpFull 0.5s ease-out;
-}
-.full-player.hidden { display: none; }
-@keyframes slideUpFull { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.btn-close-full { position: absolute; top: 30px; left: 30px; background: none; border: none; color: var(--text-color); font-size: 1.5rem; cursor: pointer; }
-.full-art-container { width: 100%; max-width: 400px; aspect-ratio: 1; margin: 20px auto; }
-.full-art { width: 100%; height: 100%; border-radius: 20px; background-size: cover; background-position: center; box-shadow: 0 0 50px var(--neon-main); transition: 0.5s; }
-.full-info { text-align: center; margin-bottom: 30px; }
-.full-info h2 { font-size: 1.8rem; margin-bottom: 5px; color: var(--text-color); }
-.full-info p { font-size: 1.2rem; color: var(--text-secondary); }
-.full-controls { display: flex; align-items: center; gap: 40px; }
-.btn-play-large { width: 70px; height: 70px; border-radius: 50%; background: var(--neon-main); border: none; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: black; box-shadow: 0 0 20px var(--neon-main); }
-
-/* Voice Search */
-.voice-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 0 10px; font-size: 1.1rem; }
-.voice-btn.listening { color: #ff0055; animation: pulseBeat 0.5s infinite; }
-
-/* Standard UI */
-.nav-right { display: flex; align-items: center; gap: 15px; }
-.theme-btn { background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-color); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
-.glass-panel { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); }
+/* UI Elements */
+.glass-panel { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); box-shadow: 0 4px 30px rgba(0,0,0,0.1); }
 nav { position: sticky; top: 0; z-index: 100; padding: 1rem 0; margin-bottom: 20px; background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--glass-border); }
 .nav-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
 .logo { font-weight: 900; font-size: 1.5rem; letter-spacing: 2px; }
@@ -74,42 +45,53 @@ nav { position: sticky; top: 0; z-index: 100; padding: 1rem 0; margin-bottom: 20
 .song-card { background: var(--card-bg); padding: 15px; border-radius: 20px; transition: 0.3s; position: relative; }
 .song-card:hover { transform: translateY(-8px); border-color: var(--neon-main); box-shadow: 0 0 25px var(--neon-main); background: var(--glass-bg); }
 .art-box { width: 100%; aspect-ratio: 1; border-radius: 15px; margin-bottom: 15px; background-size: cover; background-position: center; background-color: #333; }
-.player-bar { position: fixed; bottom: 20px; left: 20px; right: 20px; height: 90px; border-radius: 25px; display: flex; align-items: center; justify-content: space-between; padding: 0 3rem; z-index: 200; background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.player-bar { position: fixed; bottom: 20px; left: 20px; right: 20px; height: 90px; border-radius: 25px; display: flex; align-items: center; justify-content: space-between; padding: 0 3rem; z-index: 200; background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); }
 .now-playing-info { display: flex; align-items: center; gap: 20px; width: 30%; }
 .now-playing-art { width: 60px; height: 60px; border-radius: 50%; background: #111; background-size: cover; position: relative; animation: spin 4s linear infinite; animation-play-state: paused; border: 2px solid var(--glass-border); cursor: pointer; }
 .now-playing-art.spinning { animation-play-state: running; border-color: var(--neon-main); }
 .controls { display: flex; align-items: center; gap: 20px; }
-.btn-control { background: none; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; }
-.btn-control:hover { color: var(--text-color); }
-#bassBtn.active { color: var(--neon-main); text-shadow: 0 0 10px var(--neon-main); }
-#speedBtn { font-size: 0.9rem; font-weight: bold; border: 1px solid var(--text-secondary); border-radius: 5px; padding: 2px 8px; width: 50px; }
+.btn-control { background: none; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+.btn-control:hover { color: var(--text-color); transform: scale(1.1); }
 .btn-play { width: 50px; height: 50px; border-radius: 50%; border: none; background: var(--text-color); color: var(--bg-color); display: flex; align-items: center; justify-content: center; }
 .progress-container { width: 100%; display: flex; align-items: center; gap: 10px; }
 .time { font-size: 0.7rem; color: var(--text-secondary); min-width: 35px; }
-input[type=range] { width: 100%; height: 4px; background: var(--text-secondary); border-radius: 2px; -webkit-appearance: none; }
-.volume-control { width: 30%; display: flex; justify-content: flex-end; align-items: center; gap: 10px; color: var(--text-secondary); }
-.action-btn { background: none; border: none; color: #aaa; font-size: 1.2rem; cursor: pointer; transition: 0.2s; margin-left: 10px;}
-.action-btn.active { color: #ff0055; transform: scale(1.1); }
-.action-btn:hover { color: var(--neon-main); }
+input[type=range] { width: 100%; height: 4px; background: var(--text-secondary); border-radius: 2px; -webkit-appearance: none; cursor: pointer; }
+.volume-control { width: 30%; display: flex; justify-content: flex-end; align-items: center; gap: 15px; color: var(--text-secondary); }
+.nav-right { display: flex; align-items: center; gap: 15px; }
+.theme-btn { background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-color); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
+.cursor-dot { position: fixed; width: 8px; height: 8px; background: var(--text-color); border-radius: 50%; pointer-events: none; z-index: 9999; }
+.cursor-outline { position: fixed; width: 40px; height: 40px; border: 1px solid var(--text-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 9999; transition: 0.1s; }
+body.hovering .cursor-outline { width: 60px; height: 60px; background: rgba(128,128,128,0.1); border-color: var(--neon-main); }
+
+/* Full Player */
+.full-player { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; animation: slideUpFull 0.5s ease-out; }
+.full-player.hidden { display: none; }
+@keyframes slideUpFull { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.btn-close-full { position: absolute; top: 30px; left: 30px; background: none; border: none; color: var(--text-color); font-size: 1.5rem; cursor: pointer; }
+.full-art-container { width: 100%; max-width: 400px; aspect-ratio: 1; margin: 20px auto; }
+.full-art { width: 100%; height: 100%; border-radius: 20px; background-size: cover; background-position: center; box-shadow: 0 0 50px var(--neon-main); transition: 0.5s; }
+.full-info { text-align: center; margin-bottom: 30px; }
+.full-info h2 { font-size: 1.8rem; margin-bottom: 5px; color: var(--text-color); }
+.full-info p { font-size: 1.2rem; color: var(--text-secondary); }
+.full-controls { display: flex; align-items: center; gap: 40px; }
+.btn-play-large { width: 70px; height: 70px; border-radius: 50%; background: var(--neon-main); border: none; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: black; box-shadow: 0 0 20px var(--neon-main); }
 
 /* Overlays */
 .lyrics-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 300; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
 .lyrics-content { width: 90%; max-width: 500px; height: 70vh; padding: 2rem; border-radius: 25px; background: var(--modal-bg); border: 1px solid var(--neon-main); display: flex; flex-direction: column; color: var(--text-color); }
 .lyrics-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; }
 .lyrics-body { flex: 1; overflow-y: auto; color: var(--text-color); line-height: 1.6; }
+.action-btn { background: none; border: none; color: #aaa; font-size: 1.2rem; cursor: pointer; transition: 0.2s; margin-left: 10px;}
+.action-btn.active { color: #ff0055; transform: scale(1.1); }
 .library-tabs { display: flex; border-bottom: 1px solid #333; margin-bottom: 10px; }
 .lib-tab { flex: 1; background: none; border: none; color: #aaa; padding: 10px; cursor: pointer; font-weight: bold; }
 .lib-tab.active { color: var(--neon-main); border-bottom: 2px solid var(--neon-main); }
 .lib-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #222; cursor: pointer; transition: 0.2s; }
 .lib-item:hover { background: rgba(255,255,255,0.05); }
 .lib-item img { width: 40px; height: 40px; border-radius: 5px; }
-.cursor-dot { position: fixed; width: 8px; height: 8px; background: var(--text-color); border-radius: 50%; pointer-events: none; z-index: 9999; }
-.cursor-outline { position: fixed; width: 40px; height: 40px; border: 1px solid var(--text-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 9999; transition: 0.1s; }
-body.hovering .cursor-outline { width: 60px; height: 60px; background: rgba(128,128,128,0.1); border-color: var(--neon-main); }
 .loader { border: 4px solid var(--glass-border); border-top: 4px solid var(--neon-main); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 50px auto; }
 .hidden { display: none; }
 .fade-in-up { animation: fadeInUp 0.8s ease-out; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes pulseBeat { 0% { transform: scale(1); } 100% { transform: scale(1.02); } }
 @media (max-width: 768px) { .player-bar { flex-direction: column; height: 140px; padding: 15px; } .volume-control { display: none; } .now-playing-info, .player-center { width: 100%; } }
