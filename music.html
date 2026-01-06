@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Beats - Ultimate</title>
+    <title>Neon Beats - Music</title>
     <link rel="canonical" href="https://www.sirimillavinay.online/music">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -88,8 +88,17 @@
             <button class="mood-chip" onclick="searchMood('Trending India')">🔥 Trending</button>
             <button class="mood-chip" onclick="searchMood('lofi beats')">🌧️ Lo-Fi</button>
             <button class="mood-chip" onclick="searchMood('gym workout phonk')">💪 Gym</button>
-            <button class="mood-chip" onclick="searchMood('romantic hindi')">❤️ Love</button>
+            <button class="mood-chip" onclick="searchMood('romantic')">❤️ Love</button>
             <button class="mood-chip" onclick="searchMood('party remix')">🎉 Party</button>
+        </div>
+
+        <div class="lang-container fade-in-up">
+            <button class="lang-chip active" onclick="setLanguage('All')">All</button>
+            <button class="lang-chip" onclick="setLanguage('Telugu')">Telugu</button>
+            <button class="lang-chip" onclick="setLanguage('Hindi')">Hindi</button>
+            <button class="lang-chip" onclick="setLanguage('English')">English</button>
+            <button class="lang-chip" onclick="setLanguage('Tamil')">Tamil</button>
+            <button class="lang-chip" onclick="setLanguage('Punjabi')">Punjabi</button>
         </div>
 
         <div class="horizontal-scroll-wrapper">
@@ -108,7 +117,9 @@
 
         <div class="player-center">
             <div class="controls">
-                <google-cast-launcher id="castBtn" style="display: none;"></google-cast-launcher>
+                <div class="cast-wrapper">
+                    <google-cast-launcher id="castBtn"></google-cast-launcher>
+                </div>
                 
                 <button class="btn-control magnetic hidden" id="airplayBtn" title="AirPlay"><i class="fa-brands fa-apple"></i></button>
                 
@@ -120,7 +131,7 @@
                 <button class="btn-play magnetic" id="playBtn"><i class="fa-solid fa-play" id="playIcon"></i></button>
                 <button class="btn-control magnetic" id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
                 
-                <button class="btn-control magnetic" id="pipBtn" title="PiP Mode"><i class="fa-solid fa-up-right-from-square"></i></button>
+                <button class="btn-control magnetic" id="pipBtn" title="Pop Out Player"><i class="fa-solid fa-up-right-from-square"></i></button>
             </div>
             <div class="progress-container">
                 <span class="time" id="currTime">0:00</span>
@@ -136,8 +147,7 @@
         </div>
     </div>
 
-    <video id="audioPlayer" crossorigin="anonymous" playsinline style="display:none;"></video>
-    
+    <video id="audioPlayer" crossorigin="anonymous" playsinline style="opacity: 0; position: absolute; top: 0; pointer-events: none;"></video>
     <script src="script.js"></script>
 </body>
 </html>
