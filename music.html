@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Beats - Music Player</title>
+    <title>Neon Beats - Ultimate</title>
     <link rel="canonical" href="https://www.sirimillavinay.online/music">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+
     <div class="cursor-dot" id="cursorDot"></div>
     <div class="cursor-outline" id="cursorOutline"><i class="fa-solid fa-music"></i></div>
+
+    <div class="neon-blink-bg" id="neonBg"></div>
+    
     <div class="parallax-layer layer-1" id="layer1"></div>
-    <canvas id="visualizerCanvas"></canvas>
-    <div class="neon-glass-bg" id="neonGlass"></div>
 
     <div class="full-player hidden" id="fullPlayer">
         <button class="btn-close-full magnetic" id="closeFullPlayer"><i class="fa-solid fa-chevron-down"></i></button>
@@ -46,8 +48,12 @@
         <div class="nav-container">
             <div class="logo pulse-logo">NEON<span class="highlight">BEATS</span></div>
             <div class="nav-right">
-                <div class="tab-switcher"><a href="/music" class="tab-btn active magnetic">Music</a><a href="/videodownloader" class="tab-btn magnetic">Video DL</a><button class="tab-btn magnetic" id="openLibraryBtn"><i class="fa-solid fa-bookmark"></i></button></div>
-                <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+                <div class="tab-switcher">
+                    <a href="/music" class="tab-btn active magnetic">Music</a>
+                    <a href="/videodownloader" class="tab-btn magnetic">Video DL</a>
+                    <button class="tab-btn magnetic" id="openLibraryBtn"><i class="fa-solid fa-bookmark"></i></button>
+                </div>
+                 <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
             </div>
         </div>
     </nav>
@@ -56,10 +62,10 @@
         <div class="search-container fade-in-up">
             <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="searchInput" placeholder="Search songs...">
-                <button id="voiceBtn" class="voice-btn magnetic" title="Voice Search"><i class="fa-solid fa-microphone"></i></button>
+                <input type="text" id="searchInput" placeholder="Search songs, artists...">
             </div>
         </div>
+
         <div class="horizontal-scroll-wrapper">
             <h2 class="section-title fade-in-up" id="gridTitle">Trending Now</h2>
             <div class="music-grid" id="musicGrid"><div class="loader hidden" id="loader"></div></div>
@@ -71,26 +77,30 @@
             <div class="now-playing-art magnetic" id="albumArt" title="Open Full Player"><div class="center-hole"></div></div>
             <div class="track-details"><span id="trackTitle">Select a track</span><span id="trackArtist">...</span></div>
             <button class="action-btn magnetic" id="likeBtn"><i class="fa-regular fa-heart"></i></button>
-            <button class="action-btn magnetic" id="shareBtn"><i class="fa-solid fa-share-nodes"></i></button>
         </div>
+
         <div class="player-center">
             <div class="controls">
-                <button class="btn-control magnetic" id="speedBtn" title="Speed">1.0x</button>
-                <button class="btn-control magnetic" id="bassBtn" title="Bass Boost"><i class="fa-solid fa-wave-square"></i></button>
                 <button class="btn-control magnetic" id="prevBtn"><i class="fa-solid fa-backward-step"></i></button>
                 <button class="btn-play magnetic" id="playBtn"><i class="fa-solid fa-play" id="playIcon"></i></button>
                 <button class="btn-control magnetic" id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
-                <button class="btn-control magnetic" id="sleepBtn" title="Sleep Timer"><i class="fa-solid fa-stopwatch"></i></button>
             </div>
-            <div class="progress-container"><span class="time" id="currTime">0:00</span><input type="range" id="progressBar" value="0" max="100"><span class="time" id="totalTime">0:00</span></div>
+            <div class="progress-container">
+                <span class="time" id="currTime">0:00</span>
+                <input type="range" id="progressBar" value="0" max="100">
+                <span class="time" id="totalTime">0:00</span>
+            </div>
         </div>
+
         <div class="volume-control">
-            <button class="btn-control magnetic" id="lyricsBtn" style="margin-right:15px;"><i class="fa-solid fa-align-left"></i></button>
-            <i class="fa-solid fa-volume-high"></i>
-            <input type="range" id="volumeBar" value="100" max="100">
-            <a id="downloadLink" href="#" class="btn-control magnetic" style="margin-left:15px;" download target="_blank"><i class="fa-solid fa-cloud-arrow-down"></i></a>
+            <button class="btn-control magnetic" id="lyricsBtn"><i class="fa-solid fa-align-left"></i></button>
+            
+            <button class="btn-control magnetic" id="downloadBtn" title="Download Song">
+                <i class="fa-solid fa-download"></i>
+            </button>
         </div>
     </div>
+
     <audio id="audioPlayer" crossorigin="anonymous"></audio>
     <script src="script.js"></script>
 </body>
