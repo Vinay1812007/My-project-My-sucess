@@ -2,13 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=/music">
-    <script type="text/javascript">
-        window.location.href = "/music";
-    </script>
-    <title>Redirecting...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Beats - Home</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <p>Redirecting to <a href="/music">Music Player</a>...</p>
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+    <div class="neon-blink-bg active"></div>
+    <div class="parallax-layer layer-1" id="layer1"></div>
+
+    <div class="landing-container glass-panel fade-in-up">
+        <div class="logo pulse-logo" style="font-size: 3rem; margin-bottom: 10px;">NEON<span class="highlight">BEATS</span></div>
+        <p style="color: #aaa; margin-bottom: 30px; font-size: 1.1rem;">The Ultimate Audio & Video Experience</p>
+        
+        <div class="landing-input-group">
+            <input type="text" id="landingUrl" placeholder="Paste YouTube, Insta, TikTok link...">
+            <button id="landingGoBtn"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+
+        <div class="landing-buttons">
+            <a href="/music" class="landing-btn magnetic">
+                <i class="fa-solid fa-music"></i> Music Player
+            </a>
+            <a href="/videodownloader" class="landing-btn magnetic">
+                <i class="fa-solid fa-video"></i> 8K Downloader
+            </a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
