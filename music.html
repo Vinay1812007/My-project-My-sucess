@@ -9,25 +9,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-
     <div class="cursor-dot" id="cursorDot"></div>
     <div class="cursor-outline" id="cursorOutline"><i class="fa-solid fa-music"></i></div>
-
     <div class="parallax-layer layer-1" id="layer1"></div>
     <canvas id="visualizerCanvas"></canvas>
-    <div class="beat-overlay" id="beatBg"></div>
+    <div class="neon-glass-bg" id="neonGlass"></div>
 
     <div class="full-player hidden" id="fullPlayer">
         <button class="btn-close-full magnetic" id="closeFullPlayer"><i class="fa-solid fa-chevron-down"></i></button>
-        <div class="full-art-container">
-            <div class="full-art" id="fullAlbumArt"></div>
-        </div>
-        <div class="full-info">
-            <h2 id="fullTrackTitle">Select a Track</h2>
-            <p id="fullTrackArtist">...</p>
-        </div>
+        <div class="full-art-container"><div class="full-art" id="fullAlbumArt"></div></div>
+        <div class="full-info"><h2 id="fullTrackTitle">Select a Track</h2><p id="fullTrackArtist">...</p></div>
         <div class="full-controls">
-             <button class="btn-control magnetic" id="fullPrevBtn"><i class="fa-solid fa-backward-step"></i></button>
+            <button class="btn-control magnetic" id="fullPrevBtn"><i class="fa-solid fa-backward-step"></i></button>
             <button class="btn-play-large magnetic" id="fullPlayBtn"><i class="fa-solid fa-play" id="fullPlayIcon"></i></button>
             <button class="btn-control magnetic" id="fullNextBtn"><i class="fa-solid fa-forward-step"></i></button>
         </div>
@@ -35,10 +28,7 @@
 
     <div class="lyrics-overlay hidden" id="lyricsPanel">
         <div class="lyrics-content glass-panel">
-            <div class="lyrics-header">
-                <h3><i class="fa-solid fa-robot"></i> Lyrics AI</h3>
-                <button class="btn-close magnetic" id="closeLyrics"><i class="fa-solid fa-xmark"></i></button>
-            </div>
+            <div class="lyrics-header"><h3><i class="fa-solid fa-robot"></i> Lyrics AI</h3><button class="btn-close magnetic" id="closeLyrics"><i class="fa-solid fa-xmark"></i></button></div>
             <div class="lyrics-body" id="lyricsText"></div>
             <button class="btn-primary magnetic" id="fullLyricsBtn">Find Full Lyrics on Google</button>
         </div>
@@ -46,14 +36,8 @@
 
     <div class="lyrics-overlay hidden" id="libraryPanel">
         <div class="lyrics-content glass-panel">
-            <div class="lyrics-header">
-                <h3><i class="fa-solid fa-heart"></i> My Library</h3>
-                <button class="btn-close magnetic" id="closeLibrary"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="library-tabs">
-                <button class="lib-tab active" onclick="switchLib('favorites')">Favorites</button>
-                <button class="lib-tab" onclick="switchLib('history')">History</button>
-            </div>
+            <div class="lyrics-header"><h3><i class="fa-solid fa-heart"></i> My Library</h3><button class="btn-close magnetic" id="closeLibrary"><i class="fa-solid fa-xmark"></i></button></div>
+            <div class="library-tabs"><button class="lib-tab active" onclick="switchLib('favorites')">Favorites</button><button class="lib-tab" onclick="switchLib('history')">History</button></div>
             <div class="lyrics-body" id="libraryList"></div>
         </div>
     </div>
@@ -62,12 +46,8 @@
         <div class="nav-container">
             <div class="logo pulse-logo">NEON<span class="highlight">BEATS</span></div>
             <div class="nav-right">
-                <div class="tab-switcher">
-                    <a href="/music" class="tab-btn active magnetic">Music</a>
-                    <a href="/videodownloader" class="tab-btn magnetic">Video DL</a>
-                    <button class="tab-btn magnetic" id="openLibraryBtn"><i class="fa-solid fa-bookmark"></i></button>
-                </div>
-                 <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+                <div class="tab-switcher"><a href="/music" class="tab-btn active magnetic">Music</a><a href="/videodownloader" class="tab-btn magnetic">Video DL</a><button class="tab-btn magnetic" id="openLibraryBtn"><i class="fa-solid fa-bookmark"></i></button></div>
+                <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
             </div>
         </div>
     </nav>
@@ -80,44 +60,30 @@
                 <button id="voiceBtn" class="voice-btn magnetic" title="Voice Search"><i class="fa-solid fa-microphone"></i></button>
             </div>
         </div>
-
         <div class="horizontal-scroll-wrapper">
             <h2 class="section-title fade-in-up" id="gridTitle">Trending Now</h2>
-            <div class="music-grid" id="musicGrid">
-                <div class="loader hidden" id="loader"></div>
-            </div>
+            <div class="music-grid" id="musicGrid"><div class="loader hidden" id="loader"></div></div>
         </div>
     </main>
 
     <div class="player-bar glass-panel slide-up" id="musicPlayerBar">
         <div class="now-playing-info">
             <div class="now-playing-art magnetic" id="albumArt" title="Open Full Player"><div class="center-hole"></div></div>
-            <div class="track-details">
-                <span id="trackTitle">Select a track</span>
-                <span id="trackArtist">...</span>
-            </div>
+            <div class="track-details"><span id="trackTitle">Select a track</span><span id="trackArtist">...</span></div>
             <button class="action-btn magnetic" id="likeBtn"><i class="fa-regular fa-heart"></i></button>
             <button class="action-btn magnetic" id="shareBtn"><i class="fa-solid fa-share-nodes"></i></button>
         </div>
-
         <div class="player-center">
             <div class="controls">
                 <button class="btn-control magnetic" id="speedBtn" title="Speed">1.0x</button>
                 <button class="btn-control magnetic" id="bassBtn" title="Bass Boost"><i class="fa-solid fa-wave-square"></i></button>
-                
                 <button class="btn-control magnetic" id="prevBtn"><i class="fa-solid fa-backward-step"></i></button>
                 <button class="btn-play magnetic" id="playBtn"><i class="fa-solid fa-play" id="playIcon"></i></button>
                 <button class="btn-control magnetic" id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
-                
                 <button class="btn-control magnetic" id="sleepBtn" title="Sleep Timer"><i class="fa-solid fa-stopwatch"></i></button>
             </div>
-            <div class="progress-container">
-                <span class="time" id="currTime">0:00</span>
-                <input type="range" id="progressBar" value="0" max="100">
-                <span class="time" id="totalTime">0:00</span>
-            </div>
+            <div class="progress-container"><span class="time" id="currTime">0:00</span><input type="range" id="progressBar" value="0" max="100"><span class="time" id="totalTime">0:00</span></div>
         </div>
-
         <div class="volume-control">
             <button class="btn-control magnetic" id="lyricsBtn" style="margin-right:15px;"><i class="fa-solid fa-align-left"></i></button>
             <i class="fa-solid fa-volume-high"></i>
@@ -125,7 +91,6 @@
             <a id="downloadLink" href="#" class="btn-control magnetic" style="margin-left:15px;" download target="_blank"><i class="fa-solid fa-cloud-arrow-down"></i></a>
         </div>
     </div>
-
     <audio id="audioPlayer" crossorigin="anonymous"></audio>
     <script src="script.js"></script>
 </body>
