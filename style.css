@@ -13,23 +13,30 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; cursor: none; }
 body { background-color: var(--bg-color); color: var(--text-color); overflow-x: hidden; min-height: 100vh; transition: 0.3s; }
 
-/* === NEW FULL NEON BLINK ANIMATION === */
+/* === MOOD CHIPS === */
+.mood-container { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 25px; }
+.mood-chip {
+    background: var(--card-bg); border: 1px solid var(--glass-border);
+    padding: 8px 16px; border-radius: 20px; color: var(--text-secondary);
+    cursor: pointer; font-size: 0.9rem; transition: 0.3s;
+}
+.mood-chip:hover {
+    background: var(--neon-main); color: black; transform: translateY(-3px);
+    box-shadow: 0 0 15px var(--neon-main);
+}
+
+/* === BACKGROUNDS === */
 .neon-blink-bg {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: radial-gradient(circle, var(--neon-main), transparent 80%);
-    opacity: 0; z-index: -2; pointer-events: none; transition: opacity 0.5s;
-    mix-blend-mode: screen;
+    opacity: 0; z-index: -2; pointer-events: none; transition: opacity 0.5s; mix-blend-mode: screen;
 }
-.neon-blink-bg.active {
-    opacity: 0.4;
-    animation: fullPulse 2s infinite alternate;
-}
-@keyframes fullPulse {
-    0% { opacity: 0.2; transform: scale(1); filter: hue-rotate(0deg); }
-    100% { opacity: 0.5; transform: scale(1.1); filter: hue-rotate(90deg); }
-}
+.neon-blink-bg.active { opacity: 0.4; animation: fullPulse 2s infinite alternate; }
+@keyframes fullPulse { 0% { opacity: 0.2; transform: scale(1); filter: hue-rotate(0deg); } 100% { opacity: 0.5; transform: scale(1.1); filter: hue-rotate(90deg); } }
+#visualizerCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; pointer-events: none; }
+.parallax-layer { position: fixed; top: -10%; left: -10%; width: 120%; height: 120%; z-index: -2; pointer-events: none; transition: transform 0.1s linear; }
 
-/* UI Elements */
+/* === UI === */
 .glass-panel { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); box-shadow: 0 4px 30px rgba(0,0,0,0.1); }
 nav { position: sticky; top: 0; z-index: 100; padding: 1rem 0; margin-bottom: 20px; background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--glass-border); }
 .nav-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
@@ -52,6 +59,11 @@ nav { position: sticky; top: 0; z-index: 100; padding: 1rem 0; margin-bottom: 20
 .controls { display: flex; align-items: center; gap: 20px; }
 .btn-control { background: none; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
 .btn-control:hover { color: var(--text-color); transform: scale(1.1); }
+#bassBtn.active { color: var(--neon-main); text-shadow: 0 0 10px var(--neon-main); }
+#audio8dBtn { font-weight: bold; font-size: 0.9rem; }
+#audio8dBtn.active { color: var(--neon-main); text-shadow: 0 0 10px var(--neon-main); animation: spin 3s linear infinite; }
+#speedBtn { font-size: 0.9rem; font-weight: bold; border: 1px solid var(--text-secondary); border-radius: 5px; padding: 2px 8px; width: 50px; }
+#sleepBtn.active { color: var(--neon-main); }
 .btn-play { width: 50px; height: 50px; border-radius: 50%; border: none; background: var(--text-color); color: var(--bg-color); display: flex; align-items: center; justify-content: center; }
 .progress-container { width: 100%; display: flex; align-items: center; gap: 10px; }
 .time { font-size: 0.7rem; color: var(--text-secondary); min-width: 35px; }
@@ -63,7 +75,7 @@ input[type=range] { width: 100%; height: 4px; background: var(--text-secondary);
 .cursor-outline { position: fixed; width: 40px; height: 40px; border: 1px solid var(--text-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 9999; transition: 0.1s; }
 body.hovering .cursor-outline { width: 60px; height: 60px; background: rgba(128,128,128,0.1); border-color: var(--neon-main); }
 
-/* Full Player */
+/* Full Player & Modals */
 .full-player { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; animation: slideUpFull 0.5s ease-out; }
 .full-player.hidden { display: none; }
 @keyframes slideUpFull { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -75,8 +87,6 @@ body.hovering .cursor-outline { width: 60px; height: 60px; background: rgba(128,
 .full-info p { font-size: 1.2rem; color: var(--text-secondary); }
 .full-controls { display: flex; align-items: center; gap: 40px; }
 .btn-play-large { width: 70px; height: 70px; border-radius: 50%; background: var(--neon-main); border: none; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: black; box-shadow: 0 0 20px var(--neon-main); }
-
-/* Overlays */
 .lyrics-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 300; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
 .lyrics-content { width: 90%; max-width: 500px; height: 70vh; padding: 2rem; border-radius: 25px; background: var(--modal-bg); border: 1px solid var(--neon-main); display: flex; flex-direction: column; color: var(--text-color); }
 .lyrics-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; }
@@ -92,6 +102,9 @@ body.hovering .cursor-outline { width: 60px; height: 60px; background: rgba(128,
 .loader { border: 4px solid var(--glass-border); border-top: 4px solid var(--neon-main); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 50px auto; }
 .hidden { display: none; }
 .fade-in-up { animation: fadeInUp 0.8s ease-out; }
+.voice-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 0 10px; font-size: 1.1rem; }
+.voice-btn.listening { color: #ff0055; animation: pulseBeat 0.5s infinite; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulseBeat { 0% { transform: scale(1); } 100% { transform: scale(1.02); } }
 @media (max-width: 768px) { .player-bar { flex-direction: column; height: 140px; padding: 15px; } .volume-control { display: none; } .now-playing-info, .player-center { width: 100%; } }
+#qrCodeContainer canvas, #qrCodeContainer img { margin: 0 auto; display: block; }
