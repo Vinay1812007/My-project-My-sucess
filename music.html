@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Beats - Ultimate</title>
+    <title>Neon Beats - Music</title>
     <link rel="canonical" href="https://www.sirimillavinay.online/music">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
 </head>
 <body>
 
     <div class="cursor-dot" id="cursorDot"></div>
     <div class="cursor-outline" id="cursorOutline"><i class="fa-solid fa-music"></i></div>
-
     <div class="neon-blink-bg" id="neonBg"></div>
     <div class="parallax-layer layer-1" id="layer1"></div>
     <canvas id="visualizerCanvas"></canvas>
@@ -41,15 +41,11 @@
 
     <div class="lyrics-overlay hidden" id="qrPanel">
         <div class="lyrics-content glass-panel" style="align-items: center; text-align: center;">
-            <div class="lyrics-header" style="width: 100%;">
-                <h3><i class="fa-solid fa-qrcode"></i> Party Sync</h3>
-                <button class="btn-close magnetic" id="closeQr"><i class="fa-solid fa-xmark"></i></button>
-            </div>
+            <div class="lyrics-header" style="width: 100%;"><h3><i class="fa-solid fa-qrcode"></i> Party Sync</h3><button class="btn-close magnetic" id="closeQr"><i class="fa-solid fa-xmark"></i></button></div>
             <div id="qrCodeContainer" style="margin: 20px; padding: 10px; background: white; border-radius: 10px;"></div>
-            <p style="color: #aaa; margin-top: 10px;">Scan to play this song at the <b>exact same time</b> on another phone.</p>
+            <p style="color: #aaa; margin-top: 10px;">Scan to play exact same spot on another device.</p>
         </div>
     </div>
-
     <div class="lyrics-overlay hidden" id="lyricsPanel">
         <div class="lyrics-content glass-panel">
             <div class="lyrics-header"><h3><i class="fa-solid fa-robot"></i> Lyrics AI</h3><button class="btn-close magnetic" id="closeLyrics"><i class="fa-solid fa-xmark"></i></button></div>
@@ -112,6 +108,9 @@
 
         <div class="player-center">
             <div class="controls">
+                <button is="google-cast-button" id="castBtn" style="display: none;"></button>
+                <button class="btn-control magnetic hidden" id="airplayBtn" title="AirPlay"><i class="fa-brands fa-apple"></i></button>
+                
                 <button class="btn-control magnetic" id="speedBtn" title="Speed">1.0x</button>
                 <button class="btn-control magnetic" id="bassBtn" title="Bass Boost"><i class="fa-solid fa-wave-square"></i></button>
                 <button class="btn-control magnetic" id="audio8dBtn" title="8D Audio">8D</button>
@@ -119,6 +118,8 @@
                 <button class="btn-control magnetic" id="prevBtn"><i class="fa-solid fa-backward-step"></i></button>
                 <button class="btn-play magnetic" id="playBtn"><i class="fa-solid fa-play" id="playIcon"></i></button>
                 <button class="btn-control magnetic" id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
+                
+                <button class="btn-control magnetic" id="pipBtn" title="PiP Mode"><i class="fa-solid fa-images"></i></button>
             </div>
             <div class="progress-container">
                 <span class="time" id="currTime">0:00</span>
@@ -129,11 +130,12 @@
 
         <div class="volume-control">
             <button class="btn-control magnetic" id="lyricsBtn"><i class="fa-solid fa-align-left"></i></button>
+            <button class="btn-control magnetic" id="sleepBtn" title="Sleep Timer"><i class="fa-solid fa-stopwatch"></i></button>
             <button class="btn-control magnetic" id="downloadBtn" title="Download Song"><i class="fa-solid fa-download"></i></button>
         </div>
     </div>
 
-    <audio id="audioPlayer" crossorigin="anonymous"></audio>
+    <video id="audioPlayer" crossorigin="anonymous" playsinline style="display:none;"></video>
     <script src="script.js"></script>
 </body>
 </html>
