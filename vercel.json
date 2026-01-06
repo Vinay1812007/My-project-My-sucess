@@ -1,7 +1,7 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/", "destination": "/music.html" },
+    { "source": "/", "destination": "/index.html" },
     { "source": "/music", "destination": "/music.html" },
     { "source": "/videodownloader", "destination": "/videodownloader.html" },
     { "source": "/sitemap", "destination": "/sitemap.html" }
