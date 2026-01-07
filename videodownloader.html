@@ -1,59 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Video Downloader</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Beats - Video DL</title>
+    <link rel="canonical" href="https://www.sirimillavinay.online/videodownloader">
+    
+    <meta name="google-adsense-account" content="ca-pub-4235914042802141">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4235914042802141"
+     crossorigin="anonymous"></script>
 
-<meta name="google-adsense-account" content="ca-pub-4235914042802141">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4235914042802141" crossorigin="anonymous"></script>
-
-<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-<header>
-<h1>Video Downloader</h1>
-<nav><a href="/">Home</a></nav>
-</header>
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-outline" id="cursorOutline"><i class="fa-solid fa-video"></i></div>
+    <div class="neon-blink-bg" id="neonBg"></div>
+    <div class="parallax-layer layer-1" id="layer1"></div>
 
-<main>
-<h2>Direct Video Download</h2>
+    <nav class="glass-panel sticky-nav">
+        <div class="nav-container">
+            <div class="logo pulse-logo">NEON<span class="highlight">BEATS</span></div>
+            <div class="nav-right">
+                <div class="tab-switcher">
+                    <a href="/music" class="tab-btn magnetic">Music</a>
+                    <a href="/videodownloader" class="tab-btn active magnetic">Video DL</a>
+                </div>
+                 <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+            </div>
+        </div>
+    </nav>
 
-<input type="file" accept="video/*" id="videoInput">
-<video id="videoPlayer" controls width="100%"></video>
-<br><br>
-<button id="downloadVideo">Download Video</button>
+    <main class="active-section">
+        <div class="video-dl-container glass-panel fade-in-up">
+            <div class="dl-header">
+                <h2><i class="fa-solid fa-bolt" style="color:var(--neon-main);"></i> Ultimate Downloader</h2>
+                <div class="platform-icons">
+                    <i class="fa-brands fa-youtube" title="YouTube"></i>
+                    <i class="fa-brands fa-instagram" title="Instagram"></i>
+                    <i class="fa-brands fa-tiktok" title="TikTok"></i>
+                    <i class="fa-brands fa-twitter" title="X"></i>
+                    <i class="fa-solid fa-box" title="Terabox"></i>
+                </div>
+            </div>
 
-<ins class="adsbygoogle"
-style="display:block"
-data-ad-client="ca-pub-4235914042802141"
-data-ad-format="auto"
-data-full-width-responsive="true"></ins>
-<script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
+            <div class="dl-input-group">
+                <button class="paste-btn magnetic" id="pasteBtn" title="Paste"><i class="fa-regular fa-clipboard"></i></button>
+                <input type="text" id="videoUrl" placeholder="Paste link here...">
+                <button class="magnetic" id="fetchVideoBtn">Fetch</button>
+            </div>
 
-</main>
-
-<footer>© 2026 sirimillavinay.online</footer>
-
-<script>
-const vInput = document.getElementById('videoInput');
-const vPlayer = document.getElementById('videoPlayer');
-const dBtn = document.getElementById('downloadVideo');
-let videoFile;
-
-vInput.onchange = e => {
-  videoFile = e.target.files[0];
-  vPlayer.src = URL.createObjectURL(videoFile);
-};
-
-dBtn.onclick = () => {
-  if (!videoFile) return;
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(videoFile);
-  a.download = videoFile.name;
-  a.click();
-};
-</script>
+            <div id="dlResult" class="dl-result hidden">
+                <div class="video-preview-box">
+                    <img id="thumbPreview" src="" alt="Thumbnail" class="preview-img">
+                    <div class="video-meta">
+                        <h3 id="vidTitle">Video Found</h3>
+                        <span id="vidPlatform" class="platform-badge">Detected</span>
+                    </div>
+                </div>
+                <div class="format-grid">
+                    <button class="format-chip magnetic active" data-quality="8k">8K</button>
+                    <button class="format-chip magnetic" data-quality="4k">4K</button>
+                    <button class="format-chip magnetic" data-quality="1080">1080p</button>
+                    <button class="format-chip magnetic" data-quality="mp3">MP3</button>
+                </div>
+                <button class="btn-download magnetic" id="finalDownloadBtn">
+                    <i class="fa-solid fa-download"></i> Start Download
+                </button>
+            </div>
+            
+            <div class="history-section hidden" id="dlHistoryPanel">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> History</h3>
+                <div class="history-list" id="dlHistoryList"></div>
+                <button class="clear-history magnetic" id="clearHistoryBtn">Clear History</button>
+            </div>
+        </div>
+    </main>
+    <script src="script.js"></script>
 </body>
 </html>
