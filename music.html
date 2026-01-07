@@ -6,9 +6,6 @@
     <title>Neon Beats - Music</title>
     <link rel="canonical" href="https://www.sirimillavinay.online/music">
     
-    <meta name="google-adsense-account" content="ca-pub-4235914042802141">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4235914042802141" crossorigin="anonymous"></script>
-
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -23,7 +20,7 @@
     <div class="cursor-dot" id="cursorDot"></div>
     <div class="cursor-outline" id="cursorOutline"><i class="fa-solid fa-music"></i></div>
     
-    <div id="partyOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:50; opacity:0; mix-blend-mode:overlay;"></div>
+    <div id="partyOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:50; opacity:0; mix-blend-mode:overlay; background:white;"></div>
 
     <div class="full-player hidden" id="fullPlayer">
         <button class="btn-close-full magnetic" id="closeFullPlayer"><i class="fa-solid fa-chevron-down"></i></button>
@@ -90,23 +87,18 @@
                 <button id="voiceBtn" class="voice-btn magnetic" title="Voice Search"><i class="fa-solid fa-microphone"></i></button>
             </div>
         </div>
-        
-        <div style="display: flex; justify-content: center; margin-bottom: 20px;">
-            <ins class="adsbygoogle"
-                 style="display:inline-block;width:728px;height:90px"
-                 data-ad-client="ca-pub-4235914042802141"
-                 data-ad-slot="8448414118"></ins>
-            <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
-        </div>
 
         <div class="mood-container fade-in-up">
             <button class="mood-chip" onclick="searchMood('Trending India')">🔥 Trending</button>
             <button class="mood-chip" onclick="searchMood('lofi beats')">🌧️ Lo-Fi</button>
             <button class="mood-chip" onclick="searchMood('gym workout phonk')">💪 Gym</button>
-            <button class="mood-chip" onclick="searchMood('romantic')">❤️ Love</button>
-            <button class="mood-chip" onclick="searchMood('party remix')">🎉 Party</button>
+            <button class="mood-chip" onclick="searchMood('romantic love songs')">❤️ Love</button>
+            <button class="mood-chip" onclick="searchMood('party remix bollywood')">🎉 Party</button>
+            
+            <button class="mood-chip" onclick="searchMood('Bhakti songs')">🕉️ Devotional</button>
+            <button class="mood-chip" onclick="searchMood('sad broken heart india')">💔 Broken</button>
+            <button class="mood-chip" onclick="searchMood('long drive hindi')">🚗 Drive</button>
+            <button class="mood-chip" onclick="searchMood('gaming phonk music')">🕹️ Gaming</button>
         </div>
 
         <div class="lang-container fade-in-up">
@@ -121,16 +113,6 @@
         <div class="horizontal-scroll-wrapper">
             <h2 class="section-title fade-in-up" id="gridTitle">Trending Now</h2>
             <div class="music-grid" id="musicGrid"><div class="loader hidden" id="loader"></div></div>
-        </div>
-
-        <div style="display: flex; justify-content: center; margin-top: 40px; margin-bottom: 120px;">
-            <ins class="adsbygoogle"
-                 style="display:inline-block;width:360px;height:800px"
-                 data-ad-client="ca-pub-4235914042802141"
-                 data-ad-slot="1883005763"></ins>
-            <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
         </div>
     </main>
 
@@ -150,7 +132,7 @@
                 
                 <button class="btn-control magnetic hidden" id="airplayBtn" title="AirPlay"><i class="fa-brands fa-apple"></i></button>
                 
-                <button class="btn-control magnetic" id="spatialBtn" title="3D Spatial Audio" style="font-size:0.8rem; font-weight:bold; border:1px solid #aaa; border-radius:5px; padding:0 5px;">3D</button>
+                <button class="btn-control magnetic" id="spatialBtn" title="Dolby Atmos 3D"><i class="fa-solid fa-cube"></i> 3D</button>
                 <button class="btn-control magnetic" id="partyBtn" title="Party Light"><i class="fa-solid fa-bolt"></i></button>
                 
                 <button class="btn-control magnetic" id="speedBtn" title="Speed">1.0x</button>
