@@ -1,6 +1,31 @@
 window['__onGCastApiAvailable'] = function(isAvailable) { if (isAvailable) { cast.framework.CastContext.getInstance().setOptions({ receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID, autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED }); if(document.getElementById('castBtn')) document.getElementById('castBtn').style.display = 'inline-block'; } };
 window.searchMood = function(query) { const i = document.getElementById('searchInput'); if(i){ i.value = query; i.dispatchEvent(new Event('input')); } };
 
+// --- NEW: Fix for Language Buttons ---
+window.setLanguage = function(lang) {
+    // 1. Update the visual buttons (highlight the active one)
+    document.querySelectorAll('.lang-chip').forEach(c => c.classList.remove('active'));
+    // Use event.target to find the clicked button
+    if(event && event.target) {
+        event.target.classList.add('active');
+    }
+
+    // 2. Determine search query
+    let query = "Top Indian Hits";
+    if (lang !== 'All') {
+        query = `Latest ${lang} Songs`;
+    }
+
+    // 3. Trigger the search
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.value = query;
+        // Call the searchSongs function defined inside DOMContentLoaded using a custom event or direct call if exposed.
+        // Since searchSongs is inside the closure, we trigger an input event to run the logic.
+        searchInput.dispatchEvent(new Event('input')); 
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     
     // --- THEME & CURSOR ---
