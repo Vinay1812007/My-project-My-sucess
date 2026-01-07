@@ -19,7 +19,6 @@
 
     <div class="cursor-dot" id="cursorDot"></div>
     <div class="cursor-outline" id="cursorOutline"><i class="fa-solid fa-music"></i></div>
-    
     <div id="partyOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:50; opacity:0; mix-blend-mode:overlay; background:white;"></div>
 
     <div class="full-player hidden" id="fullPlayer">
@@ -47,16 +46,17 @@
         <div class="lyrics-content glass-panel" style="align-items: center; text-align: center;">
             <div class="lyrics-header" style="width: 100%;"><h3><i class="fa-solid fa-qrcode"></i> Party Sync</h3><button class="btn-close magnetic" id="closeQr"><i class="fa-solid fa-xmark"></i></button></div>
             <div id="qrCodeContainer" style="margin: 20px; padding: 10px; background: white; border-radius: 10px;"></div>
-            <p style="color: #aaa; margin-top: 10px;">Scan to play exact same spot on another device.</p>
         </div>
     </div>
+    
     <div class="lyrics-overlay hidden" id="lyricsPanel">
         <div class="lyrics-content glass-panel">
             <div class="lyrics-header"><h3><i class="fa-solid fa-robot"></i> Lyrics AI</h3><button class="btn-close magnetic" id="closeLyrics"><i class="fa-solid fa-xmark"></i></button></div>
-            <div class="lyrics-body" id="lyricsText" style="font-family: monospace; white-space: pre-wrap;"></div>
-            <button class="btn-primary magnetic" id="fullLyricsBtn">Find Full Lyrics on Google</button>
+            <div class="lyrics-body" id="lyricsText" style="font-family: monospace; white-space: pre-wrap; color: var(--text-color);"></div>
+            <button class="btn-primary magnetic" id="fullLyricsBtn" style="display:none;">Search Google</button>
         </div>
     </div>
+
     <div class="lyrics-overlay hidden" id="libraryPanel">
         <div class="lyrics-content glass-panel">
             <div class="lyrics-header"><h3><i class="fa-solid fa-heart"></i> My Library</h3><button class="btn-close magnetic" id="closeLibrary"><i class="fa-solid fa-xmark"></i></button></div>
@@ -94,7 +94,6 @@
             <button class="mood-chip" onclick="searchMood('gym workout phonk')">💪 Gym</button>
             <button class="mood-chip" onclick="searchMood('romantic love songs')">❤️ Love</button>
             <button class="mood-chip" onclick="searchMood('party remix bollywood')">🎉 Party</button>
-            
             <button class="mood-chip" onclick="searchMood('Bhakti songs')">🕉️ Devotional</button>
             <button class="mood-chip" onclick="searchMood('sad broken heart india')">💔 Broken</button>
             <button class="mood-chip" onclick="searchMood('long drive hindi')">🚗 Drive</button>
@@ -129,10 +128,9 @@
                 <div class="cast-wrapper">
                     <google-cast-launcher id="castBtn"></google-cast-launcher>
                 </div>
-                
                 <button class="btn-control magnetic hidden" id="airplayBtn" title="AirPlay"><i class="fa-brands fa-apple"></i></button>
                 
-                <button class="btn-control magnetic" id="spatialBtn" title="Dolby Atmos 3D"><i class="fa-solid fa-cube"></i> 3D</button>
+                <button class="btn-control magnetic" id="dolbyBtn" title="Dolby Atmos 3D" style="font-weight:bold; font-size:0.8rem; border:1px solid currentColor; border-radius:4px; padding:2px 6px;">3D</button>
                 <button class="btn-control magnetic" id="partyBtn" title="Party Light"><i class="fa-solid fa-bolt"></i></button>
                 
                 <button class="btn-control magnetic" id="speedBtn" title="Speed">1.0x</button>
