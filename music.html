@@ -8,7 +8,6 @@
     
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
 </head>
@@ -52,7 +51,6 @@
         <div class="lyrics-content glass-panel">
             <div class="lyrics-header"><h3><i class="fa-solid fa-robot"></i> Lyrics AI</h3><button class="btn-close magnetic" id="closeLyrics"><i class="fa-solid fa-xmark"></i></button></div>
             <div class="lyrics-body" id="lyricsText" style="font-family: monospace; white-space: pre-wrap;"></div>
-            <button class="btn-primary magnetic" id="fullLyricsBtn" style="display:none;">Search on Google</button>
         </div>
     </div>
 
@@ -88,15 +86,15 @@
         </div>
 
         <div class="mood-container fade-in-up">
-            <button class="mood-chip" onclick="searchMood('Trending India')">🔥 Trending</button>
+            <button class="mood-chip" onclick="searchMood('Trending Global')">🔥 Trending</button>
             <button class="mood-chip" onclick="searchMood('lofi beats')">🌧️ Lo-Fi</button>
-            <button class="mood-chip" onclick="searchMood('gym workout phonk')">💪 Gym</button>
+            <button class="mood-chip" onclick="searchMood('gym workout')">💪 Gym</button>
             <button class="mood-chip" onclick="searchMood('romantic love songs')">❤️ Love</button>
-            <button class="mood-chip" onclick="searchMood('party remix bollywood')">🎉 Party</button>
-            <button class="mood-chip" onclick="searchMood('Bhakti songs')">🕉️ Devotional</button>
-            <button class="mood-chip" onclick="searchMood('sad broken heart india')">💔 Broken</button>
-            <button class="mood-chip" onclick="searchMood('long drive hindi')">🚗 Drive</button>
-            <button class="mood-chip" onclick="searchMood('gaming phonk music')">🕹️ Gaming</button>
+            <button class="mood-chip" onclick="searchMood('party hits')">🎉 Party</button>
+            <button class="mood-chip" onclick="searchMood('Devotional')">🕉️ Devotional</button>
+            <button class="mood-chip" onclick="searchMood('Sad Songs')">💔 Broken</button>
+            <button class="mood-chip" onclick="searchMood('Long Drive')">🚗 Drive</button>
+            <button class="mood-chip" onclick="searchMood('Gaming Music')">🕹️ Gaming</button>
         </div>
 
         <div class="lang-container fade-in-up">
@@ -119,26 +117,18 @@
             <div class="now-playing-art magnetic" id="albumArt" title="Open Full Player"><div class="center-hole"></div></div>
             <div class="track-details"><span id="trackTitle">Select a track</span><span id="trackArtist">...</span></div>
             <button class="action-btn magnetic" id="likeBtn"><i class="fa-regular fa-heart"></i></button>
-            <button class="action-btn magnetic" id="qrBtn" title="Sync Party QR"><i class="fa-solid fa-qrcode"></i></button>
+            <button class="action-btn magnetic" id="youtubeBtn" title="Watch on YouTube"><i class="fa-brands fa-youtube"></i></button>
         </div>
 
         <div class="player-center">
             <div class="controls">
-                <div class="cast-wrapper">
-                    <google-cast-launcher id="castBtn"></google-cast-launcher>
-                </div>
                 <button class="btn-control magnetic hidden" id="airplayBtn" title="AirPlay"><i class="fa-brands fa-apple"></i></button>
-                
                 <button class="btn-control magnetic" id="dolbyBtn" title="Dolby Atmos 3D" style="font-weight:bold; font-size:0.8rem; border:1px solid currentColor; border-radius:4px; padding:2px 6px;">3D</button>
                 <button class="btn-control magnetic" id="partyBtn" title="Party Light"><i class="fa-solid fa-bolt"></i></button>
-                
                 <button class="btn-control magnetic" id="speedBtn" title="Speed">1.0x</button>
-                <button class="btn-control magnetic" id="bassBtn" title="Bass Boost"><i class="fa-solid fa-wave-square"></i></button>
-                
                 <button class="btn-control magnetic" id="prevBtn"><i class="fa-solid fa-backward-step"></i></button>
                 <button class="btn-play magnetic" id="playBtn"><i class="fa-solid fa-play" id="playIcon"></i></button>
                 <button class="btn-control magnetic" id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
-                
                 <button class="btn-control magnetic" id="pipBtn" title="Pop Out Player"><i class="fa-solid fa-up-right-from-square"></i></button>
             </div>
             <div class="progress-container">
