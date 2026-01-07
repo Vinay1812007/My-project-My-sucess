@@ -1,49 +1,64 @@
 window['__onGCastApiAvailable'] = function(isAvailable) { if (isAvailable) { cast.framework.CastContext.getInstance().setOptions({ receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID, autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED }); if(document.getElementById('castBtn')) document.getElementById('castBtn').style.display = 'inline-block'; } };
-window.searchMood = function(query) { const i = document.getElementById('searchInput'); if(i){ i.value = query; i.dispatchEvent(new Event('input')); } };
 
-window.setLanguage = function(lang) {
-    document.querySelectorAll('.lang-chip').forEach(c => c.classList.remove('active'));
-    if(event && event.target) event.target.classList.add('active');
-    
-    let query = "Top Hits";
-    if (lang === 'Telugu') query = "Latest Telugu Hits";
-    else if (lang === 'Hindi') query = "Bollywood Top Hits";
-    else if (lang === 'English') query = "Global Top 50";
-    else if (lang === 'Tamil') query = "Kollywood Hits";
-    else if (lang === 'Punjabi') query = "Punjabi Party Hits";
-    
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) { searchInput.value = query; searchInput.dispatchEvent(new Event('input')); }
+// --- GLOBAL STATE FOR FILTERS ---
+let currentLang = 'India'; // Default region
+let currentMood = 'Trending'; // Default mood
+
+// --- GLOBAL SEARCH FUNCTIONS ---
+window.searchMood = function(mood) { 
+    currentMood = mood;
+    updateActiveButton('mood-chip', event.target);
+    triggerCombinedSearch();
 };
 
+window.setLanguage = function(lang) {
+    currentLang = lang;
+    updateActiveButton('lang-chip', event.target);
+    triggerCombinedSearch();
+};
+
+function updateActiveButton(className, target) {
+    document.querySelectorAll('.' + className).forEach(c => c.classList.remove('active'));
+    if(target) target.classList.add('active');
+}
+
+function triggerCombinedSearch() {
+    // Combine Language + Mood for the perfect query
+    // Example: "Telugu Melody Songs" or "Hindi Party Songs"
+    let query = "";
+    if (currentLang === 'All') query = `${currentMood} Songs`;
+    else query = `${currentLang} ${currentMood} Songs`;
+    
+    // Update Search Bar and Fire Event
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) { 
+        searchInput.value = query; 
+        searchInput.dispatchEvent(new Event('input')); 
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    
     initSmokeEffect();
 
     // --- SETUP ---
-    const themeBtn = document.getElementById('themeToggle'); 
-    const icon = themeBtn ? themeBtn.querySelector('i') : null;
-    const applyTheme = (theme) => { 
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('neon_theme', theme);
-        if(icon) icon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-    };
+    const themeBtn = document.getElementById('themeToggle'); const icon = themeBtn ? themeBtn.querySelector('i') : null;
+    const applyTheme = (theme) => { document.documentElement.setAttribute('data-theme', theme); localStorage.setItem('neon_theme', theme); if(icon) icon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun'; };
     applyTheme(localStorage.getItem('neon_theme') || 'dark');
-    if(themeBtn) themeBtn.addEventListener('click', () => { 
-        let c = document.documentElement.getAttribute('data-theme'); 
-        applyTheme(c === 'dark' ? 'light' : 'dark'); 
-    });
+    if(themeBtn) themeBtn.addEventListener('click', () => { let c = document.documentElement.getAttribute('data-theme'); applyTheme(c === 'dark' ? 'light' : 'dark'); });
 
-    const cursorDot = document.getElementById('cursorDot'); 
-    const cursorOutline = document.getElementById('cursorOutline');
-    if(cursorDot && cursorOutline){
-        window.addEventListener('mousemove', (e) => { 
-            cursorDot.style.left = `${e.clientX}px`; 
-            cursorDot.style.top = `${e.clientY}px`; 
-            cursorOutline.animate({left: `${e.clientX}px`, top: `${e.clientY}px`}, {duration: 500, fill: "forwards"}); 
-        });
+    const cursorDot = document.getElementById('cursorDot'); const cursorOutline = document.getElementById('cursorOutline');
+    if(cursorDot && cursorOutline){ window.addEventListener('mousemove', (e) => { cursorDot.style.left=`${e.clientX}px`; cursorDot.style.top=`${e.clientY}px`; cursorOutline.animate({left:`${e.clientX}px`,top:`${e.clientY}px`},{duration:500,fill:"forwards"}); }); }
+
+    // Landing Page
+    const landingGoBtn = document.getElementById('landingGoBtn');
+    if (landingGoBtn) {
+        const landingInput = document.getElementById('landingUrl');
+        landingGoBtn.addEventListener('click', () => { const url = landingInput.value.trim(); if(url){ window.location.href = `/videodownloader?url=${encodeURIComponent(url)}`; } else { alert("Please paste a link."); } });
+        landingInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') landingGoBtn.click(); });
     }
 
-    // --- MUSIC PLAYER ---
+    // --- MUSIC PLAYER LOGIC ---
     const grid = document.getElementById('musicGrid');
     if (grid) {
         const searchInput = document.getElementById('searchInput');
@@ -52,15 +67,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const dolbyBtn = document.getElementById('dolbyBtn'), partyBtn = document.getElementById('partyBtn'), partyOverlay = document.getElementById('partyOverlay');
         const progressBar = document.getElementById('progressBar'), currTime = document.getElementById('currTime'), totalTime = document.getElementById('totalTime');
         const fullPlayer = document.getElementById('fullPlayer'), closeFull = document.getElementById('closeFullPlayer'), fullArt = document.getElementById('fullAlbumArt'), fullTitle = document.getElementById('fullTrackTitle'), fullArtist = document.getElementById('fullTrackArtist');
-        const lyricsBtn = document.getElementById('lyricsBtn'), lyricsPanel = document.getElementById('lyricsPanel'), lyricsText = document.getElementById('lyricsText');
+        const lyricsBtn = document.getElementById('lyricsBtn'), lyricsPanel = document.getElementById('lyricsPanel'), lyricsText = document.getElementById('lyricsText'), closeLyrics = document.getElementById('closeLyrics');
 
         let currentSong = null, songQueue = [], currentIndex = 0;
         let audioContext, analyser, source, bassFilter, spatialPanner;
-        let is3DActive = false, isPartyActive = false, spatialAngle = 0, trackStream;
+        let is3DActive = false, isBassBoosted = false, isPartyActive = false, spatialAngle = 0, trackStream;
         let speeds = [1.0, 1.25, 1.5, 0.8], speedIndex = 0;
 
-        // Initial Load
-        searchSongs('Latest India Hits');
+        // Initial Search
+        triggerCombinedSearch();
 
         let debounceTimer;
         searchInput.addEventListener('input', (e) => { 
@@ -68,16 +83,16 @@ document.addEventListener('DOMContentLoaded', () => {
             debounceTimer = setTimeout(() => { if(e.target.value) searchSongs(e.target.value); }, 800); 
         });
 
-        // --- APPLE MUSIC / ITUNES API SEARCH ---
-        async function searchSongs(query, autoPlay=false, startTime=0) {
+        // --- APPLE ITUNES API SEARCH ---
+        async function searchSongs(query, autoPlay=false) {
             grid.innerHTML = ''; 
             grid.appendChild(loader); 
             loader.classList.remove('hidden');
             songQueue = [];
 
             try {
-                // Official iTunes Search API
-                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=25&country=IN`);
+                // Official iTunes Search API (Reliable, No Key)
+                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=30&country=IN`);
                 const data = await res.json();
                 
                 loader.classList.add('hidden');
@@ -87,10 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         id: song.trackId,
                         trackName: song.trackName,
                         artistName: song.artistName,
-                        // Get High-Res Artwork (600x600)
+                        // Get 600x600 High Res Image
                         artworkUrl100: song.artworkUrl100.replace('100x100', '600x600'),
                         previewUrl: song.previewUrl,
-                        collection: song.collectionName
+                        album: song.collectionName
                     }));
 
                     songQueue.forEach((song, idx) => {
@@ -102,15 +117,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <div class="play-overlay"><i class="fa-solid fa-play"></i></div>
                                 <div class="source-badge"><i class="fa-brands fa-apple"></i></div>
                             </div>
-                            <div class="song-info">
-                                <h3>${song.trackName}</h3>
-                                <p>${song.artistName}</p>
-                            </div>`;
+                            <div class="song-info"><h3>${song.trackName}</h3><p>${song.artistName}</p></div>`;
                         card.addEventListener('click', () => { currentIndex = idx; playTrack(song); });
                         grid.appendChild(card);
                     });
 
-                    if(autoPlay && songQueue.length > 0) playTrack(songQueue[0], startTime);
+                    if(autoPlay && songQueue.length > 0) playTrack(songQueue[0]);
 
                 } else {
                     grid.innerHTML = '<h3>No songs found.</h3>';
@@ -118,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (e) {
                 console.error(e);
                 loader.classList.add('hidden');
-                grid.innerHTML = '<h3>Network Error. Check Connection.</h3>';
+                grid.innerHTML = '<h3>Network Error.</h3>';
             }
         }
 
@@ -129,21 +141,21 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('trackTitle').innerText = song.trackName;
             document.getElementById('trackArtist').innerText = song.artistName;
             albumArt.style.backgroundImage = `url('${song.artworkUrl100}')`;
-            fullTitle.innerText = song.trackName; 
-            fullArtist.innerText = song.artistName; 
+            fullTitle.innerText = song.trackName;
+            fullArtist.innerText = song.artistName;
             fullArt.style.backgroundImage = `url('${song.artworkUrl100}')`;
             
-            // Link YouTube Search for Full Version
+            // YouTube Search Link (For Full Song)
             const ytBtn = document.getElementById('youtubeBtn');
-            if(ytBtn) ytBtn.onclick = () => window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(song.trackName + " " + song.artistName)}`, '_blank');
+            if(ytBtn) ytBtn.onclick = () => window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(song.trackName + " " + song.artistName + " official audio")}`, '_blank');
 
-            // Dynamic Background Color
+            // Dynamic Neon Color
             const h = Math.abs((song.trackName.length * 37) % 360);
             document.documentElement.style.setProperty('--neon-main', `hsl(${h}, 100%, 50%)`);
             neonBg.classList.add('active');
 
-            // Set Audio Source
             audio.src = song.previewUrl;
+            audio.playbackRate = speeds[speedIndex];
             
             audio.play().then(() => {
                 playIcon.className = 'fa-solid fa-pause';
@@ -158,25 +170,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // --- AUDIO ENGINE ---
-        function initAudio() {
-            if (audioContext) return;
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioContext.createAnalyser();
-            source = audioContext.createMediaElementSource(audio);
+        function initAudio() { 
+            if (audioContext) return; 
+            audioContext = new (window.AudioContext || window.webkitAudioContext)(); 
+            analyser = audioContext.createAnalyser(); 
+            source = audioContext.createMediaElementSource(audio); 
             
-            bassFilter = audioContext.createBiquadFilter();
+            bassFilter = audioContext.createBiquadFilter(); 
             bassFilter.type = "lowshelf"; bassFilter.frequency.value = 200; 
             
             spatialPanner = audioContext.createPanner();
             spatialPanner.panningModel = 'HRTF';
             spatialPanner.distanceModel = 'inverse';
             
-            source.connect(bassFilter);
+            source.connect(bassFilter); 
             bassFilter.connect(spatialPanner);
-            spatialPanner.connect(analyser);
-            analyser.connect(audioContext.destination);
+            spatialPanner.connect(analyser); 
+            analyser.connect(audioContext.destination); 
             
-            initVisualizer();
+            initVisualizer(); 
         }
 
         dolbyBtn.addEventListener('click', () => {
@@ -210,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('speedBtn').innerText = speeds[speedIndex] + "x"; 
         });
 
-        // Controls
         document.getElementById('fullPrevBtn').addEventListener('click', () => { if(currentIndex>0) { currentIndex--; playTrack(songQueue[currentIndex]); } });
         document.getElementById('fullNextBtn').addEventListener('click', () => { if(currentIndex<songQueue.length-1) { currentIndex++; playTrack(songQueue[currentIndex]); } });
         document.getElementById('fullPlayBtn').addEventListener('click', () => document.getElementById('playBtn').click());
@@ -225,12 +236,10 @@ document.addEventListener('DOMContentLoaded', () => {
             lyricsPanel.classList.remove('hidden');
             lyricsText.innerHTML = "<p align='center'>Fetching Lyrics...</p>";
             try {
-                // Using Free Lyrics API
                 const res = await fetch(`https://api.lyrics.ovh/v1/${currentSong.artistName}/${currentSong.trackName}`);
                 const json = await res.json();
                 if(json.lyrics) {
                     lyricsText.innerHTML = `<h3>${currentSong.trackName}</h3><br>`;
-                    // Typing effect
                     let i = 0;
                     const cleanText = json.lyrics.replace(/\n/g, "<br>");
                     function typeWriter() {
@@ -247,44 +256,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 lyricsText.innerHTML = "<p align='center'>Lyrics not found in database.</p><br><button onclick=\"window.open('https://www.google.com/search?q="+encodeURIComponent(currentSong.trackName + " lyrics")+"', '_blank')\" class='landing-btn'>Search Google</button>";
             }
         });
-        document.getElementById('closeLyrics').addEventListener('click', () => lyricsPanel.classList.add('hidden'));
+        
+        closeLyrics.addEventListener('click', () => lyricsPanel.classList.add('hidden'));
         albumArt.addEventListener('click', () => fullPlayer.classList.remove('hidden')); 
         closeFull.addEventListener('click', () => fullPlayer.classList.add('hidden'));
 
         function initVisualizer() {
-            const ctx = canvas.getContext('2d');
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-            
-            function animate() {
-                requestAnimationFrame(animate);
-                analyser.getByteFrequencyData(dataArray);
-                canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                const barWidth = (canvas.width / bufferLength) * 2.5;
-                let x = 0, vol = 0;
-                for(let i=0; i<bufferLength; i++) {
-                    vol += dataArray[i];
-                    const barHeight = dataArray[i] * 1.5;
-                    ctx.fillStyle = `rgba(${barHeight + 50}, 250, 50, 0.2)`;
-                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-                    x += barWidth + 1;
-                }
-                vol /= bufferLength;
-                if(is3DActive) { spatialAngle += 0.02; spatialPanner.setPosition(Math.sin(spatialAngle)*10, 0, Math.cos(spatialAngle)*10); }
+            const ctx = canvas.getContext('2d'); const bufferLength = analyser.frequencyBinCount; const dataArray = new Uint8Array(bufferLength);
+            function animate() { 
+                requestAnimationFrame(animate); analyser.getByteFrequencyData(dataArray); 
+                canvas.width = window.innerWidth; canvas.height = window.innerHeight; 
+                ctx.clearRect(0, 0, canvas.width, canvas.height); 
+                const barWidth = (canvas.width / bufferLength) * 2.5; let x = 0, vol = 0; 
+                for(let i=0; i<bufferLength; i++) { 
+                    vol += dataArray[i]; const barHeight = dataArray[i] * 1.5; 
+                    ctx.fillStyle = `rgba(${barHeight + 50}, 250, 50, 0.2)`; 
+                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight); x += barWidth + 1; 
+                } 
+                vol /= bufferLength; 
+                if(is3DActive) { spatialAngle += 0.02; spatialPanner.setPosition(Math.sin(spatialAngle)*10, 0, Math.cos(spatialAngle)*10); } 
                 if(isPartyActive && vol > 120) { 
-                    partyOverlay.style.opacity = (vol/255) * 0.5; 
-                    partyOverlay.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
-                    if(trackStream && Math.random()>0.8) { try { trackStream.applyConstraints({advanced:[{torch:true}]}); setTimeout(()=>trackStream.applyConstraints({advanced:[{torch:false}]}), 50); } catch(e){} }
-                } else {
-                    partyOverlay.style.opacity = 0;
-                }
-            }
-            animate();
+                    partyOverlay.style.opacity = (vol/255)*0.5; partyOverlay.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`; 
+                    if(trackStream && Math.random()>0.8) { try{trackStream.applyConstraints({advanced:[{torch:true}]});setTimeout(()=>trackStream.applyConstraints({advanced:[{torch:false}]}),50);}catch(e){} } 
+                } else { partyOverlay.style.opacity = 0; } 
+            } 
+            animate(); 
         }
     }
 
-    // Video DL
     const fetchBtn = document.getElementById('fetchVideoBtn');
     if (fetchBtn) {
         const videoInput = document.getElementById('videoUrl'), pasteBtn = document.getElementById('pasteBtn'), dlResult = document.getElementById('dlResult'), thumbPreview = document.getElementById('thumbPreview'), finalDownloadBtn = document.getElementById('finalDownloadBtn');
