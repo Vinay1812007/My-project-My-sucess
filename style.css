@@ -3,12 +3,13 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; cursor: none; }
 body { background-color: var(--bg-color); color: var(--text-color); overflow-x: hidden; min-height: 100vh; transition: 0.3s; background-image: linear-gradient(to bottom right, var(--bg-color), var(--bg-color)); }
 
-/* ANIMATIONS */
-.neon-blink-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, var(--neon-main), transparent 70%); opacity: 0; z-index: -2; pointer-events: none; transition: opacity 0.5s; mix-blend-mode: screen; }
-.neon-blink-bg.active { opacity: 0.4; animation: fullPulse 2s infinite alternate; }
-@keyframes fullPulse { 0% { opacity: 0.2; transform: scale(1); filter: hue-rotate(0deg); } 100% { opacity: 0.5; transform: scale(1.1); filter: hue-rotate(90deg); } }
+/* SMOKE CANVAS (Background) */
+#smokeCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; pointer-events: none; opacity: 0.7; }
+
+/* VISUALIZER CANVAS (Overlay) */
 #visualizerCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; pointer-events: none; }
-.parallax-layer { position: fixed; top: -10%; left: -10%; width: 120%; height: 120%; z-index: -2; pointer-events: none; transition: transform 0.1s linear; }
+
+.parallax-layer { position: fixed; top: -10%; left: -10%; width: 120%; height: 120%; z-index: -3; pointer-events: none; transition: transform 0.1s linear; }
 
 /* UI */
 .glass-panel { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); box-shadow: 0 4px 30px rgba(0,0,0,0.1); }
@@ -48,8 +49,8 @@ body.hovering .cursor-outline { width: 60px; height: 60px; background: rgba(128,
 .now-playing-art.spinning { animation-play-state: running; border-color: var(--neon-main); }
 .controls { display: flex; align-items: center; gap: 10px; }
 .btn-control { background: none; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
-.btn-control:hover { color: var(--text-color); transform: scale(1.1); }
-#bassBtn.active, #audio8dBtn.active, #sleepBtn.active { color: var(--neon-main); text-shadow: 0 0 10px var(--neon-main); }
+.btn-control:hover, .btn-control.active { color: var(--text-color); transform: scale(1.1); }
+#bassBtn.active, #audio8dBtn.active, #sleepBtn.active, #spatialBtn.active, #partyBtn.active { color: var(--neon-main); text-shadow: 0 0 10px var(--neon-main); }
 #audio8dBtn.active { animation: spin 3s linear infinite; }
 #speedBtn { font-size: 0.9rem; font-weight: bold; border: 1px solid var(--text-secondary); border-radius: 5px; padding: 2px 8px; width: 50px; }
 .btn-play { width: 50px; height: 50px; border-radius: 50%; border: none; background: var(--text-color); color: var(--bg-color); display: flex; align-items: center; justify-content: center; }
