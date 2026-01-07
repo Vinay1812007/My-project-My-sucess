@@ -5,9 +5,9 @@ window.setLanguage = function(lang) {
     document.querySelectorAll('.lang-chip').forEach(c => c.classList.remove('active'));
     if(event && event.target) event.target.classList.add('active');
     
-    let query = "Trending India";
+    let query = "Top Hits";
     if (lang === 'Telugu') query = "Latest Telugu Hits";
-    else if (lang === 'Hindi') query = "Bollywood Top 50";
+    else if (lang === 'Hindi') query = "Bollywood Top Hits";
     else if (lang === 'English') query = "Global Top 50";
     else if (lang === 'Tamil') query = "Kollywood Hits";
     else if (lang === 'Punjabi') query = "Punjabi Party Hits";
@@ -20,13 +20,28 @@ document.addEventListener('DOMContentLoaded', () => {
     initSmokeEffect();
 
     // --- SETUP ---
-    const themeBtn = document.getElementById('themeToggle'); const icon = themeBtn ? themeBtn.querySelector('i') : null;
-    const applyTheme = (theme) => { document.documentElement.setAttribute('data-theme', theme); localStorage.setItem('neon_theme', theme); if(icon) icon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun'; };
+    const themeBtn = document.getElementById('themeToggle'); 
+    const icon = themeBtn ? themeBtn.querySelector('i') : null;
+    const applyTheme = (theme) => { 
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('neon_theme', theme);
+        if(icon) icon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+    };
     applyTheme(localStorage.getItem('neon_theme') || 'dark');
-    if(themeBtn) themeBtn.addEventListener('click', () => { let c = document.documentElement.getAttribute('data-theme'); applyTheme(c === 'dark' ? 'light' : 'dark'); });
+    if(themeBtn) themeBtn.addEventListener('click', () => { 
+        let c = document.documentElement.getAttribute('data-theme'); 
+        applyTheme(c === 'dark' ? 'light' : 'dark'); 
+    });
 
-    const cursorDot = document.getElementById('cursorDot'); const cursorOutline = document.getElementById('cursorOutline');
-    if(cursorDot && cursorOutline){ window.addEventListener('mousemove', (e) => { cursorDot.style.left = `${e.clientX}px`; cursorDot.style.top = `${e.clientY}px`; cursorOutline.animate({left: `${e.clientX}px`, top: `${e.clientY}px`}, {duration: 500, fill: "forwards"}); }); }
+    const cursorDot = document.getElementById('cursorDot'); 
+    const cursorOutline = document.getElementById('cursorOutline');
+    if(cursorDot && cursorOutline){
+        window.addEventListener('mousemove', (e) => { 
+            cursorDot.style.left = `${e.clientX}px`; 
+            cursorDot.style.top = `${e.clientY}px`; 
+            cursorOutline.animate({left: `${e.clientX}px`, top: `${e.clientY}px`}, {duration: 500, fill: "forwards"}); 
+        });
+    }
 
     // --- MUSIC PLAYER ---
     const grid = document.getElementById('musicGrid');
@@ -44,99 +59,97 @@ document.addEventListener('DOMContentLoaded', () => {
         let is3DActive = false, isPartyActive = false, spatialAngle = 0, trackStream;
         let speeds = [1.0, 1.25, 1.5, 0.8], speedIndex = 0;
 
-        // Auto Load
-        const urlParams = new URLSearchParams(window.location.search);
-        if(urlParams.get('song')) { document.getElementById('searchInput').value = urlParams.get('song'); searchSongs(urlParams.get('song'), true, parseFloat(urlParams.get('t'))); } else { searchSongs('Top Indian Hits'); }
+        // Initial Load
+        searchSongs('Latest India Hits');
 
         let debounceTimer;
-        searchInput.addEventListener('input', (e) => { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => { if(e.target.value) searchSongs(e.target.value); }, 1000); });
+        searchInput.addEventListener('input', (e) => { 
+            clearTimeout(debounceTimer); 
+            debounceTimer = setTimeout(() => { if(e.target.value) searchSongs(e.target.value); }, 800); 
+        });
 
-        // --- FULL SONG SEARCH (Saavn API) ---
+        // --- APPLE MUSIC / ITUNES API SEARCH ---
         async function searchSongs(query, autoPlay=false, startTime=0) {
-            grid.innerHTML = ''; grid.appendChild(loader); loader.classList.remove('hidden');
+            grid.innerHTML = ''; 
+            grid.appendChild(loader); 
+            loader.classList.remove('hidden');
             songQueue = [];
 
             try {
-                // Try Saavn.me (Better reliability)
-                const res = await fetch(`https://saavn.me/search/songs?query=${encodeURIComponent(query)}&page=1&limit=20`);
+                // Official iTunes Search API
+                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=25&country=IN`);
                 const data = await res.json();
                 
                 loader.classList.add('hidden');
 
-                if (data.data && data.data.results && data.data.results.length > 0) {
-                    songQueue = data.data.results.map(song => ({
-                        id: song.id,
-                        trackName: song.name,
-                        artistName: song.primaryArtists || song.singers,
-                        // Get 500x500 image
-                        artworkUrl100: (song.image && song.image.length > 0) ? song.image[song.image.length-1].link : 'https://via.placeholder.com/300',
-                        // Get 320kbps audio (usually last index)
-                        previewUrl: (song.downloadUrl && song.downloadUrl.length > 0) ? song.downloadUrl[song.downloadUrl.length-1].link : null,
-                        lyricsId: song.id
+                if (data.results && data.results.length > 0) {
+                    songQueue = data.results.map(song => ({
+                        id: song.trackId,
+                        trackName: song.trackName,
+                        artistName: song.artistName,
+                        // Get High-Res Artwork (600x600)
+                        artworkUrl100: song.artworkUrl100.replace('100x100', '600x600'),
+                        previewUrl: song.previewUrl,
+                        collection: song.collectionName
                     }));
-                } else {
-                    // Fallback to iTunes if Saavn fails
-                    const itunesRes = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=15`);
-                    const itunesData = await itunesRes.json();
-                    if(itunesData.results.length > 0) {
-                        songQueue = itunesData.results.map(s => ({
-                            id: s.trackId, trackName: s.trackName, artistName: s.artistName,
-                            artworkUrl100: s.artworkUrl100.replace('100x100', '400x400'),
-                            previewUrl: s.previewUrl, lyricsId: null
-                        }));
-                    }
-                }
 
-                if(songQueue.length > 0) {
-                    if(autoPlay) playTrack(songQueue[0], songQueue[0].artworkUrl100, startTime);
                     songQueue.forEach((song, idx) => {
                         if(!song.previewUrl) return;
                         const card = document.createElement('div');
                         card.className = 'song-card magnetic';
-                        card.innerHTML = `<div class="art-box" style="background-image:url('${song.artworkUrl100}')"><div class="play-overlay"><i class="fa-solid fa-play"></i></div></div><div class="song-info"><h3>${song.trackName}</h3><p>${song.artistName}</p></div>`;
+                        card.innerHTML = `
+                            <div class="art-box" style="background-image:url('${song.artworkUrl100}')">
+                                <div class="play-overlay"><i class="fa-solid fa-play"></i></div>
+                                <div class="source-badge"><i class="fa-brands fa-apple"></i></div>
+                            </div>
+                            <div class="song-info">
+                                <h3>${song.trackName}</h3>
+                                <p>${song.artistName}</p>
+                            </div>`;
                         card.addEventListener('click', () => { currentIndex = idx; playTrack(song); });
                         grid.appendChild(card);
                     });
+
+                    if(autoPlay && songQueue.length > 0) playTrack(songQueue[0], startTime);
+
                 } else {
                     grid.innerHTML = '<h3>No songs found.</h3>';
                 }
             } catch (e) {
                 console.error(e);
                 loader.classList.add('hidden');
-                grid.innerHTML = '<h3>Error. Try searching again.</h3>';
+                grid.innerHTML = '<h3>Network Error. Check Connection.</h3>';
             }
         }
 
-        function playTrack(song, startTime=0) {
-            currentSong = song; initAudio(); 
+        function playTrack(song) {
+            currentSong = song; 
+            initAudio(); 
             
             document.getElementById('trackTitle').innerText = song.trackName;
             document.getElementById('trackArtist').innerText = song.artistName;
             albumArt.style.backgroundImage = `url('${song.artworkUrl100}')`;
-            fullTitle.innerText = song.trackName; fullArtist.innerText = song.artistName; fullArt.style.backgroundImage = `url('${song.artworkUrl100}')`;
+            fullTitle.innerText = song.trackName; 
+            fullArtist.innerText = song.artistName; 
+            fullArt.style.backgroundImage = `url('${song.artworkUrl100}')`;
             
-            // Youtube Link
+            // Link YouTube Search for Full Version
             const ytBtn = document.getElementById('youtubeBtn');
             if(ytBtn) ytBtn.onclick = () => window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(song.trackName + " " + song.artistName)}`, '_blank');
 
+            // Dynamic Background Color
             const h = Math.abs((song.trackName.length * 37) % 360);
             document.documentElement.style.setProperty('--neon-main', `hsl(${h}, 100%, 50%)`);
             neonBg.classList.add('active');
 
+            // Set Audio Source
             audio.src = song.previewUrl;
-            if(startTime>0) audio.currentTime = startTime;
             
-            // Error Handling for Audio
-            audio.onerror = () => {
-                alert("Error playing this song. Trying next...");
-                if(currentIndex < songQueue.length - 1) { currentIndex++; playTrack(songQueue[currentIndex]); }
-            };
-
             audio.play().then(() => {
                 playIcon.className = 'fa-solid fa-pause';
                 document.getElementById('fullPlayIcon').className = 'fa-solid fa-pause';
                 albumArt.classList.add('spinning');
-            }).catch(e => console.log("Auto-play prevented", e));
+            }).catch(e => console.log("Playback error:", e));
         }
 
         document.getElementById('playBtn').addEventListener('click', () => {
@@ -144,22 +157,58 @@ document.addEventListener('DOMContentLoaded', () => {
             else { audio.pause(); playIcon.className='fa-solid fa-play'; albumArt.classList.remove('spinning'); }
         });
 
-        // Audio Engine
+        // --- AUDIO ENGINE ---
         function initAudio() {
             if (audioContext) return;
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
             analyser = audioContext.createAnalyser();
             source = audioContext.createMediaElementSource(audio);
-            bassFilter = audioContext.createBiquadFilter(); bassFilter.type = "lowshelf"; bassFilter.frequency.value = 200; 
-            spatialPanner = audioContext.createPanner(); spatialPanner.panningModel = 'HRTF'; spatialPanner.distanceModel = 'inverse';
-            source.connect(bassFilter); bassFilter.connect(spatialPanner); spatialPanner.connect(analyser); analyser.connect(audioContext.destination);
+            
+            bassFilter = audioContext.createBiquadFilter();
+            bassFilter.type = "lowshelf"; bassFilter.frequency.value = 200; 
+            
+            spatialPanner = audioContext.createPanner();
+            spatialPanner.panningModel = 'HRTF';
+            spatialPanner.distanceModel = 'inverse';
+            
+            source.connect(bassFilter);
+            bassFilter.connect(spatialPanner);
+            spatialPanner.connect(analyser);
+            analyser.connect(audioContext.destination);
+            
             initVisualizer();
         }
 
-        dolbyBtn.addEventListener('click', () => { if(!audioContext) initAudio(); is3DActive = !is3DActive; dolbyBtn.classList.toggle('active'); if(!is3DActive) spatialPanner.setPosition(0,0,0); });
-        document.getElementById('bassBtn').addEventListener('click', () => { if(!audioContext) initAudio(); bassFilter.gain.value = (bassFilter.gain.value === 0) ? 15 : 0; document.getElementById('bassBtn').classList.toggle('active'); });
-        partyBtn.addEventListener('click', async () => { if(!audioContext) initAudio(); isPartyActive = !isPartyActive; partyBtn.classList.toggle('active'); if(isPartyActive) { try { const s = await navigator.mediaDevices.getUserMedia({video: {facingMode: "environment"}}); trackStream = s.getVideoTracks()[0]; } catch(e){} } else { if(trackStream) { trackStream.stop(); trackStream=null; } partyOverlay.style.opacity = 0; } });
-        document.getElementById('speedBtn').addEventListener('click', () => { speedIndex = (speedIndex + 1) % speeds.length; audio.playbackRate = speeds[speedIndex]; document.getElementById('speedBtn').innerText = speeds[speedIndex] + "x"; });
+        dolbyBtn.addEventListener('click', () => {
+            if(!audioContext) initAudio();
+            is3DActive = !is3DActive;
+            dolbyBtn.classList.toggle('active');
+            if(!is3DActive) spatialPanner.setPosition(0, 0, 0); 
+        });
+
+        document.getElementById('bassBtn').addEventListener('click', () => { 
+            if(!audioContext) initAudio(); 
+            bassFilter.gain.value = (bassFilter.gain.value === 0) ? 15 : 0; 
+            document.getElementById('bassBtn').classList.toggle('active'); 
+        });
+
+        partyBtn.addEventListener('click', async () => {
+            if(!audioContext) initAudio();
+            isPartyActive = !isPartyActive;
+            partyBtn.classList.toggle('active');
+            if(isPartyActive) {
+                try { const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: "environment"}}); trackStream = stream.getVideoTracks()[0]; } catch(e){}
+            } else {
+                if(trackStream) { trackStream.stop(); trackStream = null; }
+                partyOverlay.style.opacity = 0;
+            }
+        });
+
+        document.getElementById('speedBtn').addEventListener('click', () => { 
+            speedIndex = (speedIndex + 1) % speeds.length; 
+            audio.playbackRate = speeds[speedIndex]; 
+            document.getElementById('speedBtn').innerText = speeds[speedIndex] + "x"; 
+        });
 
         // Controls
         document.getElementById('fullPrevBtn').addEventListener('click', () => { if(currentIndex>0) { currentIndex--; playTrack(songQueue[currentIndex]); } });
@@ -170,27 +219,30 @@ document.addEventListener('DOMContentLoaded', () => {
         progressBar.addEventListener('input', (e) => { audio.currentTime = (audio.duration / 100) * e.target.value; });
         function formatTime(s) { let m = Math.floor(s/60); let sec = Math.floor(s%60); return `${m}:${sec<10?'0':''}${sec}`; }
 
-        // Lyrics
+        // Lyrics (Auto-Fetch)
         lyricsBtn.addEventListener('click', async () => {
             if(!currentSong) return alert("Play a song!");
             lyricsPanel.classList.remove('hidden');
-            lyricsText.innerHTML = "<p align='center'>Generating Lyrics...</p>";
+            lyricsText.innerHTML = "<p align='center'>Fetching Lyrics...</p>";
             try {
-                let text = "";
-                if(currentSong.lyricsId) {
-                    const res = await fetch(`https://saavn.me/lyrics?id=${currentSong.lyricsId}`);
-                    const json = await res.json();
-                    if(json.status === "SUCCESS") text = json.data.lyrics;
-                }
-                if(!text) {
-                    const res = await fetch(`https://api.lyrics.ovh/v1/${currentSong.artistName}/${currentSong.trackName}`);
-                    const json = await res.json();
-                    if(json.lyrics) text = json.lyrics;
-                }
-                if(text) {
+                // Using Free Lyrics API
+                const res = await fetch(`https://api.lyrics.ovh/v1/${currentSong.artistName}/${currentSong.trackName}`);
+                const json = await res.json();
+                if(json.lyrics) {
                     lyricsText.innerHTML = `<h3>${currentSong.trackName}</h3><br>`;
-                    lyricsText.innerHTML += text.replace(/\n/g, "<br>");
-                } else throw new Error("No lyrics");
+                    // Typing effect
+                    let i = 0;
+                    const cleanText = json.lyrics.replace(/\n/g, "<br>");
+                    function typeWriter() {
+                        if(i < cleanText.length) {
+                            lyricsText.innerHTML += cleanText.charAt(i) === '<' ? '<br>' : cleanText.charAt(i);
+                            i += (cleanText.charAt(i) === '<' ? 4 : 1);
+                            lyricsText.scrollTop = lyricsText.scrollHeight;
+                            setTimeout(typeWriter, 5); 
+                        }
+                    }
+                    typeWriter();
+                } else { throw new Error("No lyrics"); }
             } catch(e) {
                 lyricsText.innerHTML = "<p align='center'>Lyrics not found in database.</p><br><button onclick=\"window.open('https://www.google.com/search?q="+encodeURIComponent(currentSong.trackName + " lyrics")+"', '_blank')\" class='landing-btn'>Search Google</button>";
             }
@@ -200,60 +252,45 @@ document.addEventListener('DOMContentLoaded', () => {
         closeFull.addEventListener('click', () => fullPlayer.classList.add('hidden'));
 
         function initVisualizer() {
-            const ctx = canvas.getContext('2d'); const bufferLength = analyser.frequencyBinCount; const dataArray = new Uint8Array(bufferLength);
-            function animate() { requestAnimationFrame(animate); analyser.getByteFrequencyData(dataArray); canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.clearRect(0, 0, canvas.width, canvas.height); const barWidth = (canvas.width / bufferLength) * 2.5; let x = 0, vol = 0; for(let i=0; i<bufferLength; i++) { vol += dataArray[i]; const barHeight = dataArray[i] * 1.5; ctx.fillStyle = `rgba(${barHeight + 50}, 250, 50, 0.2)`; ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight); x += barWidth + 1; } vol /= bufferLength; if(is3DActive) { spatialAngle += 0.02; spatialPanner.setPosition(Math.sin(spatialAngle)*10, 0, Math.cos(spatialAngle)*10); } if(isPartyActive && vol > 120) { partyOverlay.style.opacity = (vol/255)*0.5; partyOverlay.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`; if(trackStream && Math.random()>0.8) { try { trackStream.applyConstraints({advanced:[{torch:true}]}); setTimeout(()=>trackStream.applyConstraints({advanced:[{torch:false}]}), 50); } catch(e){} } } else { partyOverlay.style.opacity = 0; } } animate();
+            const ctx = canvas.getContext('2d');
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            function animate() {
+                requestAnimationFrame(animate);
+                analyser.getByteFrequencyData(dataArray);
+                canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const barWidth = (canvas.width / bufferLength) * 2.5;
+                let x = 0, vol = 0;
+                for(let i=0; i<bufferLength; i++) {
+                    vol += dataArray[i];
+                    const barHeight = dataArray[i] * 1.5;
+                    ctx.fillStyle = `rgba(${barHeight + 50}, 250, 50, 0.2)`;
+                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                    x += barWidth + 1;
+                }
+                vol /= bufferLength;
+                if(is3DActive) { spatialAngle += 0.02; spatialPanner.setPosition(Math.sin(spatialAngle)*10, 0, Math.cos(spatialAngle)*10); }
+                if(isPartyActive && vol > 120) { 
+                    partyOverlay.style.opacity = (vol/255) * 0.5; 
+                    partyOverlay.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+                    if(trackStream && Math.random()>0.8) { try { trackStream.applyConstraints({advanced:[{torch:true}]}); setTimeout(()=>trackStream.applyConstraints({advanced:[{torch:false}]}), 50); } catch(e){} }
+                } else {
+                    partyOverlay.style.opacity = 0;
+                }
+            }
+            animate();
         }
     }
 
-    // --- VIDEO DOWNLOADER (Updated Logic) ---
+    // Video DL
     const fetchBtn = document.getElementById('fetchVideoBtn');
     if (fetchBtn) {
-        const videoInput = document.getElementById('videoUrl'), pasteBtn = document.getElementById('pasteBtn'), dlResult = document.getElementById('dlResult'), thumbPreview = document.getElementById('thumbPreview'), finalDownloadBtn = document.getElementById('finalDownloadBtn'), playerBox = document.getElementById('videoPlayerBox'), vidTitle = document.getElementById('vidTitle'), vidPlatform = document.getElementById('vidPlatform');
-        
+        const videoInput = document.getElementById('videoUrl'), pasteBtn = document.getElementById('pasteBtn'), dlResult = document.getElementById('dlResult'), thumbPreview = document.getElementById('thumbPreview'), finalDownloadBtn = document.getElementById('finalDownloadBtn');
         pasteBtn.addEventListener('click', async () => { try { const text = await navigator.clipboard.readText(); videoInput.value = text; } catch (err) { alert("Paste manually"); } });
-        
-        document.getElementById('fetchVideoBtn').addEventListener('click', () => { 
-            const url = videoInput.value.trim();
-            if(!url) return alert("Paste a link first!");
-            
-            dlResult.classList.remove('hidden');
-            playerBox.innerHTML = ''; // Clear previous
-            playerBox.classList.add('hidden');
-
-            // 1. YouTube Detection (For PIP/Embed)
-            if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                vidPlatform.innerText = "YouTube";
-                let vidId = '';
-                if(url.includes('v=')) vidId = url.split('v=')[1].split('&')[0];
-                else if(url.includes('youtu.be/')) vidId = url.split('youtu.be/')[1].split('?')[0];
-                
-                if(vidId) {
-                    thumbPreview.src = `https://img.youtube.com/vi/${vidId}/maxresdefault.jpg`;
-                    vidTitle.innerText = "YouTube Video";
-                    
-                    // Show Embedded Player (No Redirect)
-                    playerBox.classList.remove('hidden');
-                    playerBox.innerHTML = `<iframe width="100%" height="300" src="https://www.youtube.com/embed/${vidId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                }
-            } 
-            // 2. Instagram/TikTok (Basic Info)
-            else if (url.includes('instagram')) {
-                vidPlatform.innerText = "Instagram";
-                vidTitle.innerText = "Instagram Reel/Video";
-                thumbPreview.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/1024px-Instagram_logo_2016.svg.png";
-            }
-            else {
-                vidPlatform.innerText = "Unknown";
-                vidTitle.innerText = "Video Link";
-                thumbPreview.src = "https://cdn-icons-png.flaticon.com/512/5663/5663364.png";
-            }
-        });
-
-        finalDownloadBtn.addEventListener('click', () => { 
-            const url = videoInput.value;
-            if(url.includes('youtube')) window.open(`https://ssyoutube.com/en/download?url=${url}`, '_blank'); 
-            else window.open(`https://savefrom.net/${url}`, '_blank'); 
-        });
+        document.getElementById('fetchVideoBtn').addEventListener('click', () => { if(videoInput.value) { dlResult.classList.remove('hidden'); thumbPreview.src="https://via.placeholder.com/300x200?text=Video+Found"; } });
+        finalDownloadBtn.addEventListener('click', () => { if(videoInput.value.includes('youtube')) window.open(`https://ssyoutube.com/en/download?url=${videoInput.value}`, '_blank'); else window.open(`https://savefrom.net/${videoInput.value}`, '_blank'); });
     }
 });
 
