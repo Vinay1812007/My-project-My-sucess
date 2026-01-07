@@ -7,13 +7,13 @@
     <link rel="canonical" href="https://www.sirimillavinay.online/videodownloader">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <div class="cursor-dot" id="cursorDot"></div>
     <div class="cursor-outline" id="cursorOutline"><i class="fa-solid fa-video"></i></div>
-    <div class="neon-blink-bg" id="neonBg"></div>
-    <div class="parallax-layer layer-1" id="layer1"></div>
+    <canvas id="smokeCanvas"></canvas>
 
     <nav class="glass-panel sticky-nav">
         <div class="nav-container">
@@ -47,10 +47,6 @@
             </div>
 
             <div id="dlResult" class="dl-result hidden">
-                
-                <div id="videoPlayerBox" class="video-player-container hidden" style="margin-bottom: 20px; border-radius: 15px; overflow: hidden; border: 1px solid var(--glass-border);">
-                    </div>
-
                 <div class="video-preview-box">
                     <img id="thumbPreview" src="" alt="Thumbnail" class="preview-img">
                     <div class="video-meta">
@@ -58,15 +54,14 @@
                         <span id="vidPlatform" class="platform-badge">Detected</span>
                     </div>
                 </div>
-                
                 <div class="format-grid">
-                    <button class="format-chip magnetic active" data-quality="1080">1080p</button>
-                    <button class="format-chip magnetic" data-quality="720">720p</button>
-                    <button class="format-chip magnetic" data-quality="mp3">Audio Only</button>
+                    <button class="format-chip magnetic active" data-quality="8k">8K</button>
+                    <button class="format-chip magnetic" data-quality="4k">4K</button>
+                    <button class="format-chip magnetic" data-quality="1080">1080p</button>
+                    <button class="format-chip magnetic" data-quality="mp3">MP3</button>
                 </div>
-
                 <button class="btn-download magnetic" id="finalDownloadBtn">
-                    <i class="fa-solid fa-download"></i> Download File
+                    <i class="fa-solid fa-download"></i> Start Download
                 </button>
             </div>
             
