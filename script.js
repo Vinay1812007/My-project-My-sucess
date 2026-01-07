@@ -1,60 +1,90 @@
+// --- CAST API ---
 window['__onGCastApiAvailable'] = function(isAvailable) { if (isAvailable) { cast.framework.CastContext.getInstance().setOptions({ receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID, autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED }); if(document.getElementById('castBtn')) document.getElementById('castBtn').style.display = 'inline-block'; } };
-window.searchMood = function(query) { const i = document.getElementById('searchInput'); if(i){ i.value = query; i.dispatchEvent(new Event('input')); } };
 
+// --- GLOBAL SEARCH FUNCTIONS ---
+window.searchMood = function(query) { 
+    const i = document.getElementById('searchInput'); 
+    if(i){ 
+        i.value = query; 
+        i.dispatchEvent(new Event('input')); 
+    } 
+};
+
+// Fixed: Language Button Logic
 window.setLanguage = function(lang) {
+    // Visual Update
     document.querySelectorAll('.lang-chip').forEach(c => c.classList.remove('active'));
     if(event && event.target) event.target.classList.add('active');
-    let query = "Top Hits";
-    if (lang !== 'All') query = `${lang} Top 30`;
+    
+    // Search Query Logic
+    let query = "Top Hits India";
+    if (lang === 'Telugu') query = "Latest Telugu Hits";
+    else if (lang === 'Hindi') query = "Bollywood Top 50";
+    else if (lang === 'English') query = "Global Top 50";
+    else if (lang === 'Tamil') query = "Kollywood Hits";
+    else if (lang === 'Punjabi') query = "Punjabi Party Hits";
+    
+    // Trigger Search
     const searchInput = document.getElementById('searchInput');
-    if (searchInput) { searchInput.value = query; searchInput.dispatchEvent(new Event('input')); }
+    if (searchInput) { 
+        searchInput.value = query; 
+        searchInput.dispatchEvent(new Event('input')); 
+    }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    
+    // --- 1. SMOKE EFFECT ---
     initSmokeEffect();
 
-    // --- SETUP ---
-    const themeBtn = document.getElementById('themeToggle'); 
-    const icon = themeBtn ? themeBtn.querySelector('i') : null;
-    const applyTheme = (theme) => { 
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('neon_theme', theme);
-        if(icon) icon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-    };
-    applyTheme(localStorage.getItem('neon_theme') || 'dark');
-    if(themeBtn) themeBtn.addEventListener('click', () => { 
-        let c = document.documentElement.getAttribute('data-theme'); 
-        applyTheme(c === 'dark' ? 'light' : 'dark'); 
-    });
-
-    const cursorDot = document.getElementById('cursorDot'); 
-    const cursorOutline = document.getElementById('cursorOutline');
+    // --- 2. THEME & UI ---
+    const themeBtn = document.getElementById('themeToggle'); const icon = themeBtn ? themeBtn.querySelector('i') : null;
+    const applyTheme = (theme) => { if(theme==='system'){document.documentElement.removeAttribute('data-theme');localStorage.removeItem('neon_theme');if(icon)icon.className='fa-solid fa-desktop';}else{document.documentElement.setAttribute('data-theme',theme);localStorage.setItem('neon_theme',theme);if(icon)icon.className=theme==='dark'?'fa-solid fa-moon':'fa-solid fa-sun';} };
+    applyTheme(localStorage.getItem('neon_theme')||'system');
+    if(themeBtn) themeBtn.addEventListener('click', () => { let c = document.documentElement.getAttribute('data-theme'); applyTheme(c==='dark'?'light':(c==='light'?'system':'dark')); });
+    
+    const cursorDot = document.getElementById('cursorDot'); const cursorOutline = document.getElementById('cursorOutline');
     if(cursorDot && cursorOutline){
         window.addEventListener('mousemove', (e) => { 
-            cursorDot.style.left = `${e.clientX}px`; 
-            cursorDot.style.top = `${e.clientY}px`; 
-            cursorOutline.animate({left: `${e.clientX}px`, top: `${e.clientY}px`}, {duration: 500, fill: "forwards"}); 
+            cursorDot.style.left=`${e.clientX}px`; 
+            cursorDot.style.top=`${e.clientY}px`; 
+            cursorOutline.animate({left:`${e.clientX}px`,top:`${e.clientY}px`},{duration:500,fill:"forwards"}); 
         });
     }
 
-    // --- MUSIC PLAYER ---
+    // Landing Page
+    const landingGoBtn = document.getElementById('landingGoBtn');
+    if (landingGoBtn) {
+        const landingInput = document.getElementById('landingUrl');
+        landingGoBtn.addEventListener('click', () => { const url = landingInput.value.trim(); if(url){ window.location.href = `/videodownloader?url=${encodeURIComponent(url)}`; } else { alert("Please paste a link."); } });
+        landingInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') landingGoBtn.click(); });
+    }
+
+    // --- MUSIC PLAYER LOGIC ---
     const grid = document.getElementById('musicGrid');
     if (grid) {
         const searchInput = document.getElementById('searchInput');
         const audio = document.getElementById('audioPlayer'); 
-        const playBtn = document.getElementById('playBtn'), playIcon = document.getElementById('playIcon'), albumArt = document.getElementById('albumArt'), loader = document.getElementById('loader'), neonBg = document.getElementById('neonBg');
+        const playBtn = document.getElementById('playBtn'), playIcon = document.getElementById('playIcon'), albumArt = document.getElementById('albumArt'), loader = document.getElementById('loader'), canvas = document.getElementById('visualizerCanvas'), neonBg = document.getElementById('neonBg');
+        const likeBtn = document.getElementById('likeBtn'), qrBtn = document.getElementById('qrBtn'), speedBtn = document.getElementById('speedBtn'), downloadBtn = document.getElementById('downloadBtn'), sleepBtn = document.getElementById('sleepBtn'), airplayBtn = document.getElementById('airplayBtn'), pipBtn = document.getElementById('pipBtn'), bassBtn = document.getElementById('bassBtn');
         const dolbyBtn = document.getElementById('dolbyBtn'), partyBtn = document.getElementById('partyBtn'), partyOverlay = document.getElementById('partyOverlay');
         const progressBar = document.getElementById('progressBar'), currTime = document.getElementById('currTime'), totalTime = document.getElementById('totalTime');
-        const fullPlayer = document.getElementById('fullPlayer'), closeFull = document.getElementById('closeFullPlayer'), fullArt = document.getElementById('fullAlbumArt'), fullTitle = document.getElementById('fullTrackTitle'), fullArtist = document.getElementById('fullTrackArtist');
-        const lyricsBtn = document.getElementById('lyricsBtn'), lyricsPanel = document.getElementById('lyricsPanel'), lyricsText = document.getElementById('lyricsText');
+        const fullPlayer = document.getElementById('fullPlayer'), closeFull = document.getElementById('closeFullPlayer'), fullArt = document.getElementById('fullAlbumArt'), fullTitle = document.getElementById('fullTrackTitle'), fullArtist = document.getElementById('fullTrackArtist'), fullPlay = document.getElementById('fullPlayBtn'), fullIcon = document.getElementById('fullPlayIcon'), fullNext = document.getElementById('fullNextBtn'), fullPrev = document.getElementById('fullPrevBtn');
+        const lyricsBtn = document.getElementById('lyricsBtn'), lyricsPanel = document.getElementById('lyricsPanel'), lyricsText = document.getElementById('lyricsText'), closeLyrics = document.getElementById('closeLyrics');
 
         let currentSong = null, songQueue = [], currentIndex = 0;
         let audioContext, analyser, source, bassFilter, spatialPanner;
-        let is3DActive = false, isPartyActive = false, spatialAngle = 0;
-        let trackStream;
+        let is3DActive = false, isBassBoosted = false, isPartyActive = false, spatialAngle = 0, trackStream;
+        let speeds = [1.0, 1.25, 1.5, 0.8], speedIndex = 0;
 
-        // Load Initial Songs
-        searchSongs('Global Top 50');
+        // Initial Load
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.get('song')) { 
+            searchInput.value = urlParams.get('song'); 
+            searchSongs(urlParams.get('song'), true, parseFloat(urlParams.get('t'))); 
+        } else {
+            searchSongs('Latest Hindi Telugu Hits');
+        }
 
         let debounceTimer;
         searchInput.addEventListener('input', (e) => { 
@@ -62,49 +92,30 @@ document.addEventListener('DOMContentLoaded', () => {
             debounceTimer = setTimeout(() => { if(e.target.value) searchSongs(e.target.value); }, 800); 
         });
 
-        // --- NEW: MULTI-API SEARCH (iTunes + Deezer) ---
-        async function searchSongs(query) {
+        // --- ITUNES API SEARCH (30s Previews) ---
+        async function searchSongs(query, autoPlay=false, startTime=0) {
             grid.innerHTML = ''; 
             grid.appendChild(loader); 
             loader.classList.remove('hidden');
             songQueue = [];
 
             try {
-                const results = [];
-
-                // 1. iTunes API (Best for 30s previews)
-                const itunesPromise = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=15`)
-                    .then(res => res.json())
-                    .then(data => {
-                        if(data.results) {
-                            return data.results.map(s => ({
-                                id: s.trackId,
-                                trackName: s.trackName,
-                                artistName: s.artistName,
-                                artworkUrl100: s.artworkUrl100.replace('100x100', '400x400'),
-                                previewUrl: s.previewUrl,
-                                source: 'iTunes'
-                            }));
-                        }
-                        return [];
-                    }).catch(() => []);
-
-                // 2. Deezer API (via CORS Proxy)
-                const deezerPromise = fetch(`https://api.deezer.com/search?q=${encodeURIComponent(query)}&limit=15&output=jsonp`) 
-                    // Note: Direct Deezer calls often blocked by CORS. Using a trick or fallback is common.
-                    // For stability in this code, we rely heavily on iTunes, but here is the structure if using a proxy:
-                    // fetch(`https://cors-anywhere.herokuapp.com/https://api.deezer.com/search?q=${query}`)
-                    .then(res => res.json()) // This usually fails without a proxy server
-                    .catch(() => []); 
-
-                // Wait for iTunes (Deezer omitted to prevent CORS errors on client-side only hosting)
-                const [itunesSongs] = await Promise.all([itunesPromise]);
+                // Fetch from iTunes (Reliable, High Quality 30s)
+                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=25&country=IN`);
+                const data = await res.json();
                 
-                songQueue = [...itunesSongs];
-
                 loader.classList.add('hidden');
 
-                if(songQueue.length > 0) {
+                if (data.results && data.results.length > 0) {
+                    songQueue = data.results.map(song => ({
+                        id: song.trackId,
+                        trackName: song.trackName,
+                        artistName: song.artistName,
+                        artworkUrl100: song.artworkUrl100.replace('100x100', '400x400'), // High res image
+                        previewUrl: song.previewUrl,
+                        album: song.collectionName
+                    }));
+
                     songQueue.forEach((song, idx) => {
                         if(!song.previewUrl) return;
                         const card = document.createElement('div');
@@ -112,71 +123,92 @@ document.addEventListener('DOMContentLoaded', () => {
                         card.innerHTML = `
                             <div class="art-box" style="background-image:url('${song.artworkUrl100}')">
                                 <div class="play-overlay"><i class="fa-solid fa-play"></i></div>
-                                <div class="source-badge"><i class="fa-brands fa-apple"></i></div>
                             </div>
                             <div class="song-info"><h3>${song.trackName}</h3><p>${song.artistName}</p></div>`;
                         card.addEventListener('click', () => { currentIndex = idx; playTrack(song); });
                         grid.appendChild(card);
                     });
+
+                    if(autoPlay && songQueue.length > 0) playTrack(songQueue[0], startTime);
+
                 } else {
                     grid.innerHTML = '<h3>No songs found.</h3>';
                 }
             } catch (e) {
                 console.error(e);
                 loader.classList.add('hidden');
-                grid.innerHTML = '<h3>Error fetching songs.</h3>';
+                grid.innerHTML = '<h3>Error loading songs.</h3>';
             }
         }
 
-        function playTrack(song) {
+        function playTrack(song, startTime=0) {
             currentSong = song; 
             initAudio(); 
             
+            // Update Text
             document.getElementById('trackTitle').innerText = song.trackName;
             document.getElementById('trackArtist').innerText = song.artistName;
+            fullTitle.innerText = song.trackName;
+            fullArtist.innerText = song.artistName;
+            
+            // Update Images
             albumArt.style.backgroundImage = `url('${song.artworkUrl100}')`;
-            fullTitle.innerText = song.trackName; 
-            fullArtist.innerText = song.artistName; 
             fullArt.style.backgroundImage = `url('${song.artworkUrl100}')`;
             
-            // Set YouTube Link
+            // Set YouTube Link (For Full Song)
             const ytBtn = document.getElementById('youtubeBtn');
-            if(ytBtn) ytBtn.onclick = () => window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(song.trackName + " " + song.artistName)}`, '_blank');
+            if(ytBtn) ytBtn.onclick = () => window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(song.trackName + " " + song.artistName + " full song")}`, '_blank');
 
+            // Theme Color
             const h = Math.abs((song.trackName.length * 37) % 360);
             document.documentElement.style.setProperty('--neon-main', `hsl(${h}, 100%, 50%)`);
             neonBg.classList.add('active');
 
+            // Play Audio
             audio.src = song.previewUrl;
-            audio.play().catch(e => console.log("Playback error:", e));
-            playIcon.className = 'fa-solid fa-pause';
-            albumArt.classList.add('spinning');
+            if(startTime > 0) audio.currentTime = startTime;
+            audio.playbackRate = speeds[speedIndex];
+            
+            audio.play().then(() => {
+                playIcon.className = 'fa-solid fa-pause';
+                fullIcon.className = 'fa-solid fa-pause';
+                albumArt.classList.add('spinning');
+            }).catch(e => console.log("Playback error:", e));
         }
 
-        document.getElementById('playBtn').addEventListener('click', () => {
-            if(audio.paused) { audio.play(); playIcon.className='fa-solid fa-pause'; albumArt.classList.add('spinning'); }
-            else { audio.pause(); playIcon.className='fa-solid fa-play'; albumArt.classList.remove('spinning'); }
-        });
+        function togglePlay() { 
+            if(audio.src) { 
+                if(audio.paused) { 
+                    audio.play(); 
+                    playIcon.className='fa-solid fa-pause'; fullIcon.className='fa-solid fa-pause'; albumArt.classList.add('spinning'); neonBg.classList.add('active'); 
+                } else { 
+                    audio.pause(); 
+                    playIcon.className='fa-solid fa-play'; fullIcon.className='fa-solid fa-play'; albumArt.classList.remove('spinning'); neonBg.classList.remove('active'); 
+                } 
+            } 
+        }
+        playBtn.addEventListener('click', togglePlay); fullPlay.addEventListener('click', togglePlay);
 
-        function initAudio() {
-            if (audioContext) return;
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioContext.createAnalyser();
-            source = audioContext.createMediaElementSource(audio);
+        // --- AUDIO FEATURES (Dolby / Party) ---
+        function initAudio() { 
+            if (audioContext) return; 
+            audioContext = new (window.AudioContext || window.webkitAudioContext)(); 
+            analyser = audioContext.createAnalyser(); 
+            source = audioContext.createMediaElementSource(audio); 
             
-            bassFilter = audioContext.createBiquadFilter();
+            bassFilter = audioContext.createBiquadFilter(); 
             bassFilter.type = "lowshelf"; bassFilter.frequency.value = 200; 
             
-            spatialPanner = audioContext.createPanner();
+            spatialPanner = audioContext.createPanner(); // 3D Audio
             spatialPanner.panningModel = 'HRTF';
             spatialPanner.distanceModel = 'inverse';
             
-            source.connect(bassFilter);
+            source.connect(bassFilter); 
             bassFilter.connect(spatialPanner);
-            spatialPanner.connect(analyser);
-            analyser.connect(audioContext.destination);
+            spatialPanner.connect(analyser); 
+            analyser.connect(audioContext.destination); 
             
-            initVisualizer();
+            initVisualizer(); 
         }
 
         dolbyBtn.addEventListener('click', () => {
@@ -185,6 +217,8 @@ document.addEventListener('DOMContentLoaded', () => {
             dolbyBtn.classList.toggle('active');
             if(!is3DActive) spatialPanner.setPosition(0, 0, 0); 
         });
+
+        bassBtn.addEventListener('click', () => { if(!audioContext) initAudio(); isBassBoosted = !isBassBoosted; bassFilter.gain.value = isBassBoosted ? 15 : 0; bassBtn.classList.toggle('active'); });
 
         partyBtn.addEventListener('click', async () => {
             if(!audioContext) initAudio();
@@ -198,83 +232,78 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        speedBtn.addEventListener('click', () => { speedIndex = (speedIndex + 1) % speeds.length; audio.playbackRate = speeds[speedIndex]; speedBtn.innerText = speeds[speedIndex] + "x"; });
+
+        // Navigation
+        document.getElementById('fullPrevBtn').addEventListener('click', () => { if(currentIndex>0) { currentIndex--; playTrack(songQueue[currentIndex]); } });
+        document.getElementById('fullNextBtn').addEventListener('click', () => { if(currentIndex<songQueue.length-1) { currentIndex++; playTrack(songQueue[currentIndex]); } });
+        document.getElementById('fullPlayBtn').addEventListener('click', () => togglePlay());
+        
+        audio.addEventListener('ended', () => { if(currentIndex < songQueue.length - 1) { currentIndex++; playTrack(songQueue[currentIndex]); } });
+        
+        audio.addEventListener('timeupdate', () => { if(audio.duration) { const pct = (audio.currentTime/audio.duration)*100; progressBar.value = pct; currTime.innerText = formatTime(audio.currentTime); totalTime.innerText = formatTime(audio.duration); } });
+        progressBar.addEventListener('input', (e) => { audio.currentTime = (audio.duration / 100) * e.target.value; });
+        function formatTime(s) { let m = Math.floor(s/60); let sec = Math.floor(s%60); return `${m}:${sec<10?'0':''}${sec}`; }
+
+        // Lyrics
         lyricsBtn.addEventListener('click', async () => {
             if(!currentSong) return alert("Play a song!");
             lyricsPanel.classList.remove('hidden');
             lyricsText.innerHTML = "<p align='center'>Fetching Lyrics...</p>";
-            
-            // Auto Lyrics (External API)
             try {
                 const res = await fetch(`https://api.lyrics.ovh/v1/${currentSong.artistName}/${currentSong.trackName}`);
                 const json = await res.json();
                 if(json.lyrics) {
                     lyricsText.innerHTML = `<h3>${currentSong.trackName}</h3><br>`;
-                    let i = 0;
-                    const cleanText = json.lyrics.replace(/\n/g, "<br>");
-                    function typeWriter() {
-                        if(i < cleanText.length) {
-                            lyricsText.innerHTML += cleanText.charAt(i) === '<' ? '<br>' : cleanText.charAt(i);
-                            i += (cleanText.charAt(i) === '<' ? 4 : 1);
-                            lyricsText.scrollTop = lyricsText.scrollHeight;
-                            setTimeout(typeWriter, 5); 
-                        }
-                    }
-                    typeWriter();
+                    lyricsText.innerHTML += json.lyrics.replace(/\n/g, "<br>");
                 } else { throw new Error("No lyrics"); }
             } catch(e) {
-                lyricsText.innerHTML = "<p align='center'>Lyrics not found.</p>";
+                lyricsText.innerHTML = "<p align='center'>Lyrics not available for this song.</p><br><button onclick=\"window.open('https://www.google.com/search?q="+encodeURIComponent(currentSong.trackName + " lyrics")+"', '_blank')\" class='landing-btn'>Search Google</button>";
             }
         });
-
-        document.getElementById('closeLyrics').addEventListener('click', () => lyricsPanel.classList.add('hidden'));
-        document.getElementById('fullPrevBtn').addEventListener('click', () => { if(currentIndex>0) { currentIndex--; playTrack(songQueue[currentIndex]); } });
-        document.getElementById('fullNextBtn').addEventListener('click', () => { if(currentIndex<songQueue.length-1) { currentIndex++; playTrack(songQueue[currentIndex]); } });
-        document.getElementById('fullPlayBtn').addEventListener('click', () => document.getElementById('playBtn').click());
+        
+        closeLyrics.addEventListener('click', () => lyricsPanel.classList.add('hidden'));
         albumArt.addEventListener('click', () => fullPlayer.classList.remove('hidden')); 
         closeFull.addEventListener('click', () => fullPlayer.classList.add('hidden'));
 
-        function initVisualizer() {
+        // Visualizer
+        function initVisualizer() { 
             const ctx = canvas.getContext('2d');
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-            
-            function animate() {
-                requestAnimationFrame(animate);
-                analyser.getByteFrequencyData(dataArray);
-                
-                canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                const barWidth = (canvas.width / bufferLength) * 2.5;
+            const bufferLength = analyser.frequencyBinCount; 
+            const dataArray = new Uint8Array(bufferLength); 
+            function animate() { 
+                requestAnimationFrame(animate); 
+                analyser.getByteFrequencyData(dataArray); 
+                canvas.width = window.innerWidth; canvas.height = window.innerHeight; 
+                ctx.clearRect(0, 0, canvas.width, canvas.height); 
+                const barWidth = (canvas.width / bufferLength) * 2.5; 
                 let x = 0, vol = 0;
-                
-                for(let i=0; i<bufferLength; i++) {
+                for(let i=0; i<bufferLength; i++) { 
                     vol += dataArray[i];
-                    const barHeight = dataArray[i] * 1.5;
-                    ctx.fillStyle = `rgba(${barHeight + 50}, 250, 50, 0.2)`;
-                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-                    x += barWidth + 1;
+                    const barHeight = dataArray[i] * 1.5; 
+                    ctx.fillStyle = `rgba(${barHeight + 50}, 250, 50, 0.2)`; 
+                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight); 
+                    x += barWidth + 1; 
                 }
                 vol /= bufferLength;
-
-                if(is3DActive) {
-                    spatialAngle += 0.02;
-                    spatialPanner.setPosition(Math.sin(spatialAngle)*10, 0, Math.cos(spatialAngle)*10);
-                }
-
-                if(isPartyActive && vol > 120) {
-                    partyOverlay.style.opacity = (vol/255) * 0.5;
-                    partyOverlay.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
-                    if(trackStream && Math.random()>0.8) { try { trackStream.applyConstraints({advanced:[{torch:true}]}); setTimeout(()=>trackStream.applyConstraints({advanced:[{torch:false}]}), 50); } catch(e){} }
-                } else {
-                    partyOverlay.style.opacity = 0;
-                }
-            }
-            animate();
+                if(is3DActive) { spatialAngle += 0.02; spatialPanner.setPosition(Math.sin(spatialAngle)*10, 0, Math.cos(spatialAngle)*10); }
+                if(isPartyActive && vol > 120) { partyOverlay.style.opacity = (vol/255)*0.5; partyOverlay.style.backgroundColor = `hsl(${Math.random()*360},100%,50%)`; if(trackStream && Math.random()>0.8) { try{trackStream.applyConstraints({advanced:[{torch:true}]});setTimeout(()=>trackStream.applyConstraints({advanced:[{torch:false}]}),50);}catch(e){} } } else { partyOverlay.style.opacity = 0; }
+            } 
+            animate(); 
         }
+    }
+
+    // Video DL
+    const fetchBtn = document.getElementById('fetchVideoBtn');
+    if (fetchBtn) {
+        const videoInput = document.getElementById('videoUrl'), pasteBtn = document.getElementById('pasteBtn'), dlResult = document.getElementById('dlResult'), thumbPreview = document.getElementById('thumbPreview'), finalDownloadBtn = document.getElementById('finalDownloadBtn');
+        pasteBtn.addEventListener('click', async () => { try { const text = await navigator.clipboard.readText(); videoInput.value = text; } catch (err) { alert("Paste manually"); } });
+        document.getElementById('fetchVideoBtn').addEventListener('click', () => { if(videoInput.value) { dlResult.classList.remove('hidden'); thumbPreview.src="https://via.placeholder.com/300x200?text=Video+Found"; } });
+        finalDownloadBtn.addEventListener('click', () => { if(videoInput.value.includes('youtube')) window.open(`https://ssyoutube.com/en/download?url=${videoInput.value}`, '_blank'); else window.open(`https://savefrom.net/${videoInput.value}`, '_blank'); });
     }
 });
 
-// --- SMOKE EFFECT ---
+// --- SMOKE EFFECT (Optimized) ---
 function initSmokeEffect() {
     let canvas = document.getElementById('smokeCanvas');
     if(!canvas) return;
@@ -283,7 +312,6 @@ function initSmokeEffect() {
     let pointers = [], splatStack = [];
     let _getWebGLContext = getWebGLContext(canvas);
     let gl = _getWebGLContext.gl, ext = _getWebGLContext.ext, support_linear_float = _getWebGLContext.support_linear_float;
-
     function getWebGLContext(canvas) {
         let params = { alpha: true, depth: false, stencil: false, antialias: false, preserveDrawingBuffer: false };
         let gl = canvas.getContext("webgl2", params);
@@ -295,10 +323,8 @@ function initSmokeEffect() {
         gl.clearColor(0.0, 0.0, 0.0, 0.0);
         return { gl: gl, ext: { internalFormat: isWebGL2 ? gl.RGBA16F : gl.RGBA, internalFormatRG: isWebGL2 ? gl.RG16F : gl.RGBA, formatRG: isWebGL2 ? gl.RG : gl.RGBA, texType: isWebGL2 ? gl.HALF_FLOAT : halfFloat.HALF_FLOAT_OES }, support_linear_float: support_linear_float };
     }
-
     function pointerPrototype() { this.id = -1; this.x = 0; this.y = 0; this.dx = 0; this.dy = 0; this.down = false; this.moved = false; this.color = [30, 0, 300]; }
     pointers.push(new pointerPrototype());
-
     class GLProgram {
         constructor(vertexShader, fragmentShader) {
             this.uniforms = {}; this.program = gl.createProgram();
@@ -310,7 +336,6 @@ function initSmokeEffect() {
         }
         bind() { gl.useProgram(this.program); }
     }
-
     function compileShader(type, source) { const shader = gl.createShader(type); gl.shaderSource(shader, source); gl.compileShader(shader); if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(shader); return shader; }
     const baseVertexShader = compileShader(gl.VERTEX_SHADER, "precision highp float; attribute vec2 aPosition; varying vec2 vUv; varying vec2 vL; varying vec2 vR; varying vec2 vT; varying vec2 vB; uniform vec2 texelSize; void main () { vUv = aPosition * 0.5 + 0.5; vL = vUv - vec2(texelSize.x, 0.0); vR = vUv + vec2(texelSize.x, 0.0); vT = vUv + vec2(0.0, texelSize.y); vB = vUv - vec2(0.0, texelSize.y); gl_Position = vec4(aPosition, 0.0, 1.0); }");
     const clearShader = compileShader(gl.FRAGMENT_SHADER, "precision highp float; precision mediump sampler2D; varying vec2 vUv; uniform sampler2D uTexture; uniform float value; void main () { gl_FragColor = value * texture2D(uTexture, vUv); }");
