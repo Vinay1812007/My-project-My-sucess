@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentSong = null, songQueue = [], currentIndex = 0;
         let audioContext, analyser, source, bassFilter, spatialPanner;
         let is3DActive = false, isPartyActive = false, spatialAngle = 0;
-        let trackStream; // For flashlight
+        let trackStream;
 
         // Load Initial Songs
         searchSongs('Top Indian Hits');
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
             debounceTimer = setTimeout(() => { if(e.target.value) searchSongs(e.target.value); }, 800); 
         });
 
-        // --- ROBUST SEARCH FUNCTION ---
+        // --- SEARCH API (JioSaavn / iTunes Fallback) ---
         async function searchSongs(query) {
             grid.innerHTML = ''; 
             grid.appendChild(loader); 
@@ -127,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
             currentSong = song; 
             initAudio(); 
             
-            // Update UI
             document.getElementById('trackTitle').innerText = song.trackName;
             document.getElementById('trackArtist').innerText = song.artistName;
             albumArt.style.backgroundImage = `url('${song.artworkUrl100}')`;
@@ -158,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
             source = audioContext.createMediaElementSource(audio);
             
             bassFilter = audioContext.createBiquadFilter();
-            bassFilter.type = "lowshelf"; bassFilter.frequency.value = 200;
+            bassFilter.type = "lowshelf"; bassFilter.frequency.value = 200; 
             
             // Spatial Panner for Dolby Atmos Simulation
             spatialPanner = audioContext.createPanner();
