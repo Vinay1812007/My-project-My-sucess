@@ -51,7 +51,6 @@
         <div class="lyrics-content glass-panel">
             <div class="lyrics-header"><h3><i class="fa-solid fa-robot"></i> Lyrics AI</h3><button class="btn-close magnetic" id="closeLyrics"><i class="fa-solid fa-xmark"></i></button></div>
             <div class="lyrics-body" id="lyricsText" style="font-family: monospace; white-space: pre-wrap;"></div>
-            <button class="btn-primary magnetic" id="fullLyricsBtn" style="display:none;">Search on Google</button>
         </div>
     </div>
 
@@ -123,6 +122,9 @@
 
         <div class="player-center">
             <div class="controls">
+                <div class="cast-wrapper">
+                    <google-cast-launcher id="castBtn"></google-cast-launcher>
+                </div>
                 <button class="btn-control magnetic hidden" id="airplayBtn" title="AirPlay"><i class="fa-brands fa-apple"></i></button>
                 <button class="btn-control magnetic" id="dolbyBtn" title="Dolby Atmos 3D" style="font-weight:bold; font-size:0.8rem; border:1px solid currentColor; border-radius:4px; padding:2px 6px;">3D</button>
                 <button class="btn-control magnetic" id="partyBtn" title="Party Light"><i class="fa-solid fa-bolt"></i></button>
