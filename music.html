@@ -10,16 +10,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
+    <div class="full-bg-blur"></div>
     <canvas id="smokeCanvas"></canvas>
     <canvas id="visualizerCanvas"></canvas>
     <div class="cursor-dot" id="cursorDot"></div>
     <div class="cursor-outline" id="cursorOutline"><i class="fa-solid fa-music"></i></div>
     <div id="partyOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:50; opacity:0; mix-blend-mode:overlay; background:white;"></div>
 
-    <div class="full-player hidden" id="fullPlayer">
+    <div class="full-player" id="fullPlayer">
         <button class="btn-close-full magnetic" id="closeFullPlayer"><i class="fa-solid fa-chevron-down"></i></button>
         <div class="full-art-container"><div class="full-art" id="fullAlbumArt"></div></div>
         <div class="full-info">
@@ -40,25 +42,13 @@
         </div>
     </div>
 
-    <div class="lyrics-overlay hidden" id="qrPanel">
-        <div class="lyrics-content glass-panel" style="align-items: center; text-align: center;">
-            <div class="lyrics-header" style="width: 100%;"><h3><i class="fa-solid fa-qrcode"></i> Party Sync</h3><button class="btn-close magnetic" id="closeQr"><i class="fa-solid fa-xmark"></i></button></div>
-            <div id="qrCodeContainer" style="margin: 20px; padding: 10px; background: white; border-radius: 10px;"></div>
-        </div>
-    </div>
-    
-    <div class="lyrics-overlay hidden" id="lyricsPanel">
-        <div class="lyrics-content glass-panel">
-            <div class="lyrics-header"><h3><i class="fa-solid fa-robot"></i> Lyrics AI</h3><button class="btn-close magnetic" id="closeLyrics"><i class="fa-solid fa-xmark"></i></button></div>
-            <div class="lyrics-body" id="lyricsText" style="font-family: monospace; white-space: pre-wrap;"></div>
-        </div>
-    </div>
-
-    <div class="lyrics-overlay hidden" id="libraryPanel">
-        <div class="lyrics-content glass-panel">
-            <div class="lyrics-header"><h3><i class="fa-solid fa-heart"></i> My Library</h3><button class="btn-close magnetic" id="closeLibrary"><i class="fa-solid fa-xmark"></i></button></div>
-            <div class="library-tabs"><button class="lib-tab active" onclick="switchLib('favorites')">Favorites</button><button class="lib-tab" onclick="switchLib('history')">History</button></div>
-            <div class="lyrics-body" id="libraryList"></div>
+    <div class="lyrics-overlay" id="lyricsPanel">
+        <div class="lyrics-content">
+            <div class="lyrics-header">
+                <h3><i class="fa-solid fa-microphone-lines"></i> Synced Lyrics</h3>
+                <button class="btn-close magnetic" id="closeLyrics"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="lyrics-body" id="lyricsText"></div>
         </div>
     </div>
 
@@ -69,7 +59,6 @@
                 <div class="tab-switcher">
                     <a href="/music" class="tab-btn active magnetic">Music</a>
                     <a href="/videodownloader" class="tab-btn magnetic">Video DL</a>
-                    <button class="tab-btn magnetic" id="openLibraryBtn"><i class="fa-solid fa-bookmark"></i></button>
                 </div>
                  <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
             </div>
@@ -86,14 +75,14 @@
         </div>
 
         <div class="mood-container fade-in-up">
-            <button class="mood-chip" onclick="searchMood('Trending')">🔥 Trending</button>
+            <button class="mood-chip active" onclick="searchMood('Trending')">🔥 Trending</button>
             <button class="mood-chip" onclick="searchMood('Lo-Fi')">🌧️ Lo-Fi</button>
             <button class="mood-chip" onclick="searchMood('Gym')">💪 Gym</button>
             <button class="mood-chip" onclick="searchMood('Love')">❤️ Love</button>
             <button class="mood-chip" onclick="searchMood('Party')">🎉 Party</button>
             <button class="mood-chip" onclick="searchMood('Devotional')">🕉️ Devotional</button>
             <button class="mood-chip" onclick="searchMood('Broken Heart')">💔 Broken</button>
-            <button class="mood-chip" onclick="searchMood('Long Drive')">🚗 Drive</button>
+            <button class="mood-chip" onclick="searchMood('Drive')">🚗 Drive</button>
             <button class="mood-chip" onclick="searchMood('Gaming')">🕹️ Gaming</button>
         </div>
 
@@ -107,14 +96,14 @@
         </div>
 
         <div class="horizontal-scroll-wrapper">
-            <h2 class="section-title fade-in-up" id="gridTitle">Trending Now</h2>
+            <h2 class="section-title fade-in-up" id="gridTitle" style="margin-bottom:20px; font-weight:800;">Results</h2>
             <div class="music-grid" id="musicGrid"><div class="loader hidden" id="loader"></div></div>
         </div>
     </main>
 
-    <div class="player-bar glass-panel slide-up" id="musicPlayerBar">
+    <div class="player-bar" id="musicPlayerBar">
         <div class="now-playing-info">
-            <div class="now-playing-art magnetic" id="albumArt" title="Open Full Player"><div class="center-hole"></div></div>
+            <div class="now-playing-art magnetic" id="albumArt"></div>
             <div class="track-details"><span id="trackTitle">Select a track</span><span id="trackArtist">...</span></div>
             <button class="action-btn magnetic" id="likeBtn"><i class="fa-regular fa-heart"></i></button>
             <button class="action-btn magnetic" id="youtubeBtn" title="Watch on YouTube"><i class="fa-brands fa-youtube"></i></button>
@@ -122,18 +111,13 @@
 
         <div class="player-center">
             <div class="controls">
-                <div class="cast-wrapper">
-                    <google-cast-launcher id="castBtn"></google-cast-launcher>
-                </div>
-                <button class="btn-control magnetic hidden" id="airplayBtn" title="AirPlay"><i class="fa-brands fa-apple"></i></button>
                 <button class="btn-control magnetic" id="dolbyBtn" title="Dolby Atmos 3D" style="font-weight:bold; font-size:0.8rem; border:1px solid currentColor; border-radius:4px; padding:2px 6px;">3D</button>
                 <button class="btn-control magnetic" id="partyBtn" title="Party Light"><i class="fa-solid fa-bolt"></i></button>
                 <button class="btn-control magnetic" id="speedBtn" title="Speed">1.0x</button>
-                <button class="btn-control magnetic" id="bassBtn" title="Bass Boost"><i class="fa-solid fa-wave-square"></i></button>
+                
                 <button class="btn-control magnetic" id="prevBtn"><i class="fa-solid fa-backward-step"></i></button>
                 <button class="btn-play magnetic" id="playBtn"><i class="fa-solid fa-play" id="playIcon"></i></button>
                 <button class="btn-control magnetic" id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
-                <button class="btn-control magnetic" id="pipBtn" title="Pop Out Player"><i class="fa-solid fa-up-right-from-square"></i></button>
             </div>
             <div class="progress-container">
                 <span class="time" id="currTime">0:00</span>
@@ -143,7 +127,7 @@
         </div>
 
         <div class="volume-control">
-            <button class="btn-control magnetic" id="lyricsBtn"><i class="fa-solid fa-align-left"></i></button>
+            <button class="btn-control magnetic" id="lyricsBtn"><i class="fa-solid fa-microphone-lines"></i></button>
             <button class="btn-control magnetic" id="sleepBtn" title="Sleep Timer"><i class="fa-solid fa-stopwatch"></i></button>
             <button class="btn-control magnetic" id="downloadBtn" title="Download Song"><i class="fa-solid fa-download"></i></button>
         </div>
