@@ -1,19 +1,22 @@
+// --- CAST API ---
 window['__onGCastApiAvailable'] = function(isAvailable) { if (isAvailable) { cast.framework.CastContext.getInstance().setOptions({ receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID, autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED }); if(document.getElementById('castBtn')) document.getElementById('castBtn').style.display = 'inline-block'; } };
-window.searchMood = function(query) { const i = document.getElementById('searchInput'); if(i){ i.value = query; i.dispatchEvent(new Event('input')); } };
 
-// --- FIXED: Language Button Logic ---
+// --- SEARCH & LANGUAGE ---
+window.searchMood = function(query) { const i = document.getElementById('searchInput'); if(i){ i.value = query; i.dispatchEvent(new Event('input')); } };
 window.setLanguage = function(lang) {
     document.querySelectorAll('.lang-chip').forEach(c => c.classList.remove('active'));
     if(event && event.target) event.target.classList.add('active');
     
-    let query = "Top Indian Hits";
-    if (lang !== 'All') query = `${lang} Super Hits`;
+    // Optimized Queries for Indian Context
+    let query = "Trending India";
+    if (lang === 'Telugu') query = "Latest Telugu Hits";
+    else if (lang === 'Hindi') query = "Top Bollywood Songs";
+    else if (lang === 'English') query = "Global Top 50";
+    else if (lang === 'Tamil') query = "Kollywood Hits";
+    else if (lang === 'Punjabi') query = "Punjabi Party Hits";
     
     const searchInput = document.getElementById('searchInput');
-    if (searchInput) { 
-        searchInput.value = query; 
-        searchInput.dispatchEvent(new Event('input')); 
-    }
+    if (searchInput) { searchInput.value = query; searchInput.dispatchEvent(new Event('input')); }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -27,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTheme(localStorage.getItem('neon_theme')||'system');
     if(themeBtn) themeBtn.addEventListener('click', () => { let c = document.documentElement.getAttribute('data-theme'); applyTheme(c==='dark'?'light':(c==='light'?'system':'dark')); });
     
-    // Custom Cursor Logic
+    // Cursor Logic
     const cursorDot = document.getElementById('cursorDot'); const cursorOutline = document.getElementById('cursorOutline');
     if(cursorDot && cursorOutline){
         window.addEventListener('mousemove', (e) => { 
@@ -49,19 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
         landingInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') landingGoBtn.click(); });
     }
 
-    // Music Player Logic
+    // --- MUSIC PLAYER LOGIC ---
     const grid = document.getElementById('musicGrid');
     if (grid) {
         const searchInput = document.getElementById('searchInput');
         const audio = document.getElementById('audioPlayer'); 
         const playBtn = document.getElementById('playBtn'), playIcon = document.getElementById('playIcon'), albumArt = document.getElementById('albumArt'), loader = document.getElementById('loader'), canvas = document.getElementById('visualizerCanvas'), neonBg = document.getElementById('neonBg');
         const likeBtn = document.getElementById('likeBtn'), qrBtn = document.getElementById('qrBtn'), speedBtn = document.getElementById('speedBtn'), downloadBtn = document.getElementById('downloadBtn'), sleepBtn = document.getElementById('sleepBtn'), airplayBtn = document.getElementById('airplayBtn'), pipBtn = document.getElementById('pipBtn'), bassBtn = document.getElementById('bassBtn');
-        
-        // New Buttons
-        const spatialBtn = document.getElementById('spatialBtn');
-        const partyBtn = document.getElementById('partyBtn');
-        const partyOverlay = document.getElementById('partyOverlay');
-
+        const spatialBtn = document.getElementById('spatialBtn'), partyBtn = document.getElementById('partyBtn'), partyOverlay = document.getElementById('partyOverlay');
         const progressBar = document.getElementById('progressBar'), currTime = document.getElementById('currTime'), totalTime = document.getElementById('totalTime');
         const fullPlayer = document.getElementById('fullPlayer'), closeFull = document.getElementById('closeFullPlayer'), fullArt = document.getElementById('fullAlbumArt'), fullTitle = document.getElementById('fullTrackTitle'), fullArtist = document.getElementById('fullTrackArtist'), fullPlay = document.getElementById('fullPlayBtn'), fullIcon = document.getElementById('fullPlayIcon'), fullNext = document.getElementById('fullNextBtn'), fullPrev = document.getElementById('fullPrevBtn'), fullBar = document.getElementById('fullProgressBar'), fullCurr = document.getElementById('fullCurrTime'), fullTot = document.getElementById('fullTotalTime');
         const qrPanel = document.getElementById('qrPanel'), closeQr = document.getElementById('closeQr'), qrContainer = document.getElementById('qrCodeContainer');
@@ -79,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             searchSongs(urlParams.get('song'), true, parseFloat(urlParams.get('t'))); 
             window.history.replaceState({}, document.title, window.location.pathname); 
         } else {
-            searchSongs('Top Indian Hits');
+            searchSongs('Trending India');
         }
 
         let debounceTimer;
@@ -87,63 +85,148 @@ document.addEventListener('DOMContentLoaded', () => {
             clearTimeout(debounceTimer); 
             debounceTimer = setTimeout(() => { 
                 if(e.target.value) searchSongs(e.target.value); 
-            }, 800); 
+            }, 1000); 
         });
 
+        // --- MULTI-API SEARCH FUNCTION ---
         async function searchSongs(query, autoPlay=false, startTime=0) {
             grid.innerHTML = ''; grid.appendChild(loader); loader.classList.remove('hidden');
-            try { 
-                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=30`); 
-                const data = await res.json(); 
-                loader.classList.add('hidden');
-                
-                if(data.results.length) { 
-                    songQueue = data.results; 
-                    if(autoPlay) playTrack(data.results[0], data.results[0].artworkUrl100.replace('100x100','400x400'), startTime);
+            songQueue = []; // Clear queue
+
+            try {
+                // 1. Try JioSaavn API (Best for Indian Content & Full Audio)
+                const saavnRes = await fetch(`https://saavn.me/search/songs?query=${encodeURIComponent(query)}&page=1&limit=20`);
+                const saavnData = await saavnRes.json();
+
+                if (saavnData.data && saavnData.data.results && saavnData.data.results.length > 0) {
+                    // Map Saavn Data
+                    songQueue = saavnData.data.results.map(song => ({
+                        id: song.id,
+                        trackName: song.name,
+                        artistName: song.primaryArtists || song.singers,
+                        // Get highest quality image
+                        artworkUrl100: (song.image && song.image.length > 0) ? song.image[song.image.length-1].link : 'https://via.placeholder.com/300',
+                        // Get highest quality download link (usually last in array is 320kbps)
+                        previewUrl: (song.downloadUrl && song.downloadUrl.length > 0) ? song.downloadUrl[song.downloadUrl.length-1].link : null,
+                        lyricsId: song.id // Saavn has lyrics usually
+                    }));
+                } else {
+                    // 2. Fallback to iTunes (Global/Western)
+                    const itunesRes = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=20`);
+                    const itunesData = await itunesRes.json();
                     
-                    data.results.forEach((song, idx) => { 
-                        if(!song.previewUrl) return; 
-                        const card = document.createElement('div'); 
-                        card.className = 'song-card magnetic'; 
-                        const img = song.artworkUrl100.replace('100x100', '400x400'); 
-                        card.innerHTML = `<div class="art-box" style="background-image:url('${img}')"><div class="play-overlay"><i class="fa-solid fa-play"></i></div></div><div class="song-info"><h3>${song.trackName}</h3><p>${song.artistName}</p></div>`; 
-                        card.addEventListener('click', () => { currentIndex = idx; playTrack(song, img); }); 
-                        grid.appendChild(card); 
+                    if(itunesData.results.length > 0) {
+                        songQueue = itunesData.results.map(song => ({
+                            id: song.trackId,
+                            trackName: song.trackName,
+                            artistName: song.artistName,
+                            artworkUrl100: song.artworkUrl100.replace('100x100', '400x400'),
+                            previewUrl: song.previewUrl, // Note: iTunes is 30s preview
+                            lyricsId: null
+                        }));
+                    }
+                }
+
+                // Render Results
+                loader.classList.add('hidden');
+                if(songQueue.length > 0) {
+                    if(autoPlay) playTrack(songQueue[0], songQueue[0].artworkUrl100, startTime);
+                    
+                    songQueue.forEach((song, idx) => {
+                        if(!song.previewUrl) return;
+                        const card = document.createElement('div');
+                        card.className = 'song-card magnetic';
+                        card.innerHTML = `
+                            <div class="art-box" style="background-image:url('${song.artworkUrl100}')">
+                                <div class="play-overlay"><i class="fa-solid fa-play"></i></div>
+                            </div>
+                            <div class="song-info">
+                                <h3>${song.trackName}</h3>
+                                <p>${song.artistName}</p>
+                            </div>`;
+                        card.addEventListener('click', () => { currentIndex = idx; playTrack(song, song.artworkUrl100); });
+                        card.addEventListener('mouseenter', () => document.body.classList.add('hovering')); 
+                        card.addEventListener('mouseleave', () => document.body.classList.remove('hovering')); 
+                        grid.appendChild(card);
                     });
-                } else grid.innerHTML = '<h3>No songs found.</h3>'; 
-            } catch(e) { console.error(e); }
+                } else {
+                    grid.innerHTML = '<h3>No songs found.</h3>';
+                }
+
+            } catch (e) {
+                console.error(e);
+                loader.classList.add('hidden');
+                grid.innerHTML = '<h3>Error fetching songs.</h3>';
+            }
         }
 
         function playTrack(song, img, startTime=0) {
             currentSong = song; initAudio(); checkLikeStatus(song); saveHistory(song);
-            document.getElementById('trackTitle').innerText = song.trackName; document.getElementById('trackArtist').innerText = song.artistName; albumArt.style.backgroundImage = `url('${img}')`;
-            fullTitle.innerText = song.trackName; fullArtist.innerText = song.artistName; fullArt.style.backgroundImage = `url('${img}')`;
-            if('mediaSession' in navigator) { navigator.mediaSession.metadata = new MediaMetadata({ title: song.trackName, artist: song.artistName, artwork: [{ src: img, sizes: '512x512', type: 'image/jpeg' }] }); navigator.mediaSession.setActionHandler('play', togglePlay); navigator.mediaSession.setActionHandler('pause', togglePlay); navigator.mediaSession.setActionHandler('previoustrack', playPrev); navigator.mediaSession.setActionHandler('nexttrack', playNext); }
+            
+            // Update UI
+            document.getElementById('trackTitle').innerText = song.trackName; 
+            document.getElementById('trackArtist').innerText = song.artistName; 
+            albumArt.style.backgroundImage = `url('${img}')`;
+            fullTitle.innerText = song.trackName; 
+            fullArtist.innerText = song.artistName; 
+            fullArt.style.backgroundImage = `url('${img}')`;
+            
+            // Dynamic Neon Color
+            const h = Math.abs((song.trackName.length * 37) % 360); 
+            document.documentElement.style.setProperty('--neon-main', `hsl(${h}, 100%, 50%)`); 
+            neonBg.classList.add('active');
+
+            // Media Session API
+            if('mediaSession' in navigator) { 
+                navigator.mediaSession.metadata = new MediaMetadata({ title: song.trackName, artist: song.artistName, artwork: [{ src: img, sizes: '512x512', type: 'image/jpeg' }] }); 
+                navigator.mediaSession.setActionHandler('play', togglePlay); 
+                navigator.mediaSession.setActionHandler('pause', togglePlay); 
+                navigator.mediaSession.setActionHandler('previoustrack', playPrev); 
+                navigator.mediaSession.setActionHandler('nexttrack', playNext); 
+            }
+
             audio.src = song.previewUrl;
-            if(startTime>0) { audio.currentTime = startTime; } 
+            if(startTime > 0) audio.currentTime = startTime;
             audio.playbackRate = speeds[speedIndex];
-            audio.play().then(() => { if(audioContext?.state === 'suspended') audioContext.resume(); playIcon.className = 'fa-solid fa-pause'; fullIcon.className = 'fa-solid fa-pause'; albumArt.classList.add('spinning'); }).catch(console.error);
+            
+            audio.play().then(() => { 
+                if(audioContext?.state === 'suspended') audioContext.resume(); 
+                playIcon.className = 'fa-solid fa-pause'; 
+                fullIcon.className = 'fa-solid fa-pause'; 
+                albumArt.classList.add('spinning'); 
+            }).catch(e => console.log("Auto-play blocked:", e));
         }
 
-        function togglePlay() { if(audio.src) { if(audio.paused) { audio.play(); playIcon.className='fa-solid fa-pause'; fullIcon.className='fa-solid fa-pause'; albumArt.classList.add('spinning'); neonBg.classList.add('active'); } else { audio.pause(); playIcon.className='fa-solid fa-play'; fullIcon.className='fa-solid fa-play'; albumArt.classList.remove('spinning'); neonBg.classList.remove('active'); } } }
+        function togglePlay() { 
+            if(audio.src) { 
+                if(audio.paused) { 
+                    audio.play(); 
+                    playIcon.className='fa-solid fa-pause'; fullIcon.className='fa-solid fa-pause'; albumArt.classList.add('spinning'); neonBg.classList.add('active'); 
+                } else { 
+                    audio.pause(); 
+                    playIcon.className='fa-solid fa-play'; fullIcon.className='fa-solid fa-play'; albumArt.classList.remove('spinning'); neonBg.classList.remove('active'); 
+                } 
+            } 
+        }
         playBtn.addEventListener('click', togglePlay); fullPlay.addEventListener('click', togglePlay);
 
+        // --- AUDIO ENGINE (DOLBY / 3D / BASS) ---
         function initAudio() { 
             if (audioContext) return; 
             audioContext = new (window.AudioContext || window.webkitAudioContext)(); 
             analyser = audioContext.createAnalyser(); 
             source = audioContext.createMediaElementSource(audio); 
             
-            // Filters
+            // Bass Filter
             bassFilter = audioContext.createBiquadFilter(); 
             bassFilter.type = "lowshelf"; bassFilter.frequency.value = 200; 
             
-            // Spatial 3D Panner
+            // 3D Spatial Panner (Dolby Simulation)
             spatialPanner = audioContext.createPanner();
-            spatialPanner.panningModel = 'HRTF';
+            spatialPanner.panningModel = 'HRTF'; // Human Head Transfer Function for realistic 3D
             spatialPanner.distanceModel = 'linear';
             
-            // Wiring
+            // Signal Chain: Source -> Bass -> Spatial -> Analyser -> Speakers
             source.connect(bassFilter); 
             bassFilter.connect(spatialPanner);
             spatialPanner.connect(analyser); 
@@ -154,29 +237,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         bassBtn.addEventListener('click', () => { if(!audioContext) initAudio(); isBassBoosted = !isBassBoosted; bassFilter.gain.value = isBassBoosted ? 15 : 0; bassBtn.classList.toggle('active'); });
         
-        // --- 3D SPATIAL AUDIO BUTTON ---
         spatialBtn.addEventListener('click', () => {
             if(!audioContext) initAudio();
             isSpatialActive = !isSpatialActive;
             spatialBtn.classList.toggle('active');
-            if(!isSpatialActive) {
-                // Reset position when off
-                spatialPanner.setPosition(0, 0, 0);
-            }
+            if(!isSpatialActive) spatialPanner.setPosition(0, 0, 0); // Reset center
         });
 
-        // --- PARTY LIGHT BUTTON ---
+        // --- PARTY MODE (Flashlight) ---
         partyBtn.addEventListener('click', async () => {
             if(!audioContext) initAudio();
             isPartyActive = !isPartyActive;
             partyBtn.classList.toggle('active');
-            
             if(isPartyActive) {
-                // Try Mobile Flashlight Access
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                    trackStream = stream.getVideoTracks()[0];
-                } catch(e) { console.log("Flashlight access denied/unsupported"); }
+                try { const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }); trackStream = stream.getVideoTracks()[0]; } catch(e) {}
             } else {
                 if(trackStream) { trackStream.stop(); trackStream = null; }
                 partyOverlay.style.opacity = 0;
@@ -185,8 +259,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         speedBtn.addEventListener('click', () => { speedIndex = (speedIndex + 1) % speeds.length; audio.playbackRate = speeds[speedIndex]; speedBtn.innerText = speeds[speedIndex] + "x"; });
         
-        function playNext() { if (currentIndex < songQueue.length - 1) { currentIndex++; let s = songQueue[currentIndex]; playTrack(s, s.artworkUrl100.replace('100x100', '400x400')); } }
-        function playPrev() { if (currentIndex > 0) { currentIndex--; let s = songQueue[currentIndex]; playTrack(s, s.artworkUrl100.replace('100x100', '400x400')); } }
+        function playNext() { if (currentIndex < songQueue.length - 1) { currentIndex++; playTrack(songQueue[currentIndex], songQueue[currentIndex].artworkUrl100); } }
+        function playPrev() { if (currentIndex > 0) { currentIndex--; playTrack(songQueue[currentIndex], songQueue[currentIndex].artworkUrl100); } }
         audio.addEventListener('ended', playNext);
         document.getElementById('nextBtn').addEventListener('click', playNext); fullNext.addEventListener('click', playNext);
         document.getElementById('prevBtn').addEventListener('click', playPrev); fullPrev.addEventListener('click', playPrev);
@@ -196,77 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fullBar.addEventListener('input', (e) => { audio.currentTime = (audio.duration / 100) * e.target.value; });
         function formatTime(s) { let m = Math.floor(s/60); let sec = Math.floor(s%60); return `${m}:${sec<10?'0':''}${sec}`; }
 
-        if (window.WebKitPlaybackTargetAvailabilityEvent) { audio.addEventListener('webkitplaybacktargetavailabilitychanged', (e) => { if (e.availability === 'available') airplayBtn.classList.remove('hidden'); }); airplayBtn.addEventListener('click', () => audio.webkitShowPlaybackTargetPicker()); }
-        pipBtn.addEventListener('click', async () => { if (document.pictureInPictureElement) await document.exitPictureInPicture(); else if (document.pictureInPictureEnabled) await audio.requestPictureInPicture(); });
-
-        function checkLikeStatus(song) { let f=JSON.parse(localStorage.getItem('neon_favorites'))||[]; const is=f.some(s=>s.trackName===song.trackName); likeBtn.innerHTML=is?'<i class="fa-solid fa-heart"></i>':'<i class="fa-regular fa-heart"></i>'; if(is) likeBtn.classList.add('active'); else likeBtn.classList.remove('active'); }
-        likeBtn.addEventListener('click', () => { if(!currentSong) return; let f=JSON.parse(localStorage.getItem('neon_favorites'))||[]; const idx=f.findIndex(s=>s.trackName===currentSong.trackName); if(idx===-1) f.push(currentSong); else f.splice(idx,1); localStorage.setItem('neon_favorites',JSON.stringify(f)); checkLikeStatus(currentSong); renderLibrary('favorites'); });
-        qrBtn.addEventListener('click', () => { if(!currentSong) return; qrPanel.classList.remove('hidden'); qrContainer.innerHTML=""; new QRCode(qrContainer, { text: `${window.location.origin}${window.location.pathname}?song=${encodeURIComponent(currentSong.trackName+" "+currentSong.artistName)}&t=${audio.currentTime}`, width:200, height:200 }); });
-        closeQr.addEventListener('click', () => qrPanel.classList.add('hidden'));
-        albumArt.addEventListener('click', () => fullPlayer.classList.remove('hidden')); closeFull.addEventListener('click', () => fullPlayer.classList.add('hidden'));
-        
-        function saveHistory(song) { let h=JSON.parse(localStorage.getItem('neon_history'))||[]; h=h.filter(s=>s.trackName!==song.trackName); h.unshift(song); if(h.length>15) h.pop(); localStorage.setItem('neon_history',JSON.stringify(h)); }
-        const openLibraryBtn=document.getElementById('openLibraryBtn'); const libraryPanel=document.getElementById('libraryPanel'); const libraryList=document.getElementById('libraryList');
-        openLibraryBtn.addEventListener('click',()=>{libraryPanel.classList.remove('hidden');switchLib('favorites');}); document.getElementById('closeLibrary').addEventListener('click',()=>libraryPanel.classList.add('hidden'));
-        window.switchLib=function(type){document.querySelectorAll('.lib-tab').forEach(t=>t.classList.remove('active'));event.target.classList.add('active');renderLibrary(type);}
-        function renderLibrary(type){ const key=type==='favorites'?'neon_favorites':'neon_history'; const list=JSON.parse(localStorage.getItem(key))||[]; libraryList.innerHTML=''; if(list.length===0){libraryList.innerHTML=`<p style="text-align:center;color:#666">No songs.</p>`;return;} list.forEach(s=>{ const i=s.artworkUrl100.replace('100x100','150x150'); const d=document.createElement('div'); d.className='lib-item'; d.innerHTML=`<img src="${i}"><div><h4>${s.trackName}</h4><p>${s.artistName}</p></div>`; d.addEventListener('click',()=>{playTrack(s,i.replace('150x150','400x400'));libraryPanel.classList.add('hidden');}); libraryList.appendChild(d); }); }
-
-        // --- VISUALIZER LOOP ---
-        function initVisualizer() { 
-            analyser.fftSize = 256; 
-            const bufferLength = analyser.frequencyBinCount; 
-            const dataArray = new Uint8Array(bufferLength); 
-            const ctx = canvas.getContext('2d'); 
-            
-            function animate() { 
-                requestAnimationFrame(animate); 
-                analyser.getByteFrequencyData(dataArray); 
-                
-                // 1. Draw Bars
-                canvas.width = window.innerWidth; canvas.height = window.innerHeight; 
-                ctx.clearRect(0, 0, canvas.width, canvas.height); 
-                const barWidth = (canvas.width / bufferLength) * 2.5; 
-                let x = 0; 
-                let avgVolume = 0;
-
-                for(let i = 0; i < bufferLength; i++) { 
-                    avgVolume += dataArray[i];
-                    const barHeight = dataArray[i] * 1.5; 
-                    ctx.fillStyle = `rgba(${barHeight + 50}, 250, 50, 0.2)`; 
-                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight); 
-                    x += barWidth + 1; 
-                }
-                avgVolume /= bufferLength;
-
-                // 2. Spatial Audio Rotation
-                if(isSpatialActive) {
-                    spatialAngle += 0.02; // Rotation speed
-                    const xPos = Math.sin(spatialAngle) * 5;
-                    const zPos = Math.cos(spatialAngle) * 5;
-                    spatialPanner.setPosition(xPos, 0, zPos);
-                }
-
-                // 3. Party Flash Logic
-                if(isPartyActive && avgVolume > 110) { // Beat Threshold
-                    // Screen Flash
-                    partyOverlay.style.opacity = (avgVolume / 255) * 0.4;
-                    partyOverlay.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
-                    
-                    // Flashlight Flash (Experimental)
-                    if(trackStream && Math.random() > 0.7) { // Random strobe
-                        try {
-                            trackStream.applyConstraints({advanced: [{torch: true}]}).catch(e=>{});
-                            setTimeout(() => { trackStream.applyConstraints({advanced: [{torch: false}]}).catch(e=>{}); }, 50);
-                        } catch(e){}
-                    }
-                } else {
-                    partyOverlay.style.opacity = 0;
-                }
-            } 
-            animate(); 
-        }
-        
-        // --- LYRICS LOGIC (FETCH + TYPING EFFECT) ---
+        // --- LYRICS (Auto-Fetch from Saavn) ---
         const lyricsBtn = document.getElementById('lyricsBtn'); 
         const lyricsPanel = document.getElementById('lyricsPanel'); 
         const lyricsText = document.getElementById('lyricsText'); 
@@ -277,70 +281,89 @@ document.addEventListener('DOMContentLoaded', () => {
             if(!currentSong) return alert("Play a song first!"); 
             lyricsPanel.classList.remove('hidden'); 
             
-            // Initial AI State
-            lyricsText.innerHTML = `
-                <div style="text-align:center; margin-top:50px;">
-                    <i class="fa-solid fa-robot fa-bounce" style="font-size:3rem; color:var(--neon-main); margin-bottom:20px;"></i>
-                    <h3>Generating Lyrics...</h3>
-                    <p style="color:#aaa;">Analyzing track data</p>
-                </div>`;
+            lyricsText.innerHTML = `<div style="text-align:center;margin-top:50px;"><i class="fa-solid fa-robot fa-bounce" style="font-size:2rem;"></i><br>Generating Lyrics...</div>`;
 
-            // Try Fetching Real Lyrics
             try {
-                const res = await fetch(`https://api.lyrics.ovh/v1/${currentSong.artistName}/${currentSong.trackName}`);
-                const data = await res.json();
-                
-                if(data.lyrics) {
-                    // Simulate "Typing" Effect
-                    let cleanLyrics = data.lyrics.replace(/\n/g, "<br>");
-                    lyricsText.innerHTML = ""; // Clear loader
+                // If song came from Saavn, fetch lyrics via Saavn API
+                if(currentSong.lyricsId) {
+                    const res = await fetch(`https://saavn.me/lyrics?id=${currentSong.lyricsId}`);
+                    const data = await res.json();
                     
-                    // Header
-                    lyricsText.innerHTML += `<h3>${currentSong.trackName}</h3><p style='color:var(--neon-main); font-size:0.8rem;'>Artist: ${currentSong.artistName}</p><br>`;
-                    
-                    // Typing Animation Logic
-                    let i = 0;
-                    let speed = 5; // Typing speed (lower is faster)
-                    function typeWriter() {
-                        if (i < cleanLyrics.length) {
-                            // Basic HTML tag skipping to avoid broken tags
-                            if(cleanLyrics.charAt(i) === '<') {
-                                let tagEnd = cleanLyrics.indexOf('>', i);
-                                lyricsText.innerHTML += cleanLyrics.substring(i, tagEnd+1);
-                                i = tagEnd + 1;
-                            } else {
-                                lyricsText.innerHTML += cleanLyrics.charAt(i);
-                                i++;
-                            }
-                            // Auto scroll
-                            lyricsText.scrollTop = lyricsText.scrollHeight;
-                            setTimeout(typeWriter, speed);
-                        }
+                    if(data.status === "SUCCESS" && data.data.lyrics) {
+                        displayLyrics(data.data.lyrics);
+                    } else {
+                        throw new Error("No lyrics in Saavn");
                     }
-                    setTimeout(typeWriter, 1000); // Start typing after 1s
                 } else {
-                    throw new Error("No lyrics found");
+                    // Fallback to OVH API
+                    const res = await fetch(`https://api.lyrics.ovh/v1/${currentSong.artistName}/${currentSong.trackName}`);
+                    const data = await res.json();
+                    if(data.lyrics) displayLyrics(data.lyrics);
+                    else throw new Error("Not found");
                 }
             } catch (e) {
-                // Fallback if not found
-                lyricsText.innerHTML = `
-                    <div style="text-align:center; margin-top:50px;">
-                        <i class="fa-solid fa-circle-exclamation" style="font-size:3rem; color:#ff5555; margin-bottom:20px;"></i>
-                        <h3>Lyrics Not Found</h3>
-                        <p>Our AI couldn't generate lyrics for this specific track.</p>
-                        <button onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(currentSong.trackName + " lyrics")}', '_blank')" class="landing-btn magnetic" style="margin-top:20px;">
-                            Search on Google
-                        </button>
-                    </div>`;
+                lyricsText.innerHTML = `<div style="text-align:center;margin-top:50px;">Lyrics not available.<br><br><button onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(currentSong.trackName + " lyrics")}', '_blank')" class="landing-btn">Search Google</button></div>`;
             }
         });
+
+        function displayLyrics(text) {
+            lyricsText.innerHTML = `<h3>${currentSong.trackName}</h3><br>`;
+            const cleanText = text.replace(/\n/g, "<br>");
+            let i = 0;
+            function type() {
+                if (i < cleanText.length) {
+                    // Fast typing effect
+                    const chunk = cleanText.substr(i, 5); // Type 5 chars at once for speed
+                    lyricsText.innerHTML += chunk;
+                    i += 5;
+                    lyricsText.scrollTop = lyricsText.scrollHeight;
+                    setTimeout(type, 10);
+                }
+            }
+            type();
+        }
         
         closeLyrics.addEventListener('click', () => lyricsPanel.classList.add('hidden'));
         albumArt.addEventListener('click', () => fullPlayer.classList.remove('hidden')); 
         closeFull.addEventListener('click', () => fullPlayer.classList.add('hidden'));
+
+        // --- VISUALIZER ---
+        function initVisualizer() { 
+            analyser.fftSize = 256; 
+            const bufferLength = analyser.frequencyBinCount; 
+            const dataArray = new Uint8Array(bufferLength); 
+            const ctx = canvas.getContext('2d'); 
+            
+            function animate() { 
+                requestAnimationFrame(animate); 
+                analyser.getByteFrequencyData(dataArray); 
+                
+                canvas.width = window.innerWidth; canvas.height = window.innerHeight; 
+                ctx.clearRect(0, 0, canvas.width, canvas.height); 
+                const barWidth = (canvas.width / bufferLength) * 2.5; 
+                let x = 0, avgVolume = 0;
+
+                for(let i = 0; i < bufferLength; i++) { 
+                    avgVolume += dataArray[i];
+                    const barHeight = dataArray[i] * 1.5; 
+                    ctx.fillStyle = `rgba(${barHeight + 50}, 250, 50, 0.2)`; 
+                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight); 
+                    x += barWidth + 1; 
+                }
+                avgVolume /= bufferLength;
+
+                if(isSpatialActive) { spatialAngle += 0.02; spatialPanner.setPosition(Math.sin(spatialAngle)*5, 0, Math.cos(spatialAngle)*5); }
+                if(isPartyActive && avgVolume > 110) { 
+                    partyOverlay.style.opacity = (avgVolume/255)*0.4; 
+                    partyOverlay.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+                    if(trackStream && Math.random()>0.7) { try { trackStream.applyConstraints({advanced:[{torch:true}]}); setTimeout(()=>trackStream.applyConstraints({advanced:[{torch:false}]}), 50); } catch(e){} }
+                } else { partyOverlay.style.opacity = 0; }
+            } 
+            animate(); 
+        }
     }
 
-    // Video DL Logic
+    // Video DL
     const fetchBtn = document.getElementById('fetchVideoBtn');
     if (fetchBtn) {
         const videoInput = document.getElementById('videoUrl'), pasteBtn = document.getElementById('pasteBtn'), dlResult = document.getElementById('dlResult'), thumbPreview = document.getElementById('thumbPreview'), finalDownloadBtn = document.getElementById('finalDownloadBtn');
@@ -350,13 +373,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// --- 3. SMOKE EFFECT LOGIC (WebGL) ---
+// --- SMOKE EFFECT (Optimized) ---
 function initSmokeEffect() {
     let canvas = document.getElementById('smokeCanvas');
     if(!canvas) return;
     canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight;
-    
-    // WebGL Fluid Sim Settings
     let config = { TEXTURE_DOWNSAMPLE: 1, DENSITY_DISSIPATION: 0.98, VELOCITY_DISSIPATION: 0.99, PRESSURE_DISSIPATION: 0.8, PRESSURE_ITERATIONS: 25, CURL: 35, SPLAT_RADIUS: 0.002 };
     let pointers = [], splatStack = [];
     let _getWebGLContext = getWebGLContext(canvas);
