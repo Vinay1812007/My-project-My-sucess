@@ -50,7 +50,7 @@ body.hovering .cursor-outline { width: 60px; height: 60px; background: rgba(128,
 .controls { display: flex; align-items: center; gap: 10px; }
 .btn-control { background: none; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
 .btn-control:hover, .btn-control.active { color: var(--text-color); transform: scale(1.1); }
-#bassBtn.active, #audio8dBtn.active, #sleepBtn.active, #spatialBtn.active, #partyBtn.active { color: var(--neon-main); text-shadow: 0 0 10px var(--neon-main); }
+#bassBtn.active, #audio8dBtn.active, #sleepBtn.active, #dolbyBtn.active, #partyBtn.active { color: var(--neon-main); text-shadow: 0 0 10px var(--neon-main); }
 #audio8dBtn.active { animation: spin 3s linear infinite; }
 #speedBtn { font-size: 0.9rem; font-weight: bold; border: 1px solid var(--text-secondary); border-radius: 5px; padding: 2px 8px; width: 50px; }
 .btn-play { width: 50px; height: 50px; border-radius: 50%; border: none; background: var(--text-color); color: var(--bg-color); display: flex; align-items: center; justify-content: center; }
