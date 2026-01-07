@@ -3,26 +3,26 @@ window.searchMood = function(query) { const i = document.getElementById('searchI
 
 // --- NEW: Fix for Language Buttons ---
 window.setLanguage = function(lang) {
-    // 1. Update the visual buttons (highlight the active one)
+    // 1. Update visual buttons
     document.querySelectorAll('.lang-chip').forEach(c => c.classList.remove('active'));
-    // Use event.target to find the clicked button
+    // Try to find the button that was clicked. 
+    // Note: 'event' global is widely supported, but cleaner to pass 'this' in HTML. 
+    // For now, we rely on the global event or just updating the class.
     if(event && event.target) {
         event.target.classList.add('active');
     }
 
-    // 2. Determine search query
+    // 2. Set Search Query
     let query = "Top Indian Hits";
     if (lang !== 'All') {
-        query = `Latest ${lang} Songs`;
+        query = `${lang} Super Hits`; // Optimized query for iTunes
     }
 
-    // 3. Trigger the search
+    // 3. Trigger Search
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.value = query;
-        // Call the searchSongs function defined inside DOMContentLoaded using a custom event or direct call if exposed.
-        // Since searchSongs is inside the closure, we trigger an input event to run the logic.
-        searchInput.dispatchEvent(new Event('input')); 
+        searchInput.dispatchEvent(new Event('input')); // This triggers the search listener below
     }
 };
 
@@ -63,14 +63,44 @@ document.addEventListener('DOMContentLoaded', () => {
         if(urlParams.get('song')) { document.getElementById('searchInput').value = urlParams.get('song'); searchSongs(urlParams.get('song'), true, parseFloat(urlParams.get('t'))); window.history.replaceState({}, document.title, window.location.pathname); } else searchSongs('Top Indian Hits');
 
         let debounceTimer;
-        document.getElementById('searchInput').addEventListener('input', (e) => { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => { if(e.target.value) searchSongs(e.target.value); }, 800); });
+        document.getElementById('searchInput').addEventListener('input', (e) => { 
+            clearTimeout(debounceTimer); 
+            debounceTimer = setTimeout(() => { 
+                if(e.target.value) searchSongs(e.target.value); 
+            }, 800); 
+        });
 
         async function searchSongs(query, autoPlay=false, startTime=0) {
             grid.innerHTML = ''; grid.appendChild(loader); loader.classList.remove('hidden');
-            try { const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=30`); const data = await res.json(); loader.classList.add('hidden');
-                if(data.results.length) { songQueue = data.results; if(autoPlay) playTrack(data.results[0], data.results[0].artworkUrl100.replace('100x100','400x400'), startTime);
-                    data.results.forEach((song, idx) => { if(!song.previewUrl) return; const card = document.createElement('div'); card.className = 'song-card magnetic'; const img = song.artworkUrl100.replace('100x100', '400x400'); card.innerHTML = `<div class="art-box" style="background-image:url('${img}')"><div class="play-overlay"><i class="fa-solid fa-play"></i></div></div><div class="song-info"><h3>${song.trackName}</h3><p>${song.artistName}</p></div>`; card.addEventListener('click', () => { currentIndex = idx; playTrack(song, img); }); card.addEventListener('mouseenter', () => document.body.classList.add('hovering')); card.addEventListener('mouseleave', () => document.body.classList.remove('hovering')); grid.appendChild(card); });
-                } else grid.innerHTML = '<h3>No songs found.</h3>'; } catch(e) { console.error(e); }
+            try { 
+                // Using iTunes Search API
+                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=30`); 
+                const data = await res.json(); 
+                loader.classList.add('hidden');
+                
+                if(data.results.length) { 
+                    songQueue = data.results; 
+                    if(autoPlay) playTrack(data.results[0], data.results[0].artworkUrl100.replace('100x100','400x400'), startTime);
+                    
+                    data.results.forEach((song, idx) => { 
+                        if(!song.previewUrl) return; 
+                        const card = document.createElement('div'); 
+                        card.className = 'song-card magnetic'; 
+                        const img = song.artworkUrl100.replace('100x100', '400x400'); 
+                        card.innerHTML = `<div class="art-box" style="background-image:url('${img}')"><div class="play-overlay"><i class="fa-solid fa-play"></i></div></div><div class="song-info"><h3>${song.trackName}</h3><p>${song.artistName}</p></div>`; 
+                        card.addEventListener('click', () => { currentIndex = idx; playTrack(song, img); }); 
+                        card.addEventListener('mouseenter', () => document.body.classList.add('hovering')); 
+                        card.addEventListener('mouseleave', () => document.body.classList.remove('hovering')); 
+                        grid.appendChild(card); 
+                    });
+                } else { 
+                    grid.innerHTML = '<h3>No songs found.</h3>'; 
+                } 
+            } catch(e) { 
+                console.error(e); 
+                loader.classList.add('hidden');
+                grid.innerHTML = '<h3>Error loading songs.</h3>';
+            }
         }
 
         function playTrack(song, img, startTime=0) {
