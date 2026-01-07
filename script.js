@@ -6,80 +6,81 @@ let currentMood = 'Trending';
 let currentSong = null;
 let songQueue = [];
 let currentIndex = 0;
-let audio, playBtn, playIcon, albumArt, fullPlayer, playerBar, fullArt, fullTitle, fullArtist, neonBg;
-let audioContext, spatialPanner, bassFilter, analyser, source, trackStream;
+let audio, playBtn, playIcon, albumArt, fullPlayer, playerBar, neonBg;
 let is3DActive = false, isPartyActive = false, spatialAngle = 0;
+let audioContext, spatialPanner, bassFilter, analyser, source, trackStream;
 
+// --- GLOBAL SEARCH FUNCTIONS (Linked to HTML) ---
+window.setLanguage = function(lang) {
+    currentLang = lang;
+    document.querySelectorAll('.lang-chip').forEach(c => c.classList.remove('active'));
+    if(event && event.target) event.target.classList.add('active');
+    triggerSearch();
+};
+
+window.searchMood = function(mood) {
+    currentMood = mood;
+    document.querySelectorAll('.mood-chip').forEach(c => c.classList.remove('active'));
+    if(event && event.target) event.target.classList.add('active');
+    triggerSearch();
+};
+
+function triggerSearch() {
+    let query = "";
+    // Smart Query Construction for iTunes
+    if (currentLang === 'All') query = `${currentMood} Songs India`;
+    else query = `${currentLang} ${currentMood} Songs`;
+    
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.value = query; // Visual update
+        fetchSongs(query); // Actual Fetch
+    }
+}
+
+// --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
     initSmokeEffect();
     initThemeAndEffects();
-    
-    // DOM ELEMENTS
+
+    // DOM Elements
     audio = document.getElementById('audioPlayer');
     playBtn = document.getElementById('playBtn');
     playIcon = document.getElementById('playIcon');
     albumArt = document.getElementById('albumArt');
     fullPlayer = document.getElementById('fullPlayer');
     playerBar = document.getElementById('musicPlayerBar');
-    fullArt = document.getElementById('fullAlbumArt');
-    fullTitle = document.getElementById('fullTrackTitle');
-    fullArtist = document.getElementById('fullTrackArtist');
     neonBg = document.getElementById('neonBg');
     const searchInput = document.getElementById('searchInput');
 
-    // --- SEARCH LOGIC (FIXED) ---
-    window.setLanguage = function(lang) {
-        currentLang = lang;
-        updateActiveChips('.lang-chip', event.target);
-        triggerSearch();
-    };
-
-    window.searchMood = function(mood) {
-        currentMood = mood;
-        updateActiveChips('.mood-chip', event.target);
-        triggerSearch();
-    };
-
-    function updateActiveChips(selector, target) {
-        document.querySelectorAll(selector).forEach(c => c.classList.remove('active'));
-        if(target) target.classList.add('active');
-    }
-
-    function triggerSearch() {
-        // Construct the combined query
-        let query = "";
-        if (currentLang === 'All') query = `${currentMood} Songs India`;
-        else query = `${currentLang} ${currentMood} Songs`;
-        
-        // Visual Update in Search Bar
-        if(searchInput) {
-            searchInput.value = query;
-            fetchSongs(query);
-        }
-    }
-
-    // Manual Typing Search
-    let debounceTimer;
-    searchInput.addEventListener('input', (e) => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => { fetchSongs(e.target.value); }, 800);
-    });
-
     // Initial Load
-    fetchSongs('Latest India Hits');
+    if(document.getElementById('musicGrid')) {
+        fetchSongs('Latest India Hits');
+    }
 
-    // --- APPLE MUSIC API (Strictly) ---
-    async function fetchSongs(query) {
+    // Manual Search
+    let debounceTimer;
+    if(searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => { fetchSongs(e.target.value); }, 800);
+        });
+    }
+
+    // --- APPLE ITUNES API SEARCH ---
+    async function fetchSongs(query, autoPlay=false) {
         const grid = document.getElementById('musicGrid');
         const loader = document.getElementById('loader');
         
+        if(!grid) return;
+
         grid.innerHTML = '';
         grid.appendChild(loader);
         loader.classList.remove('hidden');
         songQueue = [];
 
         try {
-            // Using iTunes Search API (Audio M4A Previews)
+            // Using iTunes Search API (No Key Required, High Quality M4A)
             const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=30&country=IN`);
             const data = await res.json();
             
@@ -90,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     id: s.trackId,
                     trackName: s.trackName,
                     artistName: s.artistName,
-                    artwork: s.artworkUrl100.replace('100x100', '600x600'), // Get High Res
+                    artwork: s.artworkUrl100.replace('100x100', '600x600'), // High Res
                     previewUrl: s.previewUrl,
                     album: s.collectionName
                 }));
@@ -109,41 +110,47 @@ document.addEventListener('DOMContentLoaded', () => {
                     card.addEventListener('click', () => { currentIndex = idx; playTrack(song); });
                     grid.appendChild(card);
                 });
+                
+                if(autoPlay) playTrack(songQueue[0]);
+
             } else {
-                grid.innerHTML = '<h3 style="text-align:center; width:100%; margin-top:50px; color:#aaa;">No songs found for this category.</h3>';
+                grid.innerHTML = '<h3 style="text-align:center;width:100%;margin-top:50px;color:var(--text-secondary);">No songs found.</h3>';
             }
         } catch (e) {
             loader.classList.add('hidden');
-            console.error(e);
+            console.error("API Error", e);
         }
     }
 
-    // --- PLAYBACK LOGIC ---
     function playTrack(song) {
         currentSong = song;
-        initAudioEngine(); // Start Context on User Interaction
+        initAudioEngine();
 
-        // 1. Show Player Bar with Animation
-        playerBar.classList.add('active'); // Slide up animation
+        // Reveal Player Bar
+        playerBar.classList.add('active');
+        playerBar.classList.add('edge-glow'); 
 
-        // 2. Update Metadata
+        // Update UI
         document.getElementById('trackTitle').innerText = song.trackName;
         document.getElementById('trackArtist').innerText = song.artistName;
         albumArt.style.backgroundImage = `url('${song.artwork}')`;
-        fullTitle.innerText = song.trackName;
-        fullArtist.innerText = song.artistName;
-        fullArt.style.backgroundImage = `url('${song.artwork}')`;
+        document.getElementById('fullTrackTitle').innerText = song.trackName;
+        document.getElementById('fullTrackArtist').innerText = song.artistName;
+        document.getElementById('fullAlbumArt').style.backgroundImage = `url('${song.artwork}')`;
         
-        // Update Full Player Background
+        // Update Full Player BG
         const fullBg = document.querySelector('.full-bg-blur');
         if(fullBg) fullBg.style.backgroundImage = `url('${song.artwork}')`;
 
-        // 3. Theme Color Extraction (Simulated)
+        // Theme Color
         const h = Math.abs((song.trackName.length * 47) % 360);
         document.documentElement.style.setProperty('--neon-main', `hsl(${h}, 100%, 60%)`);
-        if(neonBg) neonBg.classList.add('active');
+        
+        // Setup YouTube Button
+        const ytBtn = document.getElementById('youtubeBtn');
+        if(ytBtn) ytBtn.onclick = () => window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(song.trackName + " " + song.artistName)}`, '_blank');
 
-        // 4. Audio Source
+        // Play
         audio.src = song.previewUrl;
         audio.play().then(() => {
             updatePlayIcons(true);
@@ -162,90 +169,39 @@ document.addEventListener('DOMContentLoaded', () => {
         if(isPlaying) albumArt.classList.add('spinning'); else albumArt.classList.remove('spinning');
     }
 
-    // Event Listeners
-    playBtn.addEventListener('click', togglePlay);
-    document.getElementById('fullPlayBtn').addEventListener('click', togglePlay);
-    document.getElementById('prevBtn').addEventListener('click', () => { if(currentIndex>0) playTrack(songQueue[--currentIndex]); });
-    document.getElementById('fullPrevBtn').addEventListener('click', () => { if(currentIndex>0) playTrack(songQueue[--currentIndex]); });
-    document.getElementById('nextBtn').addEventListener('click', () => { if(currentIndex<songQueue.length-1) playTrack(songQueue[++currentIndex]); });
-    document.getElementById('fullNextBtn').addEventListener('click', () => { if(currentIndex<songQueue.length-1) playTrack(songQueue[++currentIndex]); });
-    audio.addEventListener('ended', () => { if(currentIndex<songQueue.length-1) playTrack(songQueue[++currentIndex]); });
-
-    // Progress Bar
-    const progressBar = document.getElementById('progressBar');
-    const fullProgressBar = document.getElementById('fullProgressBar');
-    audio.addEventListener('timeupdate', () => {
-        if(audio.duration) {
-            const pct = (audio.currentTime / audio.duration) * 100;
-            progressBar.value = pct;
-            fullProgressBar.value = pct;
-            document.getElementById('currTime').innerText = formatTime(audio.currentTime);
-            document.getElementById('fullCurrTime').innerText = formatTime(audio.currentTime);
-            document.getElementById('totalTime').innerText = formatTime(audio.duration);
-            document.getElementById('fullTotalTime').innerText = formatTime(audio.duration);
-        }
-    });
-    progressBar.addEventListener('input', (e) => audio.currentTime = (audio.duration/100)*e.target.value);
-    fullProgressBar.addEventListener('input', (e) => audio.currentTime = (audio.duration/100)*e.target.value);
-    function formatTime(s) { let m = Math.floor(s/60); let sec = Math.floor(s%60); return `${m}:${sec<10?'0':''}${sec}`; }
-
-    // --- FULL PLAYER TOGGLE ---
-    albumArt.addEventListener('click', () => { fullPlayer.classList.add('active'); });
-    document.getElementById('closeFullPlayer').addEventListener('click', () => { fullPlayer.classList.remove('active'); });
-
-    // --- EFFECTS & BUTTONS ---
-    document.getElementById('dolbyBtn').addEventListener('click', function() {
-        initAudioEngine();
-        is3DActive = !is3DActive;
-        this.classList.toggle('active');
-        if(!is3DActive && spatialPanner) spatialPanner.setPosition(0,0,0);
-    });
-
-    document.getElementById('partyBtn').addEventListener('click', async function() {
-        initAudioEngine();
-        isPartyActive = !isPartyActive;
-        this.classList.toggle('active');
-        const overlay = document.getElementById('partyOverlay');
-        if(isPartyActive) {
-            // Screen Flash
-            try { const s = await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}); trackStream = s.getVideoTracks()[0]; } catch(e){}
-        } else {
-            if(trackStream) trackStream.stop();
-            overlay.style.opacity = 0;
-        }
-    });
-
-    // --- LYRICS (Simulated SC2 Feature) ---
-    document.getElementById('lyricsBtn').addEventListener('click', () => {
-        if(!currentSong) return;
-        const panel = document.getElementById('lyricsPanel');
-        panel.classList.add('active');
-        const body = document.getElementById('lyricsText');
-        body.innerHTML = `
-            <h2 style="color:var(--neon-main)">${currentSong.trackName}</h2>
-            <p style="opacity:0.7">${currentSong.artistName}</p>
-            <br>
-            <div id="dynamicLyrics">
-                Generating Lyrics...<br><br>
-                <span class="lyrics-highlight">Loading Audio Data...</span>
-            </div>
-        `;
+    // --- CONTROLS & LISTENERS ---
+    if(playBtn) {
+        playBtn.addEventListener('click', togglePlay);
+        document.getElementById('fullPlayBtn').addEventListener('click', togglePlay);
+        document.getElementById('prevBtn').addEventListener('click', () => { if(currentIndex>0) playTrack(songQueue[--currentIndex]); });
+        document.getElementById('fullPrevBtn').addEventListener('click', () => { if(currentIndex>0) playTrack(songQueue[--currentIndex]); });
+        document.getElementById('nextBtn').addEventListener('click', () => { if(currentIndex<songQueue.length-1) playTrack(songQueue[++currentIndex]); });
+        document.getElementById('fullNextBtn').addEventListener('click', () => { if(currentIndex<songQueue.length-1) playTrack(songQueue[++currentIndex]); });
+        audio.addEventListener('ended', () => { if(currentIndex<songQueue.length-1) playTrack(songQueue[++currentIndex]); });
         
-        // Mocking the "Fetch" since iTunes has no lyrics
-        setTimeout(() => {
-            fetch(`https://api.lyrics.ovh/v1/${currentSong.artistName}/${currentSong.trackName}`)
-            .then(r=>r.json())
-            .then(d => {
-                if(d.lyrics) {
-                    const lines = d.lyrics.split('\n').map(line => `<span class="lyric-line">${line}</span>`).join('<br><br>');
-                    document.getElementById('dynamicLyrics').innerHTML = lines;
-                } else {
-                    document.getElementById('dynamicLyrics').innerHTML = "Lyrics not found in public database.<br>Enjoy the music!";
-                }
-            }).catch(() => document.getElementById('dynamicLyrics').innerHTML = "Instrumental / Lyrics unavailable.");
-        }, 1000);
-    });
-    document.getElementById('closeLyrics').addEventListener('click', () => document.getElementById('lyricsPanel').classList.remove('active'));
+        // Toggle Full Player
+        albumArt.addEventListener('click', () => fullPlayer.classList.add('active'));
+        document.getElementById('closeFullPlayer').addEventListener('click', () => fullPlayer.classList.remove('active'));
+        
+        // Progress Bar
+        const progressBar = document.getElementById('progressBar');
+        const fullProgressBar = document.getElementById('fullProgressBar');
+        audio.addEventListener('timeupdate', () => {
+            if(audio.duration) {
+                const pct = (audio.currentTime / audio.duration) * 100;
+                progressBar.value = pct;
+                fullProgressBar.value = pct;
+                document.getElementById('currTime').innerText = formatTime(audio.currentTime);
+                document.getElementById('fullCurrTime').innerText = formatTime(audio.currentTime);
+                document.getElementById('totalTime').innerText = formatTime(audio.duration);
+                document.getElementById('fullTotalTime').innerText = formatTime(audio.duration);
+            }
+        });
+        progressBar.addEventListener('input', (e) => audio.currentTime = (audio.duration/100)*e.target.value);
+        fullProgressBar.addEventListener('input', (e) => audio.currentTime = (audio.duration/100)*e.target.value);
+    }
+
+    function formatTime(s) { let m = Math.floor(s/60); let sec = Math.floor(s%60); return `${m}:${sec<10?'0':''}${sec}`; }
 
     // --- AUDIO ENGINE ---
     function initAudioEngine() {
@@ -268,6 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderVisualizer() {
         const canvas = document.getElementById('visualizerCanvas');
+        if(!canvas) return;
         const ctx = canvas.getContext('2d');
         const bufferLength = analyser.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
@@ -275,32 +232,23 @@ document.addEventListener('DOMContentLoaded', () => {
         function animate() {
             requestAnimationFrame(animate);
             analyser.getByteFrequencyData(dataArray);
-            
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
             const barWidth = (canvas.width / bufferLength) * 2.5;
-            let barHeight;
             let x = 0;
-            let volumeTotal = 0;
-
-            for(let i = 0; i < bufferLength; i++) {
-                barHeight = dataArray[i] * 1.2;
-                volumeTotal += dataArray[i];
-                ctx.fillStyle = `rgba(255, 255, 255, ${dataArray[i]/500})`; 
+            let totalVol = 0;
+            for(let i=0; i<bufferLength; i++) {
+                totalVol += dataArray[i];
+                const barHeight = dataArray[i] * 1.5;
+                ctx.fillStyle = `rgba(255, 255, 255, ${dataArray[i]/500})`;
                 ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
                 x += barWidth + 1;
             }
-
-            // 3D Effect Rotation
-            if(is3DActive) {
-                spatialAngle += 0.01;
-                spatialPanner.setPosition(Math.sin(spatialAngle)*3, 0, Math.cos(spatialAngle)*3);
-            }
-
+            // 3D Effect
+            if(is3DActive) { spatialAngle += 0.01; spatialPanner.setPosition(Math.sin(spatialAngle)*3, 0, Math.cos(spatialAngle)*3); }
             // Party Flash
-            if(isPartyActive && (volumeTotal/bufferLength) > 100) {
+            if(isPartyActive && (totalVol/bufferLength) > 100) {
                 document.getElementById('partyOverlay').style.opacity = 0.2;
                 document.getElementById('partyOverlay').style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
             } else {
@@ -309,11 +257,66 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         animate();
     }
+
+    // --- BUTTONS ---
+    const dolby = document.getElementById('dolbyBtn');
+    if(dolby) dolby.addEventListener('click', function() {
+        initAudioEngine(); is3DActive = !is3DActive; this.classList.toggle('active');
+        if(!is3DActive && spatialPanner) spatialPanner.setPosition(0,0,0);
+    });
+
+    const party = document.getElementById('partyBtn');
+    if(party) party.addEventListener('click', async function() {
+        initAudioEngine(); isPartyActive = !isPartyActive; this.classList.toggle('active');
+        if(isPartyActive) { try { const s = await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}); trackStream = s.getVideoTracks()[0]; } catch(e){} } 
+        else { if(trackStream) trackStream.stop(); document.getElementById('partyOverlay').style.opacity = 0; }
+    });
+
+    // --- LYRICS ---
+    const lyrBtn = document.getElementById('lyricsBtn');
+    if(lyrBtn) lyrBtn.addEventListener('click', () => {
+        if(!currentSong) return;
+        document.getElementById('lyricsPanel').classList.add('active');
+        const body = document.getElementById('lyricsText');
+        body.innerHTML = `
+            <div style="text-align:center; padding-top:50px;">
+                <h2 style="color:var(--neon-main); margin-bottom:10px;">${currentSong.trackName}</h2>
+                <p>Syncing Lyrics...</p><br>
+                <div id="simLyrics" style="font-size:1.5rem; line-height:2.5;">
+                    <span style="opacity:0.5">Fetching database...</span>
+                </div>
+            </div>
+        `;
+        setTimeout(() => {
+            fetch(`https://api.lyrics.ovh/v1/${currentSong.artistName}/${currentSong.trackName}`)
+            .then(r=>r.json())
+            .then(d => {
+                if(d.lyrics) {
+                    const lines = d.lyrics.split('\n').map(l => `<span class="lyrics-highlight">${l}</span>`).join('<br>');
+                    document.getElementById('simLyrics').innerHTML = lines;
+                } else throw new Error();
+            }).catch(() => document.getElementById('simLyrics').innerHTML = "Lyrics not found in public database.<br>Enjoy the music!");
+        }, 1500);
+    });
+    const clsLyr = document.getElementById('closeLyrics');
+    if(clsLyr) clsLyr.addEventListener('click', () => document.getElementById('lyricsPanel').classList.remove('active'));
 });
 
 // --- EFFECTS: HOLI & SMOKE ---
 function initThemeAndEffects() {
-    // Holi Effect Click Listener
+    const themeBtn = document.getElementById('themeToggle');
+    const icon = themeBtn ? themeBtn.querySelector('i') : null;
+    const applyTheme = (theme) => { 
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('neon_theme', theme);
+        if(icon) icon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+    };
+    applyTheme(localStorage.getItem('neon_theme') || 'dark');
+    if(themeBtn) themeBtn.addEventListener('click', () => { 
+        let c = document.documentElement.getAttribute('data-theme'); 
+        applyTheme(c === 'dark' ? 'light' : 'dark'); 
+    });
+
     document.addEventListener('click', (e) => {
         if(document.documentElement.getAttribute('data-theme') === 'light') {
             createHoliBlast(e.clientX, e.clientY);
@@ -323,38 +326,27 @@ function initThemeAndEffects() {
 
 function createHoliBlast(x, y) {
     const colors = ['#ff0055', '#00ffff', '#ffff00', '#00ff00', '#ff00ff'];
-    for(let i=0; i<12; i++) {
-        const particle = document.createElement('div');
-        particle.classList.add('holi-particle');
-        document.body.appendChild(particle);
-        
-        const size = Math.random() * 10 + 5;
-        const color = colors[Math.floor(Math.random() * colors.length)];
-        const tx = (Math.random() - 0.5) * 200 + 'px';
-        const ty = (Math.random() - 0.5) * 200 + 'px';
-        
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
-        particle.style.background = color;
-        particle.style.left = `${x}px`;
-        particle.style.top = `${y}px`;
-        particle.style.setProperty('--tx', tx);
-        particle.style.setProperty('--ty', ty);
-        
-        setTimeout(() => particle.remove(), 800);
+    for(let i=0; i<15; i++) {
+        const p = document.createElement('div');
+        p.classList.add('holi-particle');
+        document.body.appendChild(p);
+        const size = Math.random()*15 + 5;
+        p.style.width = `${size}px`; p.style.height = `${size}px`;
+        p.style.background = colors[Math.floor(Math.random()*colors.length)];
+        p.style.left = `${x}px`; p.style.top = `${y}px`;
+        p.style.setProperty('--tx', (Math.random()-0.5)*300+'px');
+        p.style.setProperty('--ty', (Math.random()-0.5)*300+'px');
+        setTimeout(() => p.remove(), 600);
     }
 }
 
-// (Insert the previously provided Smoke Effect WebGL code here for background)
+// SMOKE WEBGL CODE
 function initSmokeEffect() {
-    // ... Keep the exact Smoke WebGL code from previous response here ...
-    // To save space, I assume you have the `initSmokeEffect` function block.
-    // If not, use the one from the previous turn. It is fully compatible.
     let canvas = document.getElementById('smokeCanvas');
     if(!canvas) return;
     canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight;
     let config = { TEXTURE_DOWNSAMPLE: 1, DENSITY_DISSIPATION: 0.98, VELOCITY_DISSIPATION: 0.99, PRESSURE_DISSIPATION: 0.8, PRESSURE_ITERATIONS: 25, CURL: 35, SPLAT_RADIUS: 0.002 };
-    let pointers = [], splatStack = [];
+    let pointers = [];
     let _getWebGLContext = getWebGLContext(canvas);
     let gl = _getWebGLContext.gl, ext = _getWebGLContext.ext, support_linear_float = _getWebGLContext.support_linear_float;
     function getWebGLContext(canvas) {
@@ -422,5 +414,20 @@ function initSmokeEffect() {
     update();
     function update() {
         resizeCanvas(); let dt = Math.min((Date.now() - lastTime) / 1000, 0.016); lastTime = Date.now(); gl.viewport(0, 0, textureWidth, textureHeight);
-        if (splatStack.length > 0) for (let m = 0; m < splatStack.pop(); m++) splat(canvas.width*Math.random(), canvas.height*Math.random(), 1000*(Math.random()-0.5), 1000*(Math.random()-0.5), [Math.random()*10, Math.random()*10, Math.random()*10]);
-        advectionProgram.bind(); gl.uniform2f(advectionProgram.uniforms.texelSize, 1.0/textureWidth, 1.0/textureHeight); gl.uniform1i(advectionProgram.uniforms.uVelocity, velocity.first[2]); gl.uniform1i(advectionProgram.uniforms.uSource, velocity.first[2]); gl.uniform1f(advectionProgram.uniforms.dt, dt); gl.uniform
+        advectionProgram.bind(); gl.uniform2f(advectionProgram.uniforms.texelSize, 1.0/textureWidth, 1.0/textureHeight); gl.uniform1i(advectionProgram.uniforms.uVelocity, velocity.first[2]); gl.uniform1i(advectionProgram.uniforms.uSource, velocity.first[2]); gl.uniform1f(advectionProgram.uniforms.dt, dt); gl.uniform1f(advectionProgram.uniforms.dissipation, config.VELOCITY_DISSIPATION); blit(velocity.second[1]); velocity.swap();
+        gl.uniform1i(advectionProgram.uniforms.uVelocity, velocity.first[2]); gl.uniform1i(advectionProgram.uniforms.uSource, density.first[2]); gl.uniform1f(advectionProgram.uniforms.dissipation, config.DENSITY_DISSIPATION); blit(density.second[1]); density.swap();
+        for (let i = 0; i < pointers.length; i++) if (pointers[i].moved) { splat(pointers[i].x, pointers[i].y, pointers[i].dx, pointers[i].dy, pointers[i].color); pointers[i].moved = false; }
+        curlProgram.bind(); gl.uniform2f(curlProgram.uniforms.texelSize, 1.0/textureWidth, 1.0/textureHeight); gl.uniform1i(curlProgram.uniforms.uVelocity, velocity.first[2]); blit(curl[1]);
+        vorticityProgram.bind(); gl.uniform2f(vorticityProgram.uniforms.texelSize, 1.0/textureWidth, 1.0/textureHeight); gl.uniform1i(vorticityProgram.uniforms.uVelocity, velocity.first[2]); gl.uniform1i(vorticityProgram.uniforms.uCurl, curl[2]); gl.uniform1f(vorticityProgram.uniforms.curl, config.CURL); gl.uniform1f(vorticityProgram.uniforms.dt, dt); blit(velocity.second[1]); velocity.swap();
+        divergenceProgram.bind(); gl.uniform2f(divergenceProgram.uniforms.texelSize, 1.0/textureWidth, 1.0/textureHeight); gl.uniform1i(divergenceProgram.uniforms.uVelocity, velocity.first[2]); blit(divergence[1]);
+        clearProgram.bind(); gl.activeTexture(gl.TEXTURE0 + pressure.first[2]); gl.bindTexture(gl.TEXTURE_2D, pressure.first[0]); gl.uniform1i(clearProgram.uniforms.uTexture, pressure.first[2]); gl.uniform1f(clearProgram.uniforms.value, config.PRESSURE_DISSIPATION); blit(pressure.second[1]); pressure.swap();
+        pressureProgram.bind(); gl.uniform2f(pressureProgram.uniforms.texelSize, 1.0/textureWidth, 1.0/textureHeight); gl.uniform1i(pressureProgram.uniforms.uDivergence, divergence[2]);
+        for (let i = 0; i < config.PRESSURE_ITERATIONS; i++) { gl.bindTexture(gl.TEXTURE_2D, pressure.first[0]); gl.uniform1i(pressureProgram.uniforms.uPressure, pressure.first[2]); blit(pressure.second[1]); pressure.swap(); }
+        gradienSubtractProgram.bind(); gl.uniform2f(gradienSubtractProgram.uniforms.texelSize, 1.0/textureWidth, 1.0/textureHeight); gl.uniform1i(gradienSubtractProgram.uniforms.uPressure, pressure.first[2]); gl.uniform1i(gradienSubtractProgram.uniforms.uVelocity, velocity.first[2]); blit(velocity.second[1]); velocity.swap();
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight); displayProgram.bind(); gl.uniform1i(displayProgram.uniforms.uTexture, density.first[2]); blit(null); requestAnimationFrame(update);
+    }
+    function splat(x, y, dx, dy, color) { splatProgram.bind(); gl.uniform1i(splatProgram.uniforms.uTarget, velocity.first[2]); gl.uniform1f(splatProgram.uniforms.aspectRatio, canvas.width/canvas.height); gl.uniform2f(splatProgram.uniforms.point, x/canvas.width, 1.0-y/canvas.height); gl.uniform3f(splatProgram.uniforms.color, dx, -dy, 1.0); gl.uniform1f(splatProgram.uniforms.radius, config.SPLAT_RADIUS); blit(velocity.second[1]); velocity.swap(); gl.uniform1i(splatProgram.uniforms.uTarget, density.first[2]); gl.uniform3f(splatProgram.uniforms.color, color[0]*0.3, color[1]*0.3, color[2]*0.3); blit(density.second[1]); density.swap(); }
+    function resizeCanvas() { if(canvas.width !== canvas.clientWidth || canvas.height !== canvas.clientHeight) { canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight; initFramebuffers(); } }
+    window.addEventListener("mousemove", e => { pointers[0].down = true; pointers[0].color = [Math.random()+0.2, Math.random()+0.2, Math.random()+0.2]; pointers[0].moved = pointers[0].down; pointers[0].dx = (e.clientX - pointers[0].x) * 5.0; pointers[0].dy = (e.clientY - pointers[0].y) * 5.0; pointers[0].x = e.clientX; pointers[0].y = e.clientY; });
+    window.addEventListener("touchmove", e => { e.preventDefault(); let touches = e.targetTouches; for(let i=0; i<touches.length; i++){ if(i>=pointers.length) pointers.push(new pointerPrototype()); pointers[i].id = touches[i].identifier; pointers[i].down = true; pointers[i].x = touches[i].pageX; pointers[i].y = touches[i].pageY; pointers[i].color = [Math.random()+0.2, Math.random()+0.2, Math.random()+0.2]; let pointer = pointers[i]; pointer.moved = pointer.down; pointer.dx = (touches[i].pageX - pointer.x) * 8.0; pointer.dy = (touches[i].pageY - pointer.y) * 8.0; pointer.x = touches[i].pageX; pointer.y = touches[i].pageY; } }, false);
+}
