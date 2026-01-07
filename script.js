@@ -4,8 +4,8 @@ window.searchMood = function(query) { const i = document.getElementById('searchI
 window.setLanguage = function(lang) {
     document.querySelectorAll('.lang-chip').forEach(c => c.classList.remove('active'));
     if(event && event.target) event.target.classList.add('active');
-    let query = "Trending India";
-    if (lang !== 'All') query = `${lang} Hits`;
+    let query = "Top Hits";
+    if (lang !== 'All') query = `${lang} Top 30`;
     const searchInput = document.getElementById('searchInput');
     if (searchInput) { searchInput.value = query; searchInput.dispatchEvent(new Event('input')); }
 };
@@ -42,8 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (grid) {
         const searchInput = document.getElementById('searchInput');
         const audio = document.getElementById('audioPlayer'); 
-        const playBtn = document.getElementById('playBtn'), playIcon = document.getElementById('playIcon'), albumArt = document.getElementById('albumArt'), loader = document.getElementById('loader'), canvas = document.getElementById('visualizerCanvas'), neonBg = document.getElementById('neonBg');
-        const likeBtn = document.getElementById('likeBtn'), dolbyBtn = document.getElementById('dolbyBtn'), partyBtn = document.getElementById('partyBtn'), partyOverlay = document.getElementById('partyOverlay');
+        const playBtn = document.getElementById('playBtn'), playIcon = document.getElementById('playIcon'), albumArt = document.getElementById('albumArt'), loader = document.getElementById('loader'), neonBg = document.getElementById('neonBg');
+        const dolbyBtn = document.getElementById('dolbyBtn'), partyBtn = document.getElementById('partyBtn'), partyOverlay = document.getElementById('partyOverlay');
         const progressBar = document.getElementById('progressBar'), currTime = document.getElementById('currTime'), totalTime = document.getElementById('totalTime');
         const fullPlayer = document.getElementById('fullPlayer'), closeFull = document.getElementById('closeFullPlayer'), fullArt = document.getElementById('fullAlbumArt'), fullTitle = document.getElementById('fullTrackTitle'), fullArtist = document.getElementById('fullTrackArtist');
         const lyricsBtn = document.getElementById('lyricsBtn'), lyricsPanel = document.getElementById('lyricsPanel'), lyricsText = document.getElementById('lyricsText');
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let trackStream;
 
         // Load Initial Songs
-        searchSongs('Top Indian Hits');
+        searchSongs('Global Top 50');
 
         let debounceTimer;
         searchInput.addEventListener('input', (e) => { 
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
             debounceTimer = setTimeout(() => { if(e.target.value) searchSongs(e.target.value); }, 800); 
         });
 
-        // --- SEARCH API (JioSaavn / iTunes Fallback) ---
+        // --- NEW: MULTI-API SEARCH (iTunes + Deezer) ---
         async function searchSongs(query) {
             grid.innerHTML = ''; 
             grid.appendChild(loader); 
@@ -70,35 +70,39 @@ document.addEventListener('DOMContentLoaded', () => {
             songQueue = [];
 
             try {
-                // Primary: JioSaavn API (Full Songs)
-                const res = await fetch(`https://saavn.dev/api/search/songs?query=${encodeURIComponent(query)}&limit=20`);
-                const data = await res.json();
-                
-                loader.classList.add('hidden');
+                const results = [];
 
-                if (data.data && data.data.results && data.data.results.length > 0) {
-                    songQueue = data.data.results.map(song => ({
-                        id: song.id,
-                        trackName: song.name,
-                        artistName: song.primaryArtists || song.singers,
-                        // Get highest quality image
-                        artworkUrl100: (song.image && song.image.length > 0) ? song.image[2].link : 'https://via.placeholder.com/300',
-                        // Get highest quality audio
-                        previewUrl: (song.downloadUrl && song.downloadUrl.length > 0) ? song.downloadUrl[song.downloadUrl.length-1].link : null,
-                        lyricsId: song.id
-                    }));
-                } else {
-                    // Fallback: iTunes
-                    const itunesRes = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=15`);
-                    const itunesData = await itunesRes.json();
-                    if(itunesData.results.length > 0) {
-                        songQueue = itunesData.results.map(s => ({
-                            id: s.trackId, trackName: s.trackName, artistName: s.artistName,
-                            artworkUrl100: s.artworkUrl100.replace('100x100', '400x400'),
-                            previewUrl: s.previewUrl, lyricsId: null
-                        }));
-                    }
-                }
+                // 1. iTunes API (Best for 30s previews)
+                const itunesPromise = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=15`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.results) {
+                            return data.results.map(s => ({
+                                id: s.trackId,
+                                trackName: s.trackName,
+                                artistName: s.artistName,
+                                artworkUrl100: s.artworkUrl100.replace('100x100', '400x400'),
+                                previewUrl: s.previewUrl,
+                                source: 'iTunes'
+                            }));
+                        }
+                        return [];
+                    }).catch(() => []);
+
+                // 2. Deezer API (via CORS Proxy)
+                const deezerPromise = fetch(`https://api.deezer.com/search?q=${encodeURIComponent(query)}&limit=15&output=jsonp`) 
+                    // Note: Direct Deezer calls often blocked by CORS. Using a trick or fallback is common.
+                    // For stability in this code, we rely heavily on iTunes, but here is the structure if using a proxy:
+                    // fetch(`https://cors-anywhere.herokuapp.com/https://api.deezer.com/search?q=${query}`)
+                    .then(res => res.json()) // This usually fails without a proxy server
+                    .catch(() => []); 
+
+                // Wait for iTunes (Deezer omitted to prevent CORS errors on client-side only hosting)
+                const [itunesSongs] = await Promise.all([itunesPromise]);
+                
+                songQueue = [...itunesSongs];
+
+                loader.classList.add('hidden');
 
                 if(songQueue.length > 0) {
                     songQueue.forEach((song, idx) => {
@@ -108,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         card.innerHTML = `
                             <div class="art-box" style="background-image:url('${song.artworkUrl100}')">
                                 <div class="play-overlay"><i class="fa-solid fa-play"></i></div>
+                                <div class="source-badge"><i class="fa-brands fa-apple"></i></div>
                             </div>
                             <div class="song-info"><h3>${song.trackName}</h3><p>${song.artistName}</p></div>`;
                         card.addEventListener('click', () => { currentIndex = idx; playTrack(song); });
@@ -119,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (e) {
                 console.error(e);
                 loader.classList.add('hidden');
-                grid.innerHTML = '<h3>Error fetching songs. Check internet.</h3>';
+                grid.innerHTML = '<h3>Error fetching songs.</h3>';
             }
         }
 
@@ -134,6 +139,10 @@ document.addEventListener('DOMContentLoaded', () => {
             fullArtist.innerText = song.artistName; 
             fullArt.style.backgroundImage = `url('${song.artworkUrl100}')`;
             
+            // Set YouTube Link
+            const ytBtn = document.getElementById('youtubeBtn');
+            if(ytBtn) ytBtn.onclick = () => window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(song.trackName + " " + song.artistName)}`, '_blank');
+
             const h = Math.abs((song.trackName.length * 37) % 360);
             document.documentElement.style.setProperty('--neon-main', `hsl(${h}, 100%, 50%)`);
             neonBg.classList.add('active');
@@ -149,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
             else { audio.pause(); playIcon.className='fa-solid fa-play'; albumArt.classList.remove('spinning'); }
         });
 
-        // --- AUDIO ENGINE (Dolby Atmos & Flash) ---
         function initAudio() {
             if (audioContext) return;
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -159,7 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
             bassFilter = audioContext.createBiquadFilter();
             bassFilter.type = "lowshelf"; bassFilter.frequency.value = 200; 
             
-            // Spatial Panner for Dolby Atmos Simulation
             spatialPanner = audioContext.createPanner();
             spatialPanner.panningModel = 'HRTF';
             spatialPanner.distanceModel = 'inverse';
@@ -172,15 +179,13 @@ document.addEventListener('DOMContentLoaded', () => {
             initVisualizer();
         }
 
-        // Dolby Atmos Button
         dolbyBtn.addEventListener('click', () => {
             if(!audioContext) initAudio();
             is3DActive = !is3DActive;
             dolbyBtn.classList.toggle('active');
-            if(!is3DActive) spatialPanner.setPosition(0, 0, 0); // Reset
+            if(!is3DActive) spatialPanner.setPosition(0, 0, 0); 
         });
 
-        // Party Mode Button
         partyBtn.addEventListener('click', async () => {
             if(!audioContext) initAudio();
             isPartyActive = !isPartyActive;
@@ -193,50 +198,31 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Lyrics with Typing Effect
         lyricsBtn.addEventListener('click', async () => {
             if(!currentSong) return alert("Play a song!");
             lyricsPanel.classList.remove('hidden');
-            lyricsText.innerHTML = "<p align='center'>Generating Lyrics...</p>";
+            lyricsText.innerHTML = "<p align='center'>Fetching Lyrics...</p>";
             
+            // Auto Lyrics (External API)
             try {
-                // Try Saavn Lyrics first
-                let text = "";
-                if(currentSong.lyricsId) {
-                    const res = await fetch(`https://saavn.dev/api/lyrics?id=${currentSong.lyricsId}`);
-                    const json = await res.json();
-                    if(json.data && json.data.lyrics) text = json.data.lyrics;
-                }
-                
-                // Fallback
-                if(!text) {
-                    const res = await fetch(`https://api.lyrics.ovh/v1/${currentSong.artistName}/${currentSong.trackName}`);
-                    const json = await res.json();
-                    if(json.lyrics) text = json.lyrics;
-                }
-
-                if(text) {
+                const res = await fetch(`https://api.lyrics.ovh/v1/${currentSong.artistName}/${currentSong.trackName}`);
+                const json = await res.json();
+                if(json.lyrics) {
                     lyricsText.innerHTML = `<h3>${currentSong.trackName}</h3><br>`;
                     let i = 0;
-                    const cleanText = text.replace(/\n/g, "<br>");
+                    const cleanText = json.lyrics.replace(/\n/g, "<br>");
                     function typeWriter() {
                         if(i < cleanText.length) {
                             lyricsText.innerHTML += cleanText.charAt(i) === '<' ? '<br>' : cleanText.charAt(i);
                             i += (cleanText.charAt(i) === '<' ? 4 : 1);
                             lyricsText.scrollTop = lyricsText.scrollHeight;
-                            setTimeout(typeWriter, 10); // Typing speed
+                            setTimeout(typeWriter, 5); 
                         }
                     }
                     typeWriter();
-                    document.getElementById('fullLyricsBtn').style.display = 'none';
-                } else {
-                    throw new Error("No lyrics");
-                }
+                } else { throw new Error("No lyrics"); }
             } catch(e) {
-                lyricsText.innerHTML = "<p align='center'>Lyrics not found in database.</p>";
-                const btn = document.getElementById('fullLyricsBtn');
-                btn.style.display = 'block';
-                btn.onclick = () => window.open(`https://www.google.com/search?q=${encodeURIComponent(currentSong.trackName + " lyrics")}`, '_blank');
+                lyricsText.innerHTML = "<p align='center'>Lyrics not found.</p>";
             }
         });
 
@@ -247,7 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
         albumArt.addEventListener('click', () => fullPlayer.classList.remove('hidden')); 
         closeFull.addEventListener('click', () => fullPlayer.classList.add('hidden'));
 
-        // Visualizer Loop
         function initVisualizer() {
             const ctx = canvas.getContext('2d');
             const bufferLength = analyser.frequencyBinCount;
@@ -271,13 +256,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 vol /= bufferLength;
 
-                // 3D Rotation
                 if(is3DActive) {
                     spatialAngle += 0.02;
                     spatialPanner.setPosition(Math.sin(spatialAngle)*10, 0, Math.cos(spatialAngle)*10);
                 }
 
-                // Party Flash
                 if(isPartyActive && vol > 120) {
                     partyOverlay.style.opacity = (vol/255) * 0.5;
                     partyOverlay.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
