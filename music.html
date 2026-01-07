@@ -8,9 +8,10 @@
     
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -46,7 +47,7 @@
         <div class="lyrics-content">
             <div class="lyrics-header">
                 <h3><i class="fa-solid fa-microphone-lines"></i> Synced Lyrics</h3>
-                <button class="btn-close magnetic" id="closeLyrics"><i class="fa-solid fa-xmark"></i></button>
+                <button class="btn-control magnetic" id="closeLyrics" style="color:var(--neon-main);"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="lyrics-body" id="lyricsText"></div>
         </div>
@@ -59,6 +60,7 @@
                 <div class="tab-switcher">
                     <a href="/music" class="tab-btn active magnetic">Music</a>
                     <a href="/videodownloader" class="tab-btn magnetic">Video DL</a>
+                    <button class="tab-btn magnetic" id="openLibraryBtn"><i class="fa-solid fa-bookmark"></i></button>
                 </div>
                  <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
             </div>
@@ -68,7 +70,7 @@
     <main class="active-section">
         <div class="search-container fade-in-up">
             <div class="search-bar">
-                <i class="fa-solid fa-magnifying-glass"></i>
+                <i class="fa-solid fa-magnifying-glass" style="color:var(--text-secondary)"></i>
                 <input type="text" id="searchInput" placeholder="Search songs...">
                 <button id="voiceBtn" class="voice-btn magnetic" title="Voice Search"><i class="fa-solid fa-microphone"></i></button>
             </div>
