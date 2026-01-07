@@ -37,7 +37,6 @@
                     <i class="fa-brands fa-instagram" title="Instagram"></i>
                     <i class="fa-brands fa-tiktok" title="TikTok"></i>
                     <i class="fa-brands fa-twitter" title="X"></i>
-                    <i class="fa-solid fa-box" title="Terabox"></i>
                 </div>
             </div>
 
@@ -48,6 +47,10 @@
             </div>
 
             <div id="dlResult" class="dl-result hidden">
+                
+                <div id="videoPlayerBox" class="video-player-container hidden" style="margin-bottom: 20px; border-radius: 15px; overflow: hidden; border: 1px solid var(--glass-border);">
+                    </div>
+
                 <div class="video-preview-box">
                     <img id="thumbPreview" src="" alt="Thumbnail" class="preview-img">
                     <div class="video-meta">
@@ -55,14 +58,15 @@
                         <span id="vidPlatform" class="platform-badge">Detected</span>
                     </div>
                 </div>
+                
                 <div class="format-grid">
-                    <button class="format-chip magnetic active" data-quality="8k">8K</button>
-                    <button class="format-chip magnetic" data-quality="4k">4K</button>
-                    <button class="format-chip magnetic" data-quality="1080">1080p</button>
-                    <button class="format-chip magnetic" data-quality="mp3">MP3</button>
+                    <button class="format-chip magnetic active" data-quality="1080">1080p</button>
+                    <button class="format-chip magnetic" data-quality="720">720p</button>
+                    <button class="format-chip magnetic" data-quality="mp3">Audio Only</button>
                 </div>
+
                 <button class="btn-download magnetic" id="finalDownloadBtn">
-                    <i class="fa-solid fa-download"></i> Start Download
+                    <i class="fa-solid fa-download"></i> Download File
                 </button>
             </div>
             
