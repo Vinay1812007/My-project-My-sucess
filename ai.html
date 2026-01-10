@@ -30,28 +30,20 @@
         </div>
     </nav>
 
-    <main class="content-section centered-view">
-        <div class="glass-panel video-dl-container">
-            <h2 class="page-title">AI Studio</h2>
-            <p class="hero-subtitle" style="margin-bottom: 30px;">Generate Content with Groq AI</p>
-            
-            <div class="platform-icons">
-                <i class="fa-solid fa-robot"></i>
-                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                <i class="fa-solid fa-brain"></i>
+    <!-- Chat Interface -->
+    <main class="chat-wrapper">
+        <div class="chat-container glass-panel" id="chatContainer">
+            <!-- Messages will be injected here -->
+            <div class="message ai">
+                <div class="avatar"><i class="fa-solid fa-robot"></i></div>
+                <div class="bubble">Hello! I am your AI assistant powered by Groq. How can I help you today?</div>
             </div>
+        </div>
 
-            <div class="dl-input-group">
-                <input type="text" id="aiPrompt" placeholder="Ask AI anything..." class="magnetic">
-                <button id="generateBtn" class="magnetic icon-only" title="Generate"><i class="fa-solid fa-bolt"></i></button>
-            </div>
-
-            <div id="aiLoader" class="loader hidden"></div>
-
-            <div id="aiResult" class="dl-result hidden" style="margin-top: 20px;">
-                <div class="preview-card" style="background: rgba(30,30,30,0.8); min-height: 100px; padding: 20px; text-align: left;">
-                    <div id="generatedText" style="white-space: pre-wrap; font-family: monospace; font-size: 0.9rem; color: #ddd;"></div>
-                </div>
+        <div class="chat-input-area glass-panel">
+            <div class="input-wrapper">
+                <input type="text" id="aiPrompt" placeholder="Type a message..." autocomplete="off">
+                <button id="generateBtn" class="magnetic send-btn"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
     </main>
