@@ -11,10 +11,8 @@
 <body>
 
     <div id="cursor"></div>
-    <div class="full-bg-overlay"></div>
-    <div id="partyOverlay"></div>
-    <canvas id="bgCanvas"></canvas>
 
+    <!-- Navigation -->
     <nav>
         <div class="nav-container">
             <a href="index.html" class="logo-container magnetic">
@@ -30,7 +28,9 @@
         </div>
     </nav>
 
+    <!-- Main Music Content -->
     <main class="content-section">
+        <!-- Search Bar -->
         <div class="search-container">
             <div class="search-bar">
                 <button id="searchBtn" class="ai-btn magnetic"><i class="fa-solid fa-magnifying-glass"></i></button>
@@ -38,12 +38,14 @@
             </div>
         </div>
 
+        <!-- Personal Mix Button -->
         <div class="buttons-row">
             <button class="personalized-btn magnetic" id="myMixBtn">
                 <i class="fa-solid fa-headphones"></i> My Mix 🎧
             </button>
         </div>
 
+        <!-- Mood Chips -->
         <div class="chips-container" id="moodChips">
             <button class="chip active magnetic" data-query="Trending">🔥 Trending</button>
             <button class="chip magnetic" data-query="BGM">🎵 BGM</button>
@@ -52,13 +54,14 @@
             <button class="chip magnetic" data-query="Bass Boosted">🔊 Bass</button>
         </div>
 
+        <!-- Song Results Grid -->
         <div class="music-grid" id="musicGrid">
             <div class="loader hidden" id="loader"></div>
-            <!-- Results injected here -->
+            <!-- Dynamic Song Cards injected via JS -->
         </div>
     </main>
 
-    <!-- Mini Player -->
+    <!-- Mini Player Bar (Bottom) -->
     <div class="player-bar" id="musicPlayerBar">
         <div class="now-playing-info magnetic" id="miniPlayerInfo">
             <div class="now-playing-art" id="albumArt"></div>
@@ -86,6 +89,7 @@
         <button id="closeFullPlayer" class="magnetic icon-btn-top-left"><i class="fa-solid fa-chevron-down"></i></button>
         <button id="settingsToggle" class="magnetic icon-btn-top-right"><i class="fa-solid fa-sliders"></i></button>
 
+        <!-- EQ Settings Panel -->
         <div id="settingsPanel" class="settings-panel">
             <h3>Audio Settings</h3>
             <div class="eq-slider"><span>Bass</span><input type="range" min="-10" max="10" value="0" id="bassRange"></div>
@@ -129,7 +133,8 @@
         </div>
     </div>
 
-    <audio id="audioPlayer" style="display:none;"></audio>
+    <!-- Hidden Audio Element for Playback -->
+    <audio id="audioPlayer" crossorigin="anonymous" style="display:none;"></audio>
     <script src="script.js"></script>
 </body>
 </html>
