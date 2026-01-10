@@ -33,7 +33,7 @@
     <main class="content-section centered-view">
         <div class="glass-panel video-dl-container">
             <h2 class="page-title">AI Studio</h2>
-            <p class="hero-subtitle" style="margin-bottom: 30px;">Generate Music & Visuals (Beta)</p>
+            <p class="hero-subtitle" style="margin-bottom: 30px;">Generate Content with Groq AI</p>
             
             <div class="platform-icons">
                 <i class="fa-solid fa-robot"></i>
@@ -42,25 +42,15 @@
             </div>
 
             <div class="dl-input-group">
-                <input type="text" id="aiPrompt" placeholder="Describe what you want to create..." class="magnetic">
+                <input type="text" id="aiPrompt" placeholder="Ask AI anything..." class="magnetic">
                 <button id="generateBtn" class="magnetic icon-only" title="Generate"><i class="fa-solid fa-bolt"></i></button>
             </div>
 
             <div id="aiLoader" class="loader hidden"></div>
 
-            <div id="aiResult" class="dl-result hidden">
-                <div class="preview-card" style="background: linear-gradient(45deg, #1a1a1a, #000);">
-                    <div style="height: 200px; display: flex; align-items: center; justify-content: center; color: var(--accent);">
-                        <i class="fa-solid fa-wave-square fa-3x"></i>
-                    </div>
-                    <div class="meta">
-                        <h3 id="generatedTitle">Generated Content</h3>
-                        <span class="badge">AI GENERATED</span>
-                    </div>
-                </div>
-                <div class="extended-controls" style="margin-top: 20px;">
-                    <button class="action-btn magnetic" style="margin: 0;" onclick="alert('Saving to Library...')">Save</button>
-                    <button class="action-btn magnetic" style="margin: 0; background: transparent; border: 1px solid white; color: white;" onclick="alert('Sharing...')">Share</button>
+            <div id="aiResult" class="dl-result hidden" style="margin-top: 20px;">
+                <div class="preview-card" style="background: rgba(30,30,30,0.8); min-height: 100px; padding: 20px; text-align: left;">
+                    <div id="generatedText" style="white-space: pre-wrap; font-family: monospace; font-size: 0.9rem; color: #ddd;"></div>
                 </div>
             </div>
         </div>
