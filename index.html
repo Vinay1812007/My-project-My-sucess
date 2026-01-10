@@ -1,40 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Beats - Home</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SIRIMILLA VINAY - Home</title>
+    <meta name="description" content="Premium Music Player and 8K Video Downloader Tool">
+    
+    <!-- External Icons & Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="full-bg-blur"></div>
-    <canvas id="smokeCanvas"></canvas>
 
-    <div class="landing-container">
-        <div class="logo" style="font-size: 4rem; margin-bottom: 20px;">NEON<span class="highlight">BEATS</span></div>
-        <p style="color: var(--text-secondary); margin-bottom: 40px; font-size: 1.2rem;">The Ultimate Audio & Video Experience</p>
-        
-        <div class="landing-input-group">
-            <input type="text" id="landingUrl" placeholder="Paste YouTube, Insta, TikTok link...">
-            <button id="landingGoBtn"><i class="fa-solid fa-arrow-right"></i></button>
+    <!-- Custom Magnetic Cursor -->
+    <div id="cursor"></div>
+
+    <!-- Background Effects -->
+    <div class="full-bg-overlay"></div>
+    <canvas id="bgCanvas"></canvas>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo-container magnetic">
+                <div class="logo-text">SIRIMILLA VINAY</div>
+            </a>
+            <div class="nav-right">
+                <!-- Theme Toggle Button -->
+                <button class="theme-btn magnetic" id="themeToggle" title="Toggle Theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
         </div>
+    </nav>
 
+    <!-- Main Landing Content -->
+    <main class="landing-container">
+        <h1 class="hero-logo">SIRIMILLA VINAY</h1>
+        <p class="hero-subtitle">Premium Audio & 8K Visuals Experience</p>
+        
+        <!-- Action Buttons -->
         <div class="landing-buttons">
-            <a href="/music" class="landing-btn">
-                <i class="fa-solid fa-music"></i> Music Player
+            <a href="music.html" class="landing-btn magnetic">
+                <i class="fa-solid fa-music" style="color:var(--accent);"></i> Open Player
             </a>
-            <a href="/videodownloader" class="landing-btn">
-                <i class="fa-solid fa-video"></i> 8K Downloader
+            <a href="videodownloader.html" class="landing-btn magnetic">
+                <i class="fa-solid fa-bolt" style="color:var(--accent-secondary);"></i> Downloader
             </a>
         </div>
         
-        <div style="margin-top: 30px;">
-            <a href="/sitemap" style="color: var(--text-secondary); font-size: 0.9rem; text-decoration: none;">Sitemap</a>
+        <!-- Footer Links -->
+        <div class="sitemap-link-container">
+            <a href="sitemap.html" class="magnetic link-text">Sitemap</a>
         </div>
-    </div>
+    </main>
 
+    <!-- Main Logic Script -->
     <script src="script.js"></script>
 </body>
 </html>
