@@ -11,26 +11,24 @@
 </head>
 <body>
 
-    <div class="cursor-dot" id="cursorDot"></div>
-    <div class="cursor-outline" id="cursorOutline"><i class="fa-solid fa-video"></i></div>
-    
+    <div class="full-bg-blur"></div>
     <canvas id="smokeCanvas"></canvas>
 
-    <nav class="glass-panel sticky-nav">
+    <nav>
         <div class="nav-container">
-            <div class="logo pulse-logo">NEON<span class="highlight">BEATS</span></div>
-            <div class="nav-right">
+            <div class="logo">NEON<span class="highlight">BEATS</span></div>
+            <div class="nav-right" style="display:flex; gap:10px;">
                 <div class="tab-switcher">
-                    <a href="/music" class="tab-btn magnetic">Music</a>
-                    <a href="/videodownloader" class="tab-btn active magnetic">Video DL</a>
+                    <a href="/music" class="tab-btn">Music</a>
+                    <a href="/videodownloader" class="tab-btn active">Video DL</a>
                 </div>
-                 <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+                 <button class="theme-btn" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
             </div>
         </div>
     </nav>
 
     <main class="active-section">
-        <div class="video-dl-container glass-panel fade-in-up">
+        <div class="video-dl-container">
             <div class="dl-header">
                 <h2><i class="fa-solid fa-bolt" style="color:var(--neon-main);"></i> Ultimate Downloader</h2>
                 <div class="platform-icons">
@@ -42,34 +40,27 @@
             </div>
 
             <div class="dl-input-group">
-                <button class="paste-btn magnetic" id="pasteBtn" title="Paste"><i class="fa-regular fa-clipboard"></i></button>
+                <button class="paste-btn" id="pasteBtn" title="Paste" style="background:none; border:none; color:var(--text-secondary); cursor:pointer;"><i class="fa-regular fa-clipboard"></i></button>
                 <input type="text" id="videoUrl" placeholder="Paste link here...">
                 <button class="magnetic" id="fetchVideoBtn">Fetch</button>
             </div>
 
             <div id="dlResult" class="dl-result hidden">
                 <div class="video-preview-box">
-                    <img id="thumbPreview" src="" alt="Thumbnail" class="preview-img">
+                    <img id="thumbPreview" src="" alt="Thumbnail" class="preview-img" style="width:100%;">
                     <div class="video-meta">
                         <h3 id="vidTitle">Video Found</h3>
                         <span id="vidPlatform" class="platform-badge">Detected</span>
                     </div>
                 </div>
                 <div class="format-grid">
-                    <button class="format-chip magnetic active" data-quality="8k">8K</button>
-                    <button class="format-chip magnetic" data-quality="4k">4K</button>
-                    <button class="format-chip magnetic" data-quality="1080">1080p</button>
-                    <button class="format-chip magnetic" data-quality="mp3">MP3</button>
+                    <button class="format-chip active">1080p</button>
+                    <button class="format-chip">720p</button>
+                    <button class="format-chip">MP3</button>
                 </div>
-                <button class="btn-download magnetic" id="finalDownloadBtn">
+                <button class="btn-download" id="finalDownloadBtn">
                     <i class="fa-solid fa-download"></i> Start Download
                 </button>
-            </div>
-            
-            <div class="history-section hidden" id="dlHistoryPanel">
-                <h3><i class="fa-solid fa-clock-rotate-left"></i> History</h3>
-                <div class="history-list" id="dlHistoryList"></div>
-                <button class="clear-history magnetic" id="clearHistoryBtn">Clear History</button>
             </div>
         </div>
     </main>
