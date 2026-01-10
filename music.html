@@ -11,8 +11,10 @@
 <body>
 
     <div id="cursor"></div>
+    <div class="full-bg-overlay"></div>
+    <div id="partyOverlay"></div>
+    <canvas id="bgCanvas"></canvas>
 
-    <!-- Navigation -->
     <nav>
         <div class="nav-container">
             <a href="index.html" class="logo-container magnetic">
@@ -28,9 +30,7 @@
         </div>
     </nav>
 
-    <!-- Main Music Content -->
     <main class="content-section">
-        <!-- Search Bar -->
         <div class="search-container">
             <div class="search-bar">
                 <button id="searchBtn" class="ai-btn magnetic"><i class="fa-solid fa-magnifying-glass"></i></button>
@@ -38,14 +38,12 @@
             </div>
         </div>
 
-        <!-- Personal Mix Button -->
         <div class="buttons-row">
             <button class="personalized-btn magnetic" id="myMixBtn">
                 <i class="fa-solid fa-headphones"></i> My Mix 🎧
             </button>
         </div>
 
-        <!-- Mood Chips -->
         <div class="chips-container" id="moodChips">
             <button class="chip active magnetic" data-query="Trending">🔥 Trending</button>
             <button class="chip magnetic" data-query="BGM">🎵 BGM</button>
@@ -54,14 +52,13 @@
             <button class="chip magnetic" data-query="Bass Boosted">🔊 Bass</button>
         </div>
 
-        <!-- Song Results Grid -->
         <div class="music-grid" id="musicGrid">
             <div class="loader hidden" id="loader"></div>
-            <!-- Dynamic Song Cards injected via JS -->
+            <!-- Results injected here -->
         </div>
     </main>
 
-    <!-- Mini Player Bar (Bottom) -->
+    <!-- Mini Player -->
     <div class="player-bar" id="musicPlayerBar">
         <div class="now-playing-info magnetic" id="miniPlayerInfo">
             <div class="now-playing-art" id="albumArt"></div>
@@ -89,12 +86,65 @@
         <button id="closeFullPlayer" class="magnetic icon-btn-top-left"><i class="fa-solid fa-chevron-down"></i></button>
         <button id="settingsToggle" class="magnetic icon-btn-top-right"><i class="fa-solid fa-sliders"></i></button>
 
-        <!-- EQ Settings Panel -->
+        <!-- PRO AUDIO SETTINGS PANEL (Scrollable) -->
         <div id="settingsPanel" class="settings-panel">
-            <h3>Audio Settings</h3>
-            <div class="eq-slider"><span>Bass</span><input type="range" min="-10" max="10" value="0" id="bassRange"></div>
-            <div class="eq-slider"><span>Treble</span><input type="range" min="-10" max="10" value="0" id="trebleRange"></div>
-            <div class="eq-slider"><span>Vol</span><input type="range" min="0" max="1" step="0.1" value="1" id="volRange"></div>
+            <div class="settings-header">
+                <h3>Pro Audio Engine</h3>
+                <span class="badge-pro">DOLBY ATMOS</span>
+            </div>
+            
+            <!-- Basic Adjustments -->
+            <div class="settings-group">
+                <h4>🎚️ Equalizer & Tone</h4>
+                <div class="eq-slider"><span>Bass</span><input type="range" min="-10" max="10" value="0" id="bassRange" class="magnetic"></div>
+                <div class="eq-slider"><span>Mid</span><input type="range" min="-10" max="10" value="0" id="midRange" class="magnetic"></div>
+                <div class="eq-slider"><span>Treble</span><input type="range" min="-10" max="10" value="0" id="trebleRange" class="magnetic"></div>
+                <div class="eq-slider"><span>Balance</span><input type="range" min="-1" max="1" step="0.1" value="0" id="balanceRange" class="magnetic"></div>
+            </div>
+
+            <!-- Dolby / Spatial -->
+            <div class="settings-group">
+                <h4>🔊 Spatial & 3D Audio</h4>
+                <div class="toggle-row">
+                    <span>Dolby Atmos</span>
+                    <label class="switch"><input type="checkbox" id="atmosToggle"><span class="slider round"></span></label>
+                </div>
+                <div class="toggle-row">
+                    <span>3D Surround</span>
+                    <label class="switch"><input type="checkbox" id="surroundToggle"><span class="slider round"></span></label>
+                </div>
+                <div class="toggle-row">
+                    <span>Room Fill</span>
+                    <label class="switch"><input type="checkbox" id="roomFillToggle"><span class="slider round"></span></label>
+                </div>
+            </div>
+
+            <!-- Enhancements -->
+            <div class="settings-group">
+                <h4>🌀 Enhancements</h4>
+                <div class="toggle-row">
+                    <span>Vocal Boost</span>
+                    <label class="switch"><input type="checkbox" id="vocalBoostToggle"><span class="slider round"></span></label>
+                </div>
+                <div class="toggle-row">
+                    <span>Bass Enhancer</span>
+                    <label class="switch"><input type="checkbox" id="bassEnhanceToggle"><span class="slider round"></span></label>
+                </div>
+                <div class="toggle-row">
+                    <span>Lossless Audio</span>
+                    <label class="switch"><input type="checkbox" id="losslessToggle" checked><span class="slider round"></span></label>
+                </div>
+            </div>
+
+            <!-- Output Mode -->
+            <div class="settings-group">
+                <h4>🎧 Output Mode</h4>
+                <div class="chip-row">
+                    <button class="chip-small magnetic active">Headphones</button>
+                    <button class="chip-small magnetic">Speaker</button>
+                    <button class="chip-small magnetic">Bluetooth</button>
+                </div>
+            </div>
         </div>
 
         <div class="fp-content">
@@ -103,6 +153,11 @@
                 <div class="full-info">
                     <h2 id="fullTrackTitle">Select a Track</h2>
                     <p id="fullTrackArtist">...</p>
+                    <div class="audio-badges">
+                        <span class="badge">LOSSLESS</span>
+                        <span class="badge" id="atmosBadge" style="display:none;">ATMOS</span>
+                        <span class="badge">24-BIT</span>
+                    </div>
                 </div>
                 
                 <div class="progress-container">
@@ -111,30 +166,40 @@
                     <span class="time" id="fullTotalTime">0:00</span>
                 </div>
 
+                <!-- Extended Controls Row 1 -->
                 <div class="extended-controls">
-                    <button class="btn-control magnetic" id="btnShuffle"><i class="fa-solid fa-shuffle"></i></button>
-                    <button class="btn-control magnetic" id="btnSeekBack"><i class="fa-solid fa-rotate-left"></i> 10s</button>
-                    <button class="btn-control magnetic" id="btnSeekFwd"><i class="fa-solid fa-rotate-right"></i> 10s</button>
-                    <button class="btn-control magnetic" id="btnRepeat"><i class="fa-solid fa-repeat"></i></button>
+                    <button class="btn-control magnetic" id="btnShuffle" title="Shuffle"><i class="fa-solid fa-shuffle"></i></button>
+                    <button class="btn-control magnetic" id="btnSeekBack" title="Rewind 10s"><i class="fa-solid fa-rotate-left"></i></button>
+                    <button class="btn-control magnetic" id="btnSeekFwd" title="Forward 10s"><i class="fa-solid fa-rotate-right"></i></button>
+                    <button class="btn-control magnetic" id="btnRepeat" title="Repeat"><i class="fa-solid fa-repeat"></i></button>
                 </div>
 
+                <!-- Main Transport -->
                 <div class="main-controls">
                     <button class="btn-control magnetic big-icon" id="fullPrevBtn"><i class="fa-solid fa-backward-step"></i></button>
                     <button class="btn-play magnetic big-play" id="fullPlayBtn"><i class="fa-solid fa-play"></i></button>
                     <button class="btn-control magnetic big-icon" id="fullNextBtn"><i class="fa-solid fa-forward-step"></i></button>
                 </div>
 
+                <!-- Extended Controls Row 2 -->
                 <div class="extended-controls bottom-actions">
-                    <button class="btn-control magnetic" id="btnParty" title="Party Light"><i class="fa-solid fa-flashlight"></i></button>
-                    <button class="btn-control magnetic" title="Like"><i class="fa-regular fa-heart"></i></button>
-                    <button class="btn-control magnetic" title="Download"><i class="fa-solid fa-download"></i></button>
+                    <button class="btn-control magnetic" id="btnParty" title="Party Light Mode 🔦"><i class="fa-solid fa-bolt"></i></button>
+                    <button class="btn-control magnetic" title="Favorites"><i class="fa-regular fa-heart"></i></button>
+                    <button class="btn-control magnetic" title="Playlist"><i class="fa-solid fa-list-ul"></i></button>
+                    <button class="btn-control magnetic" title="Share"><i class="fa-solid fa-share-nodes"></i></button>
+                </div>
+                
+                <!-- Volume Slider -->
+                <div class="volume-slider-container">
+                    <i class="fa-solid fa-volume-low"></i>
+                    <input type="range" id="volRange" min="0" max="1" step="0.01" value="1" class="magnetic">
+                    <i class="fa-solid fa-volume-high"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Hidden Audio Element for Playback -->
-    <audio id="audioPlayer" crossorigin="anonymous" style="display:none;"></audio>
+    <audio id="audioPlayer" style="display:none;" crossorigin="anonymous"></audio>
     <script src="script.js"></script>
 </body>
 </html>
