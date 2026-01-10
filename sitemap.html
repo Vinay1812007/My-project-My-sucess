@@ -1,68 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Beats - Sitemap</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Sitemap - SIRIMILLA VINAY</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="cursor-dot" id="cursorDot"></div>
-    <div class="cursor-outline" id="cursorOutline"></div>
-    <canvas id="smokeCanvas"></canvas>
 
-    <nav class="glass-panel sticky-nav">
+    <div id="cursor"></div>
+    <div class="full-bg-overlay"></div>
+    <canvas id="bgCanvas"></canvas>
+
+    <nav>
         <div class="nav-container">
-            <div class="logo pulse-logo"><a href="/" style="text-decoration:none; color:inherit;">NEON<span class="highlight">BEATS</span></a></div>
+            <a href="index.html" class="logo-container magnetic">
+                <div class="logo-text">SIRIMILLA VINAY</div>
+            </a>
             <div class="nav-right">
-                 <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+                <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
             </div>
         </div>
     </nav>
 
-    <div class="landing-container fade-in-up" style="height: auto; min-height: 80vh; padding-top: 100px;">
-        <div class="glass-panel" style="padding: 40px; max-width: 600px; width: 100%; text-align: left;">
-            <h2 style="margin-bottom: 20px; text-align: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">
-                <i class="fa-solid fa-sitemap" style="color: var(--neon-main);"></i> Site Navigation
-            </h2>
-            
-            <div style="display: flex; flex-direction: column; gap: 15px;">
-                <a href="/" class="history-item magnetic">
-                    <div class="history-icon"><i class="fa-solid fa-house"></i></div>
-                    <div class="history-info">
-                        <div class="history-link" style="font-size: 1.1rem; font-weight: bold;">Home</div>
-                        <div class="history-date">Main Landing Page</div>
-                    </div>
-                </a>
-
-                <a href="/music" class="history-item magnetic">
-                    <div class="history-icon"><i class="fa-solid fa-music"></i></div>
-                    <div class="history-info">
-                        <div class="history-link" style="font-size: 1.1rem; font-weight: bold;">Music Player</div>
-                        <div class="history-date">Stream & Search Songs</div>
-                    </div>
-                </a>
-
-                <a href="/videodownloader" class="history-item magnetic">
-                    <div class="history-icon"><i class="fa-solid fa-video"></i></div>
-                    <div class="history-info">
-                        <div class="history-link" style="font-size: 1.1rem; font-weight: bold;">Video Downloader</div>
-                        <div class="history-date">Download from YT, Insta, TikTok</div>
-                    </div>
-                </a>
-
-                <a href="/sitemap.xml" class="history-item magnetic" target="_blank">
-                    <div class="history-icon"><i class="fa-solid fa-code"></i></div>
-                    <div class="history-info">
-                        <div class="history-link" style="font-size: 1.1rem; font-weight: bold;">XML Sitemap</div>
-                        <div class="history-date">For Search Engines</div>
-                    </div>
-                </a>
-            </div>
+    <main class="content-section centered-view">
+        <div class="glass-panel sitemap-panel">
+            <h2>Site Navigation</h2>
+            <ul class="sitemap-list">
+                <li><a href="index.html" class="magnetic">Home</a></li>
+                <li><a href="music.html" class="magnetic">Music Player</a></li>
+                <li><a href="videodownloader.html" class="magnetic">Video Downloader</a></li>
+                <li><a href="sitemap.html" class="magnetic">Sitemap</a></li>
+            </ul>
         </div>
-    </div>
+    </main>
+
     <script src="script.js"></script>
 </body>
 </html>
