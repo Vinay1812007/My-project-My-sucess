@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Neon Beats - Music</title>
     <link rel="canonical" href="https://www.sirimillavinay.online/music">
-    
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
@@ -17,23 +16,19 @@
     <div class="full-bg-blur"></div>
     <canvas id="smokeCanvas"></canvas>
     <canvas id="visualizerCanvas"></canvas>
-    
-    <div class="cursor-dot" id="cursorDot"></div>
-    <div class="cursor-outline" id="cursorOutline"><i class="fa-solid fa-music"></i></div>
-    
     <div id="partyOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:50; opacity:0; mix-blend-mode:overlay; background:white;"></div>
 
     <div class="full-player" id="fullPlayer">
-        <button class="btn-close-full magnetic" id="closeFullPlayer"><i class="fa-solid fa-chevron-down"></i></button>
+        <button class="btn-close-full" id="closeFullPlayer" style="position:absolute; top:30px; left:30px; background:none; border:none; color:white; font-size:2rem; cursor:pointer;"><i class="fa-solid fa-chevron-down"></i></button>
         <div class="full-art-container"><div class="full-art" id="fullAlbumArt"></div></div>
         <div class="full-info">
             <h2 id="fullTrackTitle">Select a Track</h2>
             <p id="fullTrackArtist">...</p>
         </div>
         <div class="full-controls">
-            <button class="btn-control magnetic" id="fullPrevBtn"><i class="fa-solid fa-backward-step"></i></button>
-            <button class="btn-play-large magnetic" id="fullPlayBtn"><i class="fa-solid fa-play" id="fullPlayIcon"></i></button>
-            <button class="btn-control magnetic" id="fullNextBtn"><i class="fa-solid fa-forward-step"></i></button>
+            <button class="btn-control" id="fullPrevBtn"><i class="fa-solid fa-backward-step"></i></button>
+            <button class="btn-play-large" id="fullPlayBtn"><i class="fa-solid fa-play" id="fullPlayIcon"></i></button>
+            <button class="btn-control" id="fullNextBtn"><i class="fa-solid fa-forward-step"></i></button>
         </div>
         <div class="full-extra">
              <div class="progress-container" style="width: 80%; margin-top: 20px;">
@@ -46,38 +41,37 @@
 
     <div class="lyrics-overlay" id="lyricsPanel">
         <div class="lyrics-content">
-            <div class="lyrics-header">
+            <div class="lyrics-header" style="display:flex; justify-content:space-between; margin-bottom:20px;">
                 <h3><i class="fa-solid fa-microphone-lines"></i> Synced Lyrics</h3>
-                <button class="btn-control magnetic" id="closeLyrics" style="color:var(--neon-main);"><i class="fa-solid fa-xmark"></i></button>
+                <button class="btn-control" id="closeLyrics"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="lyrics-body" id="lyricsText"></div>
         </div>
     </div>
 
-    <nav class="glass-panel sticky-nav">
+    <nav>
         <div class="nav-container">
-            <div class="logo pulse-logo">NEON<span class="highlight">BEATS</span></div>
-            <div class="nav-right">
+            <div class="logo">NEON<span class="highlight">BEATS</span></div>
+            <div class="nav-right" style="display:flex; gap:10px;">
                 <div class="tab-switcher">
-                    <a href="/music" class="tab-btn active magnetic">Music</a>
-                    <a href="/videodownloader" class="tab-btn magnetic">Video DL</a>
-                    <button class="tab-btn magnetic" id="openLibraryBtn"><i class="fa-solid fa-bookmark"></i></button>
+                    <a href="/music" class="tab-btn active">Music</a>
+                    <a href="/videodownloader" class="tab-btn">Video DL</a>
                 </div>
-                 <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+                 <button class="theme-btn" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
             </div>
         </div>
     </nav>
 
     <main class="active-section">
-        <div class="search-container fade-in-up">
+        <div class="search-container">
             <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass" style="color:var(--text-secondary)"></i>
                 <input type="text" id="searchInput" placeholder="Search songs...">
-                <button id="voiceBtn" class="voice-btn magnetic" title="Voice Search"><i class="fa-solid fa-microphone"></i></button>
+                <button id="voiceBtn" class="voice-btn" title="Voice Search"><i class="fa-solid fa-microphone"></i></button>
             </div>
         </div>
 
-        <div class="mood-container fade-in-up">
+        <div class="mood-container">
             <button class="mood-chip active" onclick="searchMood('Trending')">🔥 Trending</button>
             <button class="mood-chip" onclick="searchMood('Lo-Fi')">🌧️ Lo-Fi</button>
             <button class="mood-chip" onclick="searchMood('Gym')">💪 Gym</button>
@@ -89,7 +83,7 @@
             <button class="mood-chip" onclick="searchMood('Gaming')">🕹️ Gaming</button>
         </div>
 
-        <div class="lang-container fade-in-up">
+        <div class="lang-container">
             <button class="lang-chip active" onclick="setLanguage('All')">All</button>
             <button class="lang-chip" onclick="setLanguage('Telugu')">Telugu</button>
             <button class="lang-chip" onclick="setLanguage('Hindi')">Hindi</button>
@@ -99,27 +93,27 @@
         </div>
 
         <div class="horizontal-scroll-wrapper">
-            <h2 class="section-title fade-in-up" id="gridTitle" style="margin-bottom:20px; font-weight:800;">Results</h2>
+            <h2 class="section-title" id="gridTitle" style="margin-bottom:20px; font-weight:800;">Results</h2>
             <div class="music-grid" id="musicGrid"><div class="loader hidden" id="loader"></div></div>
         </div>
     </main>
 
     <div class="player-bar" id="musicPlayerBar">
         <div class="now-playing-info">
-            <div class="now-playing-art magnetic" id="albumArt"></div>
+            <div class="now-playing-art" id="albumArt"></div>
             <div class="track-details"><span id="trackTitle">Select a track</span><span id="trackArtist">...</span></div>
-            <button class="action-btn magnetic" id="likeBtn"><i class="fa-regular fa-heart"></i></button>
+            <button class="action-btn" id="youtubeBtn" style="background:none; border:none; color:red; font-size:1.5rem; cursor:pointer;"><i class="fa-brands fa-youtube"></i></button>
         </div>
 
         <div class="player-center">
             <div class="controls">
-                <button class="btn-control magnetic" id="dolbyBtn" title="Dolby Atmos 3D" style="font-weight:bold; font-size:0.8rem; border:1px solid currentColor; border-radius:4px; padding:2px 6px;">3D</button>
-                <button class="btn-control magnetic" id="partyBtn" title="Party Light"><i class="fa-solid fa-bolt"></i></button>
-                <button class="btn-control magnetic" id="speedBtn" title="Speed">1.0x</button>
+                <button class="btn-control" id="dolbyBtn" title="Dolby Atmos 3D"><i class="fa-solid fa-cube"></i></button>
+                <button class="btn-control" id="partyBtn" title="Party Light"><i class="fa-solid fa-bolt"></i></button>
+                <button class="btn-control" id="speedBtn" title="Speed">1x</button>
                 
-                <button class="btn-control magnetic" id="prevBtn"><i class="fa-solid fa-backward-step"></i></button>
-                <button class="btn-play magnetic" id="playBtn"><i class="fa-solid fa-play" id="playIcon"></i></button>
-                <button class="btn-control magnetic" id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
+                <button class="btn-control" id="prevBtn"><i class="fa-solid fa-backward-step"></i></button>
+                <button class="btn-play" id="playBtn"><i class="fa-solid fa-play" id="playIcon"></i></button>
+                <button class="btn-control" id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
             </div>
             <div class="progress-container">
                 <span class="time" id="currTime">0:00</span>
@@ -129,9 +123,9 @@
         </div>
 
         <div class="volume-control">
-            <button class="btn-control magnetic" id="lyricsBtn"><i class="fa-solid fa-microphone-lines"></i></button>
-            <button class="btn-control magnetic" id="sleepBtn" title="Sleep Timer"><i class="fa-solid fa-stopwatch"></i></button>
-            <button class="btn-control magnetic" id="downloadBtn" title="Download Song"><i class="fa-solid fa-download"></i></button>
+            <button class="btn-control" id="lyricsBtn"><i class="fa-solid fa-microphone-lines"></i></button>
+            <button class="btn-control" id="sleepBtn"><i class="fa-solid fa-stopwatch"></i></button>
+            <button class="btn-control" id="downloadBtn"><i class="fa-solid fa-download"></i></button>
         </div>
     </div>
 
