@@ -1,69 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Beats - Video DL</title>
-    <link rel="canonical" href="https://www.sirimillavinay.online/videodownloader">
-    <link rel="stylesheet" href="style.css">
+    <title>Video Downloader - SIRIMILLA VINAY</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="full-bg-blur"></div>
-    <canvas id="smokeCanvas"></canvas>
+    <div id="cursor"></div>
+    <div class="full-bg-overlay"></div>
+    <canvas id="bgCanvas"></canvas>
 
     <nav>
         <div class="nav-container">
-            <div class="logo">NEON<span class="highlight">BEATS</span></div>
-            <div class="nav-right" style="display:flex; gap:10px;">
+            <a href="index.html" class="logo-container magnetic">
+                <div class="logo-text">SIRIMILLA VINAY</div>
+            </a>
+            <div class="nav-right">
                 <div class="tab-switcher">
-                    <a href="/music" class="tab-btn">Music</a>
-                    <a href="/videodownloader" class="tab-btn active">Video DL</a>
+                    <a href="music.html" class="tab-btn magnetic">Music</a>
+                    <a href="videodownloader.html" class="tab-btn active magnetic">DL</a>
                 </div>
-                 <button class="theme-btn" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+                <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
             </div>
         </div>
     </nav>
 
-    <main class="active-section">
-        <div class="video-dl-container">
-            <div class="dl-header">
-                <h2><i class="fa-solid fa-bolt" style="color:var(--neon-main);"></i> Ultimate Downloader</h2>
-                <div class="platform-icons">
-                    <i class="fa-brands fa-youtube" title="YouTube"></i>
-                    <i class="fa-brands fa-instagram" title="Instagram"></i>
-                    <i class="fa-brands fa-tiktok" title="TikTok"></i>
-                    <i class="fa-brands fa-twitter" title="X"></i>
-                </div>
+    <main class="content-section centered-view">
+        <div class="video-dl-container glass-panel">
+            <h2 class="page-title">Universal DL</h2>
+            <div class="platform-icons">
+                <i class="fa-brands fa-youtube"></i>
+                <i class="fa-brands fa-instagram"></i>
+                <i class="fa-brands fa-tiktok"></i>
+                <i class="fa-brands fa-twitter"></i>
             </div>
 
             <div class="dl-input-group">
-                <button class="paste-btn" id="pasteBtn" title="Paste" style="background:none; border:none; color:var(--text-secondary); cursor:pointer;"><i class="fa-regular fa-clipboard"></i></button>
-                <input type="text" id="videoUrl" placeholder="Paste link here...">
-                <button class="magnetic" id="fetchVideoBtn">Fetch</button>
+                <button id="pasteBtn" class="magnetic icon-only" title="Paste"><i class="fa-regular fa-clipboard"></i></button>
+                <input type="text" id="videoUrl" placeholder="Paste video link here..." class="magnetic">
+                <button id="fetchVideoBtn" class="magnetic icon-only" title="Fetch"><i class="fa-solid fa-arrow-right"></i></button>
             </div>
 
+            <div id="videoLoader" class="loader hidden"></div>
+
             <div id="dlResult" class="dl-result hidden">
-                <div class="video-preview-box">
-                    <img id="thumbPreview" src="" alt="Thumbnail" class="preview-img" style="width:100%;">
-                    <div class="video-meta">
-                        <h3 id="vidTitle">Video Found</h3>
-                        <span id="vidPlatform" class="platform-badge">Detected</span>
+                <div class="preview-card">
+                    <img id="thumbPreview" src="" alt="Thumbnail">
+                    <div class="meta">
+                        <h3 id="vidTitle">Video Title</h3>
+                        <span class="badge">HD</span>
                     </div>
                 </div>
-                <div class="format-grid">
-                    <button class="format-chip active">1080p</button>
-                    <button class="format-chip">720p</button>
-                    <button class="format-chip">MP3</button>
-                </div>
-                <button class="btn-download" id="finalDownloadBtn">
-                    <i class="fa-solid fa-download"></i> Start Download
-                </button>
+                <button class="action-btn magnetic full-width" id="downloadActionBtn">Download MP4</button>
             </div>
         </div>
     </main>
+
     <script src="script.js"></script>
 </body>
 </html>
