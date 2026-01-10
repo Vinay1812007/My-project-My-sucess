@@ -64,7 +64,7 @@ nav { position: sticky; top: 0; z-index: 500; padding: 1.5rem 2rem; background: 
 .tab-btn.active { background: var(--text-primary); color: var(--bg-color); }
 .theme-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-primary); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: none; }
 
-/* --- BUTTON ANIMATIONS (FIXED) --- */
+/* --- BUTTON ANIMATIONS --- */
 button, .landing-btn, .chip, .tab-btn { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
 button:active, .landing-btn:active, .chip:active, .tab-btn:active { transform: scale(0.92); filter: brightness(0.8); }
 .btn-play:active, .btn-control:active { transform: scale(0.85); color: var(--accent); }
@@ -125,7 +125,7 @@ button:active, .landing-btn:active, .chip:active, .tab-btn:active { transform: s
 .full-player.active { transform: translateY(0); opacity: 1; }
 .fp-content { width: 100%; max-width: 600px; padding: 40px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; max-height: 100vh; }
 .fp-main { width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center; padding-bottom: 100px; }
-.full-art-container { width: 100%; aspect-ratio: 1; max-width: 320px; border-radius: 24px; overflow: hidden; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 40px 100px rgba(0,0,0,0.6); }
+.full-art-container { width: 100%; aspect-ratio: 1; max-width: 350px; border-radius: 24px; overflow: hidden; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 40px 100px rgba(0,0,0,0.6); }
 .full-art { width: 100%; height: 100%; background-size: cover; background-position: center; }
 .full-info h2 { font-size: 2rem; margin-bottom: 5px; font-weight: 800; }
 .icon-btn-top-left { position: absolute; top: 30px; left: 30px; background: none; border: none; color: white; font-size: 1.5rem; z-index: 1003; cursor: none; }
@@ -136,7 +136,7 @@ input[type=range] { width: 100%; height: 6px; background: rgba(255,255,255,0.15)
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: white; border-radius: 50%; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
 
 .extended-controls { display: flex; gap: 30px; margin-bottom: 20px; width: 100%; justify-content: center; }
-.main-controls { display: flex; align-items: center; gap: 40px; margin: 20px 0; }
+.main-controls { display: flex; align-items: center; gap: 40px; margin: 30px 0; }
 .big-icon { font-size: 2rem; }
 .big-play { width: 80px; height: 80px; font-size: 2.5rem; }
 .bottom-actions { margin-top: 20px; }
