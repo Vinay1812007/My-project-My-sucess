@@ -4,9 +4,7 @@ const state = {
     audioCtx: null,
     analyser: null,
     source: null,
-    filters: { bass: null, mid: null, treble: null },
-    panner: null, // For Spatial/Balance
-    convolver: null, // For 3D/Room Effect
+    filters: { bass: null, treble: null },
     songQueue: [],
     currentIndex: 0,
     isPartyMode: false,
@@ -60,10 +58,9 @@ document.addEventListener('DOMContentLoaded', () => {
         setupMusicPlayer();
     } else if (document.getElementById('videoUrl')) {
         setupDownloader();
-    } else if (document.getElementById('aiPrompt')) {
+    } else if (document.getElementById('chatContainer')) {
         setupAI();
     } else {
-        // Index/Home animations could go here
         initDiscoVisualizer(true); 
     }
 });
@@ -91,7 +88,6 @@ function setupMusicPlayer() {
     }
     if (searchBtn) searchBtn.onclick = () => fetchSongs(searchInput.value || 'Trending');
 
-    // Chips
     document.querySelectorAll('.chip').forEach(chip => {
         chip.onclick = () => {
             document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
@@ -108,10 +104,7 @@ function setupMusicPlayer() {
         };
     }
 
-    // Controls
     setupControls();
-    
-    // Load default
     fetchSongs('Latest India Hits');
 }
 
@@ -122,7 +115,6 @@ async function fetchSongs(query) {
     
     if (!grid) return;
 
-    // Reset grid
     grid.innerHTML = ''; 
     if (loader) {
         grid.appendChild(loader); 
@@ -130,7 +122,6 @@ async function fetchSongs(query) {
     }
 
     try {
-        // iTunes API
         const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=30&country=IN`);
         const data = await res.json();
         
@@ -171,7 +162,6 @@ async function fetchSongs(query) {
 function playTrack(song) {
     if (!song) return;
     
-    // Update UI Helpers
     const setText = (id, txt) => { const el = document.getElementById(id); if(el) el.innerText = txt; };
     const setBg = (id, url) => { const el = document.getElementById(id); if(el) el.style.backgroundImage = `url('${url}')`; };
 
@@ -185,7 +175,6 @@ function playTrack(song) {
     const playerBar = document.getElementById('musicPlayerBar');
     if (playerBar) playerBar.classList.add('active');
 
-    // Audio Color Hash
     let str = song.trackName + song.artistName;
     let hash = 0; for (let i=0; i<str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
     state.colorHash = Math.abs(hash % 100) / 100;
@@ -212,7 +201,7 @@ function updatePlayIcons(isPlaying) {
     const playBtn = document.getElementById('playBtn');
     if (playBtn) playBtn.innerHTML = `<i class="fa-solid ${icon}"></i>`;
     const fullPlayBtn = document.getElementById('fullPlayBtn');
-    if(fullPlayBtn) fullPlayBtn.innerHTML = `<i class="fa-solid ${icon}"></i>`;
+    if (fullPlayBtn) fullPlayBtn.innerHTML = `<i class="fa-solid ${icon}"></i>`;
 }
 
 function setupControls() {
@@ -239,56 +228,24 @@ function setupControls() {
 
     audio.onended = next;
 
-    // Full Screen Toggle
     bindClick('miniPlayerInfo', () => document.getElementById('fullPlayer').classList.add('active'));
     bindClick('expandBtn', () => document.getElementById('fullPlayer').classList.add('active'));
     bindClick('closeFullPlayer', () => document.getElementById('fullPlayer').classList.remove('active'));
 
-    // Settings Toggle
     bindClick('settingsToggle', () => document.getElementById('settingsPanel').classList.toggle('active'));
     
-    // EQ & Audio Adjustments (Inputs)
     const bindInput = (id, fn) => { const el = document.getElementById(id); if(el) el.oninput = fn; };
-    
     bindInput('bassRange', (e) => setFilter('bass', e.target.value));
-    bindInput('midRange', (e) => setFilter('mid', e.target.value));
     bindInput('trebleRange', (e) => setFilter('treble', e.target.value));
-    bindInput('balanceRange', (e) => {
-        if(state.panner) state.panner.pan.value = parseFloat(e.target.value);
-    });
     bindInput('volRange', (e) => audio.volume = e.target.value);
 
-    // Feature Toggles (Checkboxes)
-    const bindCheck = (id, fn) => { const el = document.getElementById(id); if(el) el.onchange = fn; };
-    
-    // Simulate Atmos (Spatial Widening + Reverb)
-    bindCheck('atmosToggle', (e) => {
-        const badge = document.getElementById('atmosBadge');
-        if(badge) badge.style.display = e.target.checked ? 'inline-block' : 'none';
-        alert(e.target.checked ? "Dolby Atmos Simulation: ON" : "Dolby Atmos: OFF");
-    });
-
-    // Simulate 3D/Surround (Reverb)
-    bindCheck('surroundToggle', (e) => alert("3D Surround: " + (e.target.checked ? "ON" : "OFF")));
-    
-    // Simulate Bass Enhance
-    bindCheck('bassEnhanceToggle', (e) => {
-        const val = e.target.checked ? 10 : 0; // Boost bass EQ
-        if(document.getElementById('bassRange')) document.getElementById('bassRange').value = val;
-        setFilter('bass', val);
-    });
-
-    // Seek / Extra
     bindClick('btnSeekBack', () => audio.currentTime -= 10);
     bindClick('btnSeekFwd', () => audio.currentTime += 10);
     bindClick('btnParty', () => {
         state.isPartyMode = !state.isPartyMode;
-        const overlay = document.getElementById('partyOverlay');
-        if(!state.isPartyMode && overlay) overlay.style.opacity = 0;
-        alert(state.isPartyMode ? "Party Mode ON! (Flashing Lights)" : "Party Mode OFF");
+        alert(state.isPartyMode ? "Party Mode ON!" : "Party Mode OFF");
     });
 
-    // Progress
     const pb = document.getElementById('fullProgressBar');
     audio.ontimeupdate = () => {
         if(audio.duration && pb) {
@@ -304,7 +261,6 @@ function setupControls() {
     if(pb) pb.oninput = (e) => audio.currentTime = (e.target.value/100)*audio.duration;
 }
 
-// --- AUDIO ENGINE ---
 function initAudioEngine() {
     if(state.audioCtx) { if(state.audioCtx.state === 'suspended') state.audioCtx.resume(); return; }
     
@@ -313,33 +269,20 @@ function initAudioEngine() {
     state.analyser = state.audioCtx.createAnalyser();
     state.analyser.fftSize = 256;
     
-    if (state.audio) {
-        state.source = state.audioCtx.createMediaElementSource(state.audio);
-        
-        // Filters
-        state.filters.bass = state.audioCtx.createBiquadFilter();
-        state.filters.bass.type = "lowshelf";
-        state.filters.bass.frequency.value = 200;
+    state.source = state.audioCtx.createMediaElementSource(state.audio);
+    
+    state.filters.bass = state.audioCtx.createBiquadFilter();
+    state.filters.bass.type = "lowshelf";
+    state.filters.bass.frequency.value = 200;
 
-        state.filters.mid = state.audioCtx.createBiquadFilter();
-        state.filters.mid.type = "peaking";
-        state.filters.mid.frequency.value = 1000;
+    state.filters.treble = state.audioCtx.createBiquadFilter();
+    state.filters.treble.type = "highshelf";
+    state.filters.treble.frequency.value = 2000;
 
-        state.filters.treble = state.audioCtx.createBiquadFilter();
-        state.filters.treble.type = "highshelf";
-        state.filters.treble.frequency.value = 3000;
-
-        // Panner (Balance/Spatial)
-        state.panner = state.audioCtx.createStereoPanner();
-
-        // Connect Chain: Source -> Bass -> Mid -> Treble -> Panner -> Analyser -> Dest
-        state.source.connect(state.filters.bass);
-        state.filters.bass.connect(state.filters.mid);
-        state.filters.mid.connect(state.filters.treble);
-        state.filters.treble.connect(state.panner);
-        state.panner.connect(state.analyser);
-        state.analyser.connect(state.audioCtx.destination);
-    }
+    state.source.connect(state.filters.bass);
+    state.filters.bass.connect(state.filters.treble);
+    state.filters.treble.connect(state.analyser);
+    state.analyser.connect(state.audioCtx.destination);
 
     initDiscoVisualizer();
 }
@@ -348,7 +291,6 @@ function setFilter(type, val) {
     if(state.filters[type]) state.filters[type].gain.value = val * 2; 
 }
 
-// --- VISUALIZER ---
 function initDiscoVisualizer(autoAnimate = false) {
     const canvas = document.getElementById('bgCanvas');
     if(!canvas) return;
@@ -369,7 +311,6 @@ function initDiscoVisualizer(autoAnimate = false) {
             for(let i=0; i<10; i++) bass += data[i]; bass /= 10;
             for(let i=10; i<50; i++) mids += data[i]; mids /= 40;
         } else {
-            // Idle animation
             bass = 100 + Math.sin(Date.now() * 0.002) * 50;
             mids = 100 + Math.cos(Date.now() * 0.003) * 50;
         }
@@ -391,14 +332,12 @@ function initDiscoVisualizer(autoAnimate = false) {
         
         const baseHue = (state.colorHash * 360) + (bass/5);
         
-        // Gradient BG (Neon Bass)
         const grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width);
         grad.addColorStop(0, `hsla(${baseHue}, 100%, 50%, ${bass/300})`);
         grad.addColorStop(1, 'transparent');
         ctx.fillStyle = grad;
         ctx.fillRect(0,0,canvas.width,canvas.height);
 
-        // Vocal/Mid Beams
         for(let i=0; i<5; i++) {
             const t = Date.now() * 0.001;
             const x = (Math.sin(t + i) * 0.5 + 0.5) * canvas.width;
@@ -426,7 +365,6 @@ function setupDownloader() {
             if(loader) loader.classList.remove('hidden');
             if(res) res.classList.add('hidden');
             
-            // Mock API delay
             setTimeout(() => {
                 if(loader) loader.classList.add('hidden');
                 if(res) res.classList.remove('hidden');
@@ -446,7 +384,7 @@ function setupDownloader() {
                 const text = await navigator.clipboard.readText();
                 const input = document.getElementById('videoUrl');
                 if(input) input.value = text;
-            } catch(e) { alert("Clipboard permission denied or not supported."); }
+            } catch(e) { alert("Clipboard permission denied"); }
         };
     }
     
@@ -454,38 +392,71 @@ function setupDownloader() {
     if(dlBtn) dlBtn.onclick = () => alert("Starting Download...");
 }
 
-// --- AI PAGE ---
+// --- AI CHAT LOGIC ---
 function setupAI() {
     const btn = document.getElementById('generateBtn');
-    if(btn) {
-        btn.onclick = async () => {
-            const prompt = document.getElementById('aiPrompt').value;
-            if(!prompt) return alert("Enter a prompt");
+    const input = document.getElementById('aiPrompt');
+    const container = document.getElementById('chatContainer');
+
+    function appendMessage(role, text) {
+        const div = document.createElement('div');
+        div.className = `message ${role}`;
+        
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        avatar.innerHTML = role === 'user' ? '<i class="fa-solid fa-user"></i>' : '<i class="fa-solid fa-robot"></i>';
+        
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.innerText = text;
+        
+        if (role === 'user') {
+            div.appendChild(bubble);
+            div.appendChild(avatar);
+        } else {
+            div.appendChild(avatar);
+            div.appendChild(bubble);
+        }
+        
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+        return bubble;
+    }
+
+    async function sendRequest() {
+        const text = input.value.trim();
+        if(!text) return;
+        
+        appendMessage('user', text);
+        input.value = '';
+        
+        // Show typing
+        const loadingBubble = appendMessage('ai', 'Thinking...');
+        
+        try {
+            const response = await fetch('/api/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: text })
+            });
+            const data = await response.json();
             
-            const loader = document.getElementById('aiLoader');
-            const res = document.getElementById('aiResult');
-            const output = document.getElementById('generatedText');
-            
-            if(loader) loader.classList.remove('hidden');
-            if(res) res.classList.add('hidden');
-            
-            try {
-                const response = await fetch('/api/generate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt })
-                });
-                const data = await response.json();
-                
-                if(loader) loader.classList.add('hidden');
-                if(res) res.classList.remove('hidden');
-                
-                if(output) output.innerText = data.result || "No response generated.";
-            } catch(e) {
-                console.error(e);
-                alert("AI Error. Check API Key.");
-                if(loader) loader.classList.add('hidden');
+            // Replace loading text with result or error
+            if (data.error) {
+                loadingBubble.innerText = "Error: " + data.error;
+            } else {
+                loadingBubble.innerText = data.result;
             }
-        };
+        } catch(e) {
+            console.error(e);
+            loadingBubble.innerText = "Connection error.";
+        }
+    }
+
+    if(btn) btn.onclick = sendRequest;
+    if(input) {
+        input.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') sendRequest();
+        });
     }
 }
