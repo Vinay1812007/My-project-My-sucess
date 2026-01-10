@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI Studio - SIRIMILLA VINAY</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="cursor"></div>
+    <div class="full-bg-overlay"></div>
+    <canvas id="bgCanvas"></canvas>
+
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo-container magnetic">
+                <div class="logo-text">SIRIMILLA VINAY</div>
+            </a>
+            <div class="nav-right">
+                <div class="tab-switcher">
+                    <a href="music.html" class="tab-btn magnetic">Music</a>
+                    <a href="videodownloader.html" class="tab-btn magnetic">DL</a>
+                    <a href="ai.html" class="tab-btn active magnetic">AI</a>
+                </div>
+                <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="content-section centered-view">
+        <div class="glass-panel video-dl-container">
+            <h2 class="page-title">AI Studio</h2>
+            <p class="hero-subtitle" style="margin-bottom: 30px;">Generate Music & Visuals (Beta)</p>
+            
+            <div class="platform-icons">
+                <i class="fa-solid fa-robot"></i>
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <i class="fa-solid fa-brain"></i>
+            </div>
+
+            <div class="dl-input-group">
+                <input type="text" id="aiPrompt" placeholder="Describe what you want to create..." class="magnetic">
+                <button id="generateBtn" class="magnetic icon-only" title="Generate"><i class="fa-solid fa-bolt"></i></button>
+            </div>
+
+            <div id="aiLoader" class="loader hidden"></div>
+
+            <div id="aiResult" class="dl-result hidden">
+                <div class="preview-card" style="background: linear-gradient(45deg, #1a1a1a, #000);">
+                    <div style="height: 200px; display: flex; align-items: center; justify-content: center; color: var(--accent);">
+                        <i class="fa-solid fa-wave-square fa-3x"></i>
+                    </div>
+                    <div class="meta">
+                        <h3 id="generatedTitle">Generated Content</h3>
+                        <span class="badge">AI GENERATED</span>
+                    </div>
+                </div>
+                <div class="extended-controls" style="margin-top: 20px;">
+                    <button class="action-btn magnetic" style="margin: 0;" onclick="alert('Saving to Library...')">Save</button>
+                    <button class="action-btn magnetic" style="margin: 0; background: transparent; border: 1px solid white; color: white;" onclick="alert('Sharing...')">Share</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
