@@ -19,21 +19,26 @@ export default async function handler(req, res) {
             },
             body: JSON.stringify({
                 messages: [{ role: 'user', content: prompt }],
-                model: 'llama3-8b-8192',
-                temperature: 0.7
+                // UPDATED MODEL: llama3-8b-8192 is deprecated.
+                // Using llama-3.3-70b-versatile for better performance.
+                model: 'llama-3.3-70b-versatile',
+                temperature: 0.7,
+                max_tokens: 1024
             })
         });
 
         const data = await response.json();
         
         if (data.error) {
+            console.error("Groq API Error:", data.error);
             return res.status(500).json({ error: data.error.message });
         }
 
-        const result = data.choices?.[0]?.message?.content || "No AI response.";
+        const result = data.choices?.[0]?.message?.content || "No response received from AI.";
         return res.status(200).json({ result });
 
     } catch (error) {
-        return res.status(500).json({ error: 'Failed to connect to Groq API.' });
+        console.error("Server Error:", error);
+        return res.status(500).json({ error: 'Failed to connect to AI service.' });
     }
 }
