@@ -1,9 +1,9 @@
-// --- CONFIG & STATE ---
+// --- STATE & CONFIG ---
 const state = {
     audio: null,
     audioCtx: null,
     analyser: null,
-    songQueue: [],
+    queue: [],
     currentIndex: 0,
     isPlaying: false
 };
@@ -12,17 +12,22 @@ const state = {
 document.addEventListener('DOMContentLoaded', () => {
     setupTheme();
     setupCursor();
-    createSnow();        // START SNOW
-    setupScrollAnim();   // START SCROLL EFFECTS
-    setupVisualizer();   // START BG ANIMATION
+    createSnow();        // Background Snow
+    setupVisualizer();   // Background Audio Vis
 
-    // Page Specifics
-    if (document.getElementById('musicGrid')) setupMusicPlayer();
-    if (document.getElementById('chatContainer')) setupAI();
-    if (document.getElementById('videoUrl')) setupDownloader();
+    // Check which page we are on
+    if (document.getElementById('musicGrid')) {
+        setupMusicPlayer();
+    } 
+    else if (document.getElementById('chatContainer')) {
+        setupAI();
+    } 
+    else if (document.getElementById('videoUrl')) {
+        setupDownloader();
+    }
 });
 
-// --- 1. SNOWFALL ANIMATION ---
+// --- SNOW ANIMATION (Optimized) ---
 function createSnow() {
     let container = document.getElementById('snowContainer');
     if (!container) {
@@ -31,41 +36,33 @@ function createSnow() {
         document.body.prepend(container);
     }
     
-    const flakeCount = 50; 
-    for(let i=0; i<flakeCount; i++) {
+    // Create 40 fixed flakes to prevent DOM flooding
+    for(let i=0; i<40; i++) {
         const flake = document.createElement('div');
         flake.className = 'snowflake';
         const size = Math.random() * 3 + 2 + 'px';
-        
         flake.style.width = size;
         flake.style.height = size;
         flake.style.left = Math.random() * 100 + 'vw';
-        flake.style.animationDuration = Math.random() * 5 + 5 + 's'; // 5-10s fall
+        flake.style.animationDuration = Math.random() * 5 + 8 + 's';
         flake.style.animationDelay = Math.random() * 5 + 's';
-        flake.style.opacity = Math.random();
-        
+        flake.style.opacity = Math.random() * 0.7;
         container.appendChild(flake);
     }
 }
 
-// --- 2. SCROLL REVEAL ANIMATION ---
-function setupScrollAnim() {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if(entry.isIntersecting) {
-                entry.target.classList.add('active');
-            }
-        });
-    }, { threshold: 0.1 });
-
-    const targets = document.querySelectorAll('.reveal, .song-card, .landing-container, .chat-wrapper, .video-dl-container');
-    targets.forEach(el => {
-        el.classList.add('reveal'); // Ensure class exists
-        observer.observe(el);
-    });
+// --- GLOBAL UTILS ---
+function setupTheme() {
+    const saved = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    const btn = document.getElementById('themeToggle');
+    if(btn) btn.onclick = () => {
+        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+    };
 }
 
-// --- 3. CUSTOM CURSOR ---
 function setupCursor() {
     if(window.innerWidth < 768) return;
     const cursor = document.getElementById('cursor');
@@ -87,18 +84,6 @@ function setupCursor() {
         el.onmouseenter = () => cursor.classList.add('hovered');
         el.onmouseleave = () => cursor.classList.remove('hovered');
     });
-}
-
-// --- 4. THEME & VISUALS ---
-function setupTheme() {
-    const saved = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', saved);
-    const btn = document.getElementById('themeToggle');
-    if(btn) btn.onclick = () => {
-        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('theme', next);
-    };
 }
 
 function setupVisualizer() {
@@ -138,12 +123,12 @@ function setupMusicPlayer() {
     if(sBtn) sBtn.onclick = () => {
         const val = document.getElementById('searchInput').value;
         if(val) fetchSongs(val);
-    }
+    };
 }
 
 async function fetchSongs(query) {
     const grid = document.getElementById('musicGrid');
-    if(grid) grid.innerHTML = '<div style="width:100%; text-align:center; padding:20px;">Loading...</div>';
+    grid.innerHTML = '<div style="width:100%; text-align:center; padding:20px;">Loading...</div>';
 
     try {
         const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=40`);
@@ -158,7 +143,7 @@ function renderGrid() {
     grid.innerHTML = '';
     state.queue.forEach((song, idx) => {
         const card = document.createElement('div');
-        card.className = 'song-card magnetic reveal'; // Added reveal for scroll anim
+        card.className = 'song-card magnetic reveal';
         card.innerHTML = `
             <div class="art-box" style="background-image:url('${song.artworkUrl100.replace('100x100','400x400')}')">
                 <div class="play-overlay"><i class="fa-solid fa-play"></i></div>
@@ -171,11 +156,6 @@ function renderGrid() {
         card.onclick = () => playSong(idx);
         grid.appendChild(card);
     });
-    
-    // Refresh scroll observer for new items
-    setupScrollAnim();
-    // Refresh cursors
-    setupCursor();
 }
 
 function playSong(idx) {
@@ -185,7 +165,6 @@ function playSong(idx) {
     state.audio.play();
     state.isPlaying = true;
     
-    // UI Update
     document.getElementById('trackTitle').innerText = song.trackName;
     document.getElementById('trackArtist').innerText = song.artistName;
     document.getElementById('albumArt').style.backgroundImage = `url('${song.artworkUrl60}')`;
