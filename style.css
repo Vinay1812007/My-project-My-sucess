@@ -1,58 +1,113 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
 body {
-  margin:0;
-  font-family: -apple-system, BlinkMacSystemFont;
-  background:#0a0a0a;
-  color:white;
+  height: 100vh;
+  background: radial-gradient(circle at top, #1e293b, #020617);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: white;
 }
 
+/* Glass Card */
 .glass {
-  background: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.card {
+  padding: 40px;
+  border-radius: 30px;
+  text-align: center;
+  max-width: 380px;
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.name {
+  margin: 20px 0;
+  font-size: 1.8rem;
+  letter-spacing: 3px;
+}
+
+.message {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  opacity: 0.95;
+}
+
+.from {
+  display: block;
+  margin-top: 20px;
+  opacity: 0.8;
+}
+
+/* Music Button */
+#musicBtn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.25);
   backdrop-filter: blur(20px);
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.15);
+  font-size: 22px;
+  cursor: pointer;
 }
 
-.nav {
-  display:flex;
-  justify-content:space-between;
-  padding:20px;
+/* Effects */
+#effects {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
 }
 
-.tabs a {
-  margin-left:15px;
-  color:white;
-  text-decoration:none;
+.snow {
+  position: absolute;
+  top: -10px;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  animation: fall linear forwards;
 }
 
-.hero {
-  height:80vh;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
+.confetti {
+  position: absolute;
+  top: -10px;
+  width: 6px;
+  height: 12px;
+  background: hsl(calc(360 * var(--h)), 100%, 70%);
+  animation: fall linear forwards;
 }
 
-.neon-bg {
-  background: radial-gradient(circle, #00f, #000);
-  animation: glow 5s infinite alternate;
-}
-
-@keyframes glow {
-  from { filter: hue-rotate(0deg); }
-  to { filter: hue-rotate(120deg); }
-}
-
-.music-ui, .box, .chat {
-  margin:40px;
-  padding:30px;
-}
-
-.visualizer {
-  height:80px;
-  background: linear-gradient(90deg, cyan, magenta);
-  animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-  0%{opacity:.3} 50%{opacity:1} 100%{opacity:.3}
+@keyframes fall {
+  to {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0;
+  }
 }
