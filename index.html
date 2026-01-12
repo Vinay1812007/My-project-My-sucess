@@ -2,7 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIRIMILLA VINAY</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
@@ -11,84 +11,36 @@
 <body>
 
     <div id="cursor"></div>
-    <div id="toast" class="toast">Action Completed</div>
+    <div class="full-bg-overlay"></div>
     <canvas id="bgCanvas"></canvas>
 
     <nav>
-        <a href="#" class="logo-text magnetic" onclick="router.navigate('home')">SIRIMILLA VINAY</a>
-        <div class="nav-right">
-            <button class="nav-btn magnetic active" id="nav-home" onclick="router.navigate('home')">Home</button>
-            <button class="nav-btn magnetic" id="nav-music" onclick="router.navigate('music')">Music</button>
-            <button class="nav-btn magnetic" id="nav-ai" onclick="router.navigate('ai')">AI</button>
-            <button class="nav-btn magnetic" id="nav-dl" onclick="router.navigate('dl')">DL</button>
-            <button class="btn-icon magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+        <div class="nav-container">
+            <a href="/" class="logo-container magnetic">
+                <div class="logo-text">SIRIMILLA VINAY</div>
+            </a>
+            <div class="nav-right">
+                <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+            </div>
         </div>
     </nav>
 
-    <main id="app-content">
-        </main>
-
-    <div class="dynamic-island hidden" id="dynamicIsland">
-        <div class="di-content" onclick="openFullPlayer()">
-            <div class="di-art" id="miniArt"></div>
-            <div class="di-info">
-                <span id="miniTitle">Not Playing</span>
-                <span id="miniArtist" style="opacity:0.7; font-size:0.8em;">...</span>
-            </div>
-            <div class="di-wave" id="diWave">
-                <span></span><span></span><span></span>
-            </div>
+    <main class="landing-container">
+        <h1 class="hero-logo">SIRIMILLA VINAY</h1>
+        <p class="hero-subtitle">Premium Audio & 8K Visuals Experience</p>
+        
+        <div class="landing-buttons">
+            <a href="/music" class="landing-btn magnetic">
+                <i class="fa-solid fa-music"></i> Open Player
+            </a>
+            <a href="/ai" class="landing-btn magnetic">
+                <i class="fa-solid fa-robot"></i> AI Chat
+            </a>
+            <a href="/videodownloader" class="landing-btn magnetic">
+                <i class="fa-solid fa-bolt"></i> Downloader
+            </a>
         </div>
-        <div class="di-controls">
-            <button class="di-btn" id="miniPrev"><i class="fa-solid fa-backward-step"></i></button>
-            <button class="di-btn" id="miniPlay"><i class="fa-solid fa-play"></i></button>
-            <button class="di-btn" id="miniNext"><i class="fa-solid fa-forward-step"></i></button>
-        </div>
-    </div>
-
-    <div class="full-player" id="fullPlayer">
-        <div class="fp-header">
-            <button class="btn-icon magnetic" onclick="closeFullPlayer()"><i class="fa-solid fa-chevron-down"></i></button>
-            <span style="letter-spacing: 2px; font-size: 0.8rem;">NOW PLAYING</span>
-            <button class="btn-icon magnetic" onclick="showToast('Lyrics not available')"><i class="fa-solid fa-quote-right"></i></button>
-        </div>
-
-        <div class="fp-main">
-            <div class="fp-art-container">
-                <div class="fp-art" id="fullArt"></div>
-            </div>
-            
-            <div class="fp-details">
-                <h2 id="fullTitle">Title</h2>
-                <p id="fullArtist">Artist</p>
-            </div>
-
-            <div class="fp-progress-wrapper">
-                <div class="time-nums">
-                    <span id="fullCurrTime">0:00</span>
-                    <span id="fullTotalTime">0:30</span>
-                </div>
-                <div class="progress-bar" id="fullProgressBar">
-                    <div class="progress-fill" id="fullProgressFill"></div>
-                </div>
-            </div>
-
-            <div class="fp-controls">
-                <button class="btn-icon" id="shuffleBtn"><i class="fa-solid fa-shuffle"></i></button>
-                <button class="btn-icon big" id="fullPrev"><i class="fa-solid fa-backward-step"></i></button>
-                <button class="play-btn-lg" id="fullPlay"><i class="fa-solid fa-play"></i></button>
-                <button class="btn-icon big" id="fullNext"><i class="fa-solid fa-forward-step"></i></button>
-                <button class="btn-icon" id="repeatBtn"><i class="fa-solid fa-repeat"></i></button>
-            </div>
-            
-            <div class="fp-actions">
-                <button class="btn-icon" id="likeBtn"><i class="fa-regular fa-heart"></i></button>
-                <button class="btn-icon" onclick="showToast('Added to Playlist')"><i class="fa-solid fa-plus"></i></button>
-            </div>
-        </div>
-    </div>
-
-    <audio id="audioPlayer" crossorigin="anonymous"></audio>
+    </main>
 
     <script src="script.js"></script>
 </body>
