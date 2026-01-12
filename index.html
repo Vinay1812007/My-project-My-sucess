@@ -1,54 +1,37 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SIRIMILLA VINAY - Home</title>
-    <meta name="description" content="Premium Music Player and 8K Video Downloader Tool">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIRIMILLA VINAY</title>
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+<div id="snow-container"></div>
 
-    <div id="cursor"></div>
-    <div class="full-bg-overlay"></div>
-    <canvas id="bgCanvas"></canvas>
+<nav>
+  <div class="nav-container">
+    <div class="logo-text">SIRIMILLA VINAY</div>
+    <div class="nav-right">
+      <a href="music.html" class="tab-btn">Music</a>
+      <a href="videodownloader.html" class="tab-btn">DL</a>
+      <a href="ai.html" class="tab-btn">AI</a>
+    </div>
+  </div>
+</nav>
 
-    <nav>
-        <div class="nav-container">
-            <a href="index.html" class="logo-container magnetic">
-                <div class="logo-text">SIRIMILLA VINAY</div>
-            </a>
-            <div class="nav-right">
-                <button class="theme-btn magnetic" id="themeToggle" title="Toggle Theme">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
-            </div>
-        </div>
-    </nav>
+<main class="landing-container">
+  <h1 class="hero-logo">AI STUDIO</h1>
+  <p class="hero-subtitle">Music • AI • Downloader</p>
 
-    <main class="landing-container">
-        <h1 class="hero-logo">SIRIMILLA VINAY</h1>
-        <p class="hero-subtitle">Premium Audio & 8K Visuals Experience</p>
-        
-        <div class="landing-buttons">
-            <a href="music.html" class="landing-btn magnetic">
-                <i class="fa-solid fa-music" style="color:var(--accent);"></i> Open Player
-            </a>
-            <a href="ai.html" class="landing-btn magnetic">
-                <i class="fa-solid fa-robot" style="color:var(--accent-secondary);"></i> AI Chat
-            </a>
-            <a href="videodownloader.html" class="landing-btn magnetic">
-                <i class="fa-solid fa-bolt" style="color:white;"></i> Downloader
-            </a>
-        </div>
-        
-        <div class="sitemap-link-container">
-            <a href="sitemap.html" class="magnetic link-text">Sitemap</a>
-        </div>
-    </main>
+  <div class="landing-buttons">
+    <a href="ai.html" class="landing-btn">🤖 AI Studio</a>
+    <a href="music.html" class="landing-btn">🎵 Music</a>
+    <a href="videodownloader.html" class="landing-btn">⬇️ Downloader</a>
+  </div>
+</main>
 
-    <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
