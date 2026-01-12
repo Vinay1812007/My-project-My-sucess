@@ -14,7 +14,7 @@
     <div class="full-bg-overlay"></div>
     <canvas id="bgCanvas"></canvas>
 
-    <nav>
+    <nav class="animate-enter">
         <div class="nav-container">
             <a href="index.html" class="logo-container magnetic">
                 <div class="logo-text">SIRIMILLA VINAY</div>
@@ -30,17 +30,15 @@
         </div>
     </nav>
 
-    <!-- Chat Interface -->
     <main class="chat-wrapper">
-        <div class="chat-container glass-panel" id="chatContainer">
-            <!-- Initial Greeting -->
+        <div class="chat-container glass-panel animate-enter delay-1" id="chatContainer">
             <div class="message ai">
                 <div class="avatar"><i class="fa-solid fa-robot"></i></div>
                 <div class="bubble">Hello! I am your AI assistant. How can I help you today?</div>
             </div>
         </div>
 
-        <div class="chat-input-area glass-panel">
+        <div class="chat-input-area glass-panel animate-enter delay-2">
             <div class="input-wrapper">
                 <input type="text" id="aiPrompt" placeholder="Ask anything..." autocomplete="off">
                 <button id="generateBtn" class="magnetic send-btn"><i class="fa-solid fa-paper-plane"></i></button>
