@@ -1,69 +1,115 @@
-body {
+* {
   margin: 0;
-  font-family: Arial;
-  background: #0b0b0b;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #0f172a, #020617);
   color: white;
-}
-
-nav {
-  padding: 15px;
-  background: #111;
-}
-
-.nav-container {
-  display: flex;
-  justify-content: space-between;
-}
-
-.tab-btn {
-  margin-left: 10px;
-  color: white;
-  text-decoration: none;
-}
-
-.tab-btn.active {
-  color: cyan;
-}
-
-.glass-panel {
-  background: rgba(255,255,255,0.05);
-  padding: 20px;
-  border-radius: 12px;
-}
-
-.chat-wrapper {
-  max-width: 700px;
-  margin: auto;
-}
-
-.chat-container {
-  height: 300px;
-  overflow-y: auto;
-}
-
-.chat-input-area input {
-  width: 70%;
-}
-
-.ai-category button {
-  display: block;
-  width: 100%;
-  margin: 5px 0;
+  overflow-x: hidden;
 }
 
 /* ❄️ Snow */
-#snow-container {
+#snow {
   position: fixed;
   inset: 0;
   pointer-events: none;
+  z-index: 999;
 }
 
-.snowflake {
-  position: absolute;
-  top: -10px;
-  animation: fall linear infinite;
+/* 🎵 Button */
+#musicToggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+  backdrop-filter: blur(20px);
+  color: white;
+  cursor: pointer;
+  z-index: 1000;
 }
 
-@keyframes fall {
-  to { transform: translateY(100vh); }
+/* 🧊 Glass Effect */
+.glass {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
 }
+
+/* NAV */
+nav {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 15px 40px;
+  z-index: 100;
+}
+
+/* HERO */
+.hero {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.hero h2 {
+  font-size: 4rem;
+}
+
+.hero p {
+  margin-top: 20px;
+  opacity: 0.8;
+}
+
+/* CARDS */
+.cards {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 100px 20px;
+  flex-wrap: wrap;
+}
+
+.card {
+  width: 260px;
+  padding: 40px;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+/* FOOTER */
+footer {
+  margin: 80px auto;
+  padding: 30px;
+  text-align: center;
+  width: fit-content;
+}
+
+/* ✨ Scroll Animations */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: 1s ease;
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.delay { transition-delay: .3s; }
+.delay2 { transition-delay: .6s; }
