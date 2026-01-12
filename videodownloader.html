@@ -2,61 +2,39 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Video Downloader - SIRIMILLA VINAY</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Downloader</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div id="cursor"></div>
-    <div class="full-bg-overlay"></div>
     <canvas id="bgCanvas"></canvas>
 
-    <nav class="animate-enter">
-        <div class="nav-container">
-            <a href="index.html" class="logo-container magnetic">
-                <div class="logo-text">SIRIMILLA VINAY</div>
-            </a>
-            <div class="nav-right">
-                <div class="tab-switcher">
-                    <a href="music.html" class="tab-btn magnetic">Music</a>
-                    <a href="videodownloader.html" class="tab-btn active magnetic">DL</a>
-                    <a href="ai.html" class="tab-btn magnetic">AI</a>
-                </div>
-                <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
-            </div>
+    <nav>
+        <a href="index.html" class="logo-text">SIRIMILLA VINAY</a>
+        <div class="nav-right">
+            <a href="index.html" class="btn-icon"><i class="fa-solid fa-home"></i></a>
         </div>
     </nav>
 
-    <main class="content-section centered-view" style="display:flex; justify-content:center; align-items:center; height:80vh;">
-        <div class="video-dl-container glass-panel animate-enter delay-1">
-            <h2 style="font-size: 2rem; margin-bottom: 20px;">Universal DL</h2>
-            <div class="platform-icons">
-                <i class="fa-brands fa-youtube"></i>
-                <i class="fa-brands fa-instagram"></i>
-                <i class="fa-brands fa-tiktok"></i>
-                <i class="fa-brands fa-twitter"></i>
-            </div>
+    <main class="video-dl-container">
+        <h1>Universal Downloader</h1>
+        <p style="color:var(--text-secondary); margin-bottom:20px;">Download from YouTube, Instagram, TikTok</p>
+        
+        <div class="dl-input-group">
+            <input type="text" id="videoUrl" placeholder="Paste link here...">
+            <button id="fetchVideoBtn" class="action-btn">Fetch</button>
+        </div>
 
-            <div class="dl-input-group">
-                <input type="text" id="videoUrl" placeholder="Paste video link here..." class="magnetic">
-                <button id="fetchVideoBtn" class="magnetic" title="Fetch"><i class="fa-solid fa-arrow-right"></i></button>
-            </div>
+        <div id="videoLoader" class="hidden">Searching...</div>
 
-            <div id="videoLoader" class="hidden" style="margin-top:20px;">Loading...</div>
-
-            <div id="dlResult" class="dl-result hidden">
-                <div class="preview-card">
-                    <img id="thumbPreview" src="" alt="Thumbnail">
-                    <div class="meta">
-                        <h3 id="vidTitle">Video Title</h3>
-                        <span style="background:var(--accent); color:black; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:0.8rem;">HD</span>
-                    </div>
-                </div>
-                <button class="action-btn magnetic" id="downloadActionBtn">Download MP4</button>
+        <div id="dlResult" class="dl-result hidden">
+            <div class="preview-card">
+                <img id="thumbPreview" src="" alt="Thumbnail">
+                <h3 id="vidTitle">Video Title</h3>
             </div>
+            <button class="action-btn" style="margin-top:10px;">Download MP4</button>
         </div>
     </main>
 
