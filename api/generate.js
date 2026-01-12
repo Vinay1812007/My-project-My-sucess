@@ -1,5 +1,5 @@
 export const config = {
-  runtime: 'edge', // Uses Vercel Edge for faster responses
+  runtime: 'edge',
 };
 
 export default async function handler(req) {
@@ -18,7 +18,6 @@ export default async function handler(req) {
       });
     }
 
-    // Construct messages: System prompt + History + Current User Prompt
     const messages = [
         { role: "system", content: "You are a helpful AI assistant for Sirimilla Vinay's portfolio." },
         ...(history || []), 
@@ -33,18 +32,20 @@ export default async function handler(req) {
       },
       body: JSON.stringify({
         messages: messages,
-        model: "llama3-8b-8192",
+        // UPDATED MODEL HERE:
+        model: "llama-3.3-70b-versatile", 
         temperature: 0.7,
         max_tokens: 1024
       })
     });
 
-    const data = await response.json();
-    
-    if (data.error) {
-         throw new Error(data.error.message);
+    if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error?.message || "Groq API Error");
     }
 
+    const data = await response.json();
+    
     return new Response(JSON.stringify({ result: data.choices[0].message.content }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
