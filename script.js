@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     createSnow();        // Background Snow
     setupVisualizer();   // Background Audio Vis
 
-    // Check which page we are on
+    // Page Specific Logic
     if (document.getElementById('musicGrid')) {
         setupMusicPlayer();
     } 
@@ -36,7 +36,7 @@ function createSnow() {
         document.body.prepend(container);
     }
     
-    // Create 40 fixed flakes to prevent DOM flooding
+    // Create 40 fixed flakes to prevent performance issues
     for(let i=0; i<40; i++) {
         const flake = document.createElement('div');
         flake.className = 'snowflake';
@@ -96,7 +96,6 @@ function setupVisualizer() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         
-        const time = Date.now() * 0.0005;
         const color1 = document.documentElement.getAttribute('data-theme') === 'dark' ? '#0f0f1a' : '#ffffff';
         const color2 = document.documentElement.getAttribute('data-theme') === 'dark' ? '#000000' : '#f0f0f0';
         
@@ -167,7 +166,7 @@ function playSong(idx) {
     
     document.getElementById('trackTitle').innerText = song.trackName;
     document.getElementById('trackArtist').innerText = song.artistName;
-    document.getElementById('albumArt').style.backgroundImage = `url('${song.artworkUrl60}')`;
+    document.getElementById('albumArt').style.backgroundImage = `url('${song.artworkUrl100.replace('100x100','300x300')}')`;
     document.getElementById('playBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
     document.getElementById('musicPlayerBar').classList.add('active');
 }
