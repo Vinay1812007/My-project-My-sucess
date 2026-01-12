@@ -1,15 +1,14 @@
 /* --- BASE VARIABLES --- */
 :root {
     --bg-color: #050505;
-    --card-bg: rgba(25, 25, 25, 0.6);
+    --card-bg: rgba(20, 20, 20, 0.6);
     --text-primary: #ffffff;
     --text-secondary: #a0a0a0;
     --accent: #00f3ff;
     --accent-glow: rgba(0, 243, 255, 0.6);
     --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-blur: 30px;
-    --font-main: 'Outfit', sans-serif;
     --nav-height: 80px;
+    --font-main: 'Outfit', sans-serif;
 }
 
 [data-theme="light"] {
@@ -18,7 +17,6 @@
     --text-primary: #111;
     --text-secondary: #555;
     --accent: #007aff;
-    --accent-glow: rgba(0, 122, 255, 0.4);
     --glass-border: rgba(0, 0, 0, 0.08);
 }
 
@@ -33,11 +31,10 @@ body {
     transition: background-color 0.5s ease;
 }
 
-/* --- ANIMATED BACKGROUNDS --- */
+/* --- BACKGROUNDS & SNOW --- */
 #bgCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.5; pointer-events: none; }
-#snowContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; overflow: hidden; }
+#snowContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
 
-/* Snow Animation */
 .snowflake {
     position: absolute;
     top: -10px;
@@ -48,18 +45,8 @@ body {
 }
 
 @keyframes fall {
-    0% { transform: translateY(-10vh) translateX(0); opacity: 1; }
-    100% { transform: translateY(110vh) translateX(20px); opacity: 0.3; }
+    to { transform: translateY(110vh); }
 }
-
-/* --- CUSTOM CURSOR --- */
-#cursor {
-    position: fixed; width: 20px; height: 20px; 
-    background: rgba(255, 255, 255, 0.9); border-radius: 50%; 
-    pointer-events: none; z-index: 9999; mix-blend-mode: difference; 
-    transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s, opacity 0.3s;
-}
-#cursor.hovered { width: 50px; height: 50px; opacity: 0.5; background: var(--accent); mix-blend-mode: normal; }
 
 /* --- NAVIGATION --- */
 nav {
@@ -69,42 +56,45 @@ nav {
     background: rgba(0,0,0,0.3); backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--glass-border);
 }
-.logo-container { text-decoration: none; }
-.logo-text { font-size: 1.6rem; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: -0.5px; }
 
+.logo-text { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); text-decoration: none; text-transform: uppercase; letter-spacing: -0.5px; }
 .nav-right { display: flex; gap: 15px; align-items: center; }
 
-/* Navigation Buttons */
+/* Tab Style Navigation */
 .tab-switcher { display: flex; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 50px; border: 1px solid var(--glass-border); }
 .tab-btn {
     text-decoration: none; color: var(--text-secondary); padding: 8px 24px;
     border-radius: 50px; font-weight: 600; font-size: 0.9rem; transition: 0.4s;
+    background: transparent; border: none;
 }
 .tab-btn.active { background: var(--text-primary); color: var(--bg-color); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 .tab-btn:hover:not(.active) { color: var(--text-primary); }
 
-/* --- BUTTON ANIMATIONS --- */
+/* --- CURSOR --- */
+#cursor {
+    position: fixed; width: 20px; height: 20px; 
+    background: rgba(255, 255, 255, 0.9); border-radius: 50%; 
+    pointer-events: none; z-index: 9999; mix-blend-mode: difference; 
+    transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s, opacity 0.3s;
+}
+#cursor.hovered { width: 50px; height: 50px; opacity: 0.5; background: var(--accent); mix-blend-mode: normal; }
+
+/* --- ANIMATED BUTTONS --- */
 .landing-btn {
     padding: 18px 45px; border-radius: 50px; font-size: 1.1rem; font-weight: 600;
     background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
     color: var(--text-primary); text-decoration: none; 
     display: flex; align-items: center; gap: 12px;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative; overflow: hidden;
+    transition: 0.4s; position: relative; overflow: hidden;
 }
-
-/* Shine Effect */
 .landing-btn::before {
     content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
     transition: 0.5s;
 }
 .landing-btn:hover { 
-    transform: translateY(-5px); 
-    background: var(--accent); 
-    color: #000;
-    border-color: var(--accent);
-    box-shadow: 0 0 25px var(--accent-glow);
+    transform: translateY(-5px); background: var(--accent); color: #000;
+    border-color: var(--accent); box-shadow: 0 0 25px var(--accent-glow);
 }
 .landing-btn:hover::before { left: 100%; }
 
@@ -112,32 +102,19 @@ nav {
 .theme-btn, .btn-control, .icon-only {
     width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--glass-border);
     background: rgba(255,255,255,0.05); color: var(--text-primary);
-    display: flex; align-items: center; justify-content: center; cursor: none;
-    transition: 0.3s;
+    display: flex; align-items: center; justify-content: center; cursor: none; transition: 0.3s;
 }
-.theme-btn:hover, .btn-control:hover, .icon-only:hover { 
-    background: var(--accent); color: #000; 
-    transform: rotate(10deg) scale(1.1); 
+.theme-btn:hover, .btn-control:hover { 
+    background: var(--accent); color: #000; transform: rotate(10deg) scale(1.1); 
     box-shadow: 0 0 15px var(--accent-glow);
 }
 
-/* --- SCROLL ANIMATIONS --- */
-.reveal {
-    opacity: 0;
-    transform: translateY(50px);
-    transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
-}
-.reveal.active {
-    opacity: 1;
-    transform: translateY(0);
-}
+/* --- SCROLL REVEAL --- */
+.reveal { opacity: 0; transform: translateY(30px); animation: fadeUp 0.8s ease forwards; }
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
 /* --- PAGE SECTIONS --- */
-.landing-container {
-    min-height: 80vh; display: flex; flex-direction: column; 
-    justify-content: center; align-items: center; text-align: center;
-    padding: 20px;
-}
+.landing-container { min-height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
 .hero-logo { 
     font-size: 4.5rem; margin-bottom: 10px; 
     background: linear-gradient(135deg, #fff 30%, #888 100%); 
@@ -146,8 +123,8 @@ nav {
 }
 .landing-buttons { display: flex; gap: 20px; margin-top: 40px; flex-wrap: wrap; justify-content: center; }
 
-/* --- MUSIC PLAYER UI --- */
-.content-section { max-width: 1600px; margin: 0 auto; padding: 20px; padding-bottom: 120px; }
+/* --- MUSIC UI --- */
+.content-section { max-width: 1600px; margin: 0 auto; padding: 20px 20px 120px; }
 .music-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 25px; margin-top: 30px; }
 .song-card {
     background: var(--card-bg); padding: 15px; border-radius: 20px;
@@ -155,25 +132,19 @@ nav {
     backdrop-filter: blur(10px);
 }
 .song-card:hover { transform: translateY(-10px); border-color: var(--accent); box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
-
-.art-box { width: 100%; aspect-ratio: 1; border-radius: 15px; background-size: cover; margin-bottom: 15px; position: relative; overflow: hidden; }
-.play-overlay {
-    position: absolute; inset: 0; background: rgba(0,0,0,0.5);
-    display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.3s;
-}
+.art-box { width: 100%; aspect-ratio: 1; border-radius: 15px; background-size: cover; margin-bottom: 15px; position: relative; }
+.play-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.3s; }
 .song-card:hover .play-overlay { opacity: 1; }
 
-/* Player Bar */
 .player-bar {
     position: fixed; bottom: 0; left: 0; width: 100%; height: 90px;
     background: rgba(10,10,10,0.95); backdrop-filter: blur(30px);
-    border-top: 1px solid var(--glass-border);
-    display: flex; align-items: center; justify-content: space-between;
+    border-top: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-between;
     padding: 0 40px; transform: translateY(100%); transition: 0.5s ease; z-index: 500;
 }
 .player-bar.active { transform: translateY(0); }
 
-/* --- OTHER UI --- */
+/* --- CHAT & DL --- */
 .chat-wrapper { max-width: 900px; margin: 20px auto; height: 80vh; display: flex; flex-direction: column; }
 .chat-container { flex: 1; background: var(--card-bg); border-radius: 24px; padding: 20px; overflow-y: auto; border: 1px solid var(--glass-border); }
 .video-dl-container { max-width: 800px; margin: 40px auto; text-align: center; background: var(--card-bg); padding: 40px; border-radius: 24px; border: 1px solid var(--glass-border); }
