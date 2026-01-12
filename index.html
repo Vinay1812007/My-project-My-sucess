@@ -2,50 +2,36 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SIRIMILLA VINAY - Home</title>
-    <meta name="description" content="Premium Music Player and 8K Video Downloader Tool">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIRIMILLA VINAY</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div id="cursor"></div>
-    <div class="full-bg-overlay"></div>
     <canvas id="bgCanvas"></canvas>
 
-    <nav class="animate-enter">
-        <div class="nav-container">
-            <a href="index.html" class="logo-container magnetic">
-                <div class="logo-text">SIRIMILLA VINAY</div>
-            </a>
-            <div class="nav-right">
-                <button class="theme-btn magnetic" id="themeToggle" title="Toggle Theme">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
-            </div>
+    <nav>
+        <a href="index.html" class="logo-text">SIRIMILLA VINAY</a>
+        <div class="nav-right">
+            <button class="btn-icon" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
         </div>
     </nav>
 
     <main class="landing-container">
-        <h1 class="hero-logo animate-enter delay-1">SIRIMILLA VINAY</h1>
-        <p class="hero-subtitle animate-enter delay-2">Premium Audio & 8K Visuals Experience</p>
+        <h1 class="hero-logo">SIRIMILLA VINAY</h1>
+        <p style="color:var(--text-secondary); letter-spacing: 2px;">PREMIUM AUDIO & VISUALS</p>
         
-        <div class="landing-buttons animate-enter delay-3">
-            <a href="music.html" class="landing-btn magnetic">
-                <i class="fa-solid fa-music" style="color:var(--accent);"></i> Open Player
+        <div class="landing-buttons">
+            <a href="music.html" class="landing-btn">
+                <i class="fa-solid fa-music"></i> Music Player
             </a>
-            <a href="ai.html" class="landing-btn magnetic">
-                <i class="fa-solid fa-robot" style="color:var(--accent-secondary);"></i> AI Chat
+            <a href="ai.html" class="landing-btn">
+                <i class="fa-solid fa-robot"></i> AI Studio
             </a>
-            <a href="videodownloader.html" class="landing-btn magnetic">
-                <i class="fa-solid fa-bolt" style="color:white;"></i> Downloader
+            <a href="videodownloader.html" class="landing-btn">
+                <i class="fa-solid fa-download"></i> Downloader
             </a>
-        </div>
-        
-        <div class="sitemap-link-container animate-enter delay-3" style="margin-top: 30px;">
-            <a href="sitemap.html" class="magnetic link-text" style="color:var(--text-secondary); text-decoration:none;">Sitemap</a>
         </div>
     </main>
 
