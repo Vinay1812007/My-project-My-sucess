@@ -2,121 +2,43 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Music Player - Ultimate Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div id="cursor"></div>
-    <div id="toast" class="toast">Action Completed</div>
-    <div class="full-bg-overlay"></div>
     <canvas id="bgCanvas"></canvas>
 
-    <nav class="animate-enter">
-        <a href="index.html" class="logo-text magnetic">SIRIMILLA VINAY</a>
+    <nav>
+        <a href="index.html" class="logo-text">SIRIMILLA VINAY</a>
         <div class="nav-right">
-            <button class="btn-icon magnetic" id="queueToggle" title="Queue"><i class="fa-solid fa-list-ul"></i></button>
-            <button class="btn-icon magnetic" id="themeToggle" title="Theme"><i class="fa-solid fa-moon"></i></button>
-            <button class="btn-icon magnetic" onclick="showToast('Login requires backend')"><i class="fa-solid fa-user"></i></button>
+            <a href="index.html" class="btn-icon"><i class="fa-solid fa-home"></i></a>
         </div>
     </nav>
 
-    <main class="content-section">
-        <div class="search-bar magnetic animate-enter delay-1">
-            <input type="text" id="searchInput" placeholder="Search Songs, Artists, Albums...">
-            <button id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
-        </div>
-
-        <div class="chips-container animate-enter delay-2" style="display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; padding-bottom:5px;">
-            <button class="chip btn-icon" style="background:rgba(255,255,255,0.1); padding:8px 15px; border-radius:20px; font-size:0.8rem;" onclick="fetchSongs('Top 50 Global')">🌍 Global Top 50</button>
-            <button class="chip btn-icon" style="background:rgba(255,255,255,0.1); padding:8px 15px; border-radius:20px; font-size:0.8rem;" onclick="fetchSongs('Party Hits')">🎉 Party</button>
-            <button class="chip btn-icon" style="background:rgba(255,255,255,0.1); padding:8px 15px; border-radius:20px; font-size:0.8rem;" onclick="fetchSongs('LoFi Study')">☕ Lo-Fi</button>
-            <button class="chip btn-icon" style="background:rgba(255,255,255,0.1); padding:8px 15px; border-radius:20px; font-size:0.8rem;" onclick="fetchSongs('Workout Bass')">💪 Workout</button>
-        </div>
-
-        <div class="music-grid" id="musicGrid"></div>
-    </main>
-
-    <div class="queue-panel" id="queuePanel">
-        <h3 style="color:var(--text-primary); margin-bottom:10px;">Up Next</h3>
-        <div class="queue-list" id="queueList">
-            </div>
+    <div class="music-grid" id="musicGrid">
+        <p style="color:white; text-align:center; width:100%;">Loading Top Hits...</p>
     </div>
 
     <div class="player-bar" id="playerBar">
-        <div class="now-playing" onclick="openFullPlayer()">
-            <div class="mini-art" id="miniArt"></div>
-            <div class="track-info">
-                <h4 id="miniTitle">Not Playing</h4>
-                <p id="miniArtist">Select a song</p>
-            </div>
-            <button class="btn-icon magnetic" id="likeBtnMini"><i class="fa-regular fa-heart"></i></button>
-        </div>
-
-        <div class="controls-center">
-            <div class="main-controls">
-                <button class="btn-icon magnetic" id="shuffleBtn" title="Shuffle"><i class="fa-solid fa-shuffle"></i></button>
-                <button class="btn-icon magnetic" id="prevBtn"><i class="fa-solid fa-backward-step"></i></button>
-                <button class="btn-play magnetic" id="playBtn"><i class="fa-solid fa-play"></i></button>
-                <button class="btn-icon magnetic" id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
-                <button class="btn-icon magnetic" id="repeatBtn" title="Repeat"><i class="fa-solid fa-repeat"></i></button>
-            </div>
-            <div class="progress-container">
-                <span id="currTime">0:00</span>
-                <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
-                <span id="totalTime">0:30</span>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <div id="miniArt" style="width:50px; height:50px; background-size:cover; border-radius:5px;"></div>
+            <div>
+                <h4 id="miniTitle">Title</h4>
+                <p id="miniArtist" style="font-size:0.8rem; color:#aaa;">Artist</p>
             </div>
         </div>
 
-        <div class="volume-controls">
-            <button class="btn-icon" id="muteBtn"><i class="fa-solid fa-volume-high"></i></button>
-            <input type="range" class="vol-slider" id="volSlider" min="0" max="1" step="0.05" value="1">
-            <button class="btn-icon" id="expandBtn" onclick="openFullPlayer()"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></button>
-        </div>
-    </div>
-
-    <div class="full-player" id="fullPlayer">
-        <div class="fp-header">
-            <button class="btn-icon magnetic" onclick="closeFullPlayer()"><i class="fa-solid fa-chevron-down"></i></button>
-            <span style="color:var(--text-secondary); letter-spacing:1px; font-size:0.9rem;">NOW PLAYING</span>
-            <button class="btn-icon magnetic" onclick="showToast('Cast device not found')"><i class="fa-solid fa-tv"></i></button>
-        </div>
-
-        <div class="fp-main">
-            <div class="fp-art" id="fullArt"></div>
-            <div class="fp-controls">
-                <h2 class="fp-title" id="fullTitle">Title</h2>
-                <p class="fp-artist" id="fullArtist">Artist</p>
-
-                <div class="progress-container" style="margin-bottom: 20px;">
-                    <span id="fullCurrTime">0:00</span>
-                    <div class="progress-bar" id="fullProgressBar"><div class="progress-fill" id="fullProgressFill"></div></div>
-                    <span id="fullTotalTime">0:30</span>
-                </div>
-
-                <div class="big-controls">
-                    <button class="btn-icon magnetic" onclick="document.getElementById('shuffleBtn').click()"><i class="fa-solid fa-shuffle"></i></button>
-                    <button class="btn-icon magnetic" style="font-size: 2rem;" onclick="document.getElementById('prevBtn').click()"><i class="fa-solid fa-backward-step"></i></button>
-                    <button class="play-btn-lg magnetic" onclick="document.getElementById('playBtn').click()"><i class="fa-solid fa-play" id="fullPlayIcon"></i></button>
-                    <button class="btn-icon magnetic" style="font-size: 2rem;" onclick="document.getElementById('nextBtn').click()"><i class="fa-solid fa-forward-step"></i></button>
-                    <button class="btn-icon magnetic" onclick="document.getElementById('repeatBtn').click()"><i class="fa-solid fa-repeat"></i></button>
-                </div>
-
-                <div class="control-row">
-                    <button class="btn-icon magnetic" id="likeBtnFull" onclick="document.getElementById('likeBtnMini').click()"><i class="fa-regular fa-heart"></i></button>
-                    <button class="btn-icon magnetic" onclick="showToast('Added to Playlist')"><i class="fa-solid fa-circle-plus"></i></button>
-                    <button class="btn-icon magnetic" onclick="showToast('Sharing Link Copied')"><i class="fa-solid fa-share-nodes"></i></button>
-                    <button class="btn-icon magnetic" onclick="showToast('Audio Quality: High')"><i class="fa-solid fa-sliders"></i></button>
-                </div>
-            </div>
+        <div class="controls">
+            <button class="btn-icon" id="prevBtn"><i class="fa-solid fa-backward-step"></i></button>
+            <button class="btn-icon" id="playBtn" style="background:var(--accent); color:black;"><i class="fa-solid fa-play"></i></button>
+            <button class="btn-icon" id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
         </div>
     </div>
 
     <audio id="audioPlayer" crossorigin="anonymous"></audio>
-
     <script src="script.js"></script>
 </body>
 </html>
