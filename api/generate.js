@@ -1,44 +1,59 @@
-export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
-    }
+export const config = {
+  runtime: 'edge', // Uses Vercel Edge for faster responses
+};
 
-    const { prompt } = req.body;
+export default async function handler(req) {
+  if (req.method !== 'POST') {
+    return new Response('Method Not Allowed', { status: 405 });
+  }
+
+  try {
+    const { prompt, history } = await req.json();
     const apiKey = process.env.GROQ_API_KEY;
 
     if (!apiKey) {
-        return res.status(500).json({ error: 'Server Config Error: GROQ_API_KEY missing.' });
+      return new Response(JSON.stringify({ error: 'Server configuration error: API Key missing' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
-    try {
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                messages: [{ role: 'user', content: prompt }],
-                // UPDATED MODEL: llama3-8b-8192 is deprecated.
-                // Using llama-3.3-70b-versatile for better performance.
-                model: 'llama-3.3-70b-versatile',
-                temperature: 0.7,
-                max_tokens: 1024
-            })
-        });
+    // Construct messages: System prompt + History + Current User Prompt
+    const messages = [
+        { role: "system", content: "You are a helpful AI assistant for Sirimilla Vinay's portfolio." },
+        ...(history || []), 
+        { role: "user", content: prompt }
+    ];
 
-        const data = await response.json();
-        
-        if (data.error) {
-            console.error("Groq API Error:", data.error);
-            return res.status(500).json({ error: data.error.message });
-        }
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        messages: messages,
+        model: "llama3-8b-8192",
+        temperature: 0.7,
+        max_tokens: 1024
+      })
+    });
 
-        const result = data.choices?.[0]?.message?.content || "No response received from AI.";
-        return res.status(200).json({ result });
-
-    } catch (error) {
-        console.error("Server Error:", error);
-        return res.status(500).json({ error: 'Failed to connect to AI service.' });
+    const data = await response.json();
+    
+    if (data.error) {
+         throw new Error(data.error.message);
     }
+
+    return new Response(JSON.stringify({ result: data.choices[0].message.content }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
 }
