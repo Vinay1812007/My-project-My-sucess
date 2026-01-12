@@ -14,7 +14,7 @@
     <div class="full-bg-overlay"></div>
     <canvas id="bgCanvas"></canvas>
 
-    <nav>
+    <nav class="animate-enter">
         <div class="nav-container">
             <a href="index.html" class="logo-container magnetic">
                 <div class="logo-text">SIRIMILLA VINAY</div>
@@ -30,9 +30,9 @@
         </div>
     </nav>
 
-    <main class="content-section centered-view">
-        <div class="video-dl-container glass-panel">
-            <h2 class="page-title">Universal DL</h2>
+    <main class="content-section centered-view" style="display:flex; justify-content:center; align-items:center; height:80vh;">
+        <div class="video-dl-container glass-panel animate-enter delay-1">
+            <h2 style="font-size: 2rem; margin-bottom: 20px;">Universal DL</h2>
             <div class="platform-icons">
                 <i class="fa-brands fa-youtube"></i>
                 <i class="fa-brands fa-instagram"></i>
@@ -41,22 +41,21 @@
             </div>
 
             <div class="dl-input-group">
-                <button id="pasteBtn" class="magnetic icon-only" title="Paste"><i class="fa-regular fa-clipboard"></i></button>
                 <input type="text" id="videoUrl" placeholder="Paste video link here..." class="magnetic">
-                <button id="fetchVideoBtn" class="magnetic icon-only" title="Fetch"><i class="fa-solid fa-arrow-right"></i></button>
+                <button id="fetchVideoBtn" class="magnetic" title="Fetch"><i class="fa-solid fa-arrow-right"></i></button>
             </div>
 
-            <div id="videoLoader" class="loader hidden"></div>
+            <div id="videoLoader" class="hidden" style="margin-top:20px;">Loading...</div>
 
             <div id="dlResult" class="dl-result hidden">
                 <div class="preview-card">
                     <img id="thumbPreview" src="" alt="Thumbnail">
                     <div class="meta">
                         <h3 id="vidTitle">Video Title</h3>
-                        <span class="badge">HD</span>
+                        <span style="background:var(--accent); color:black; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:0.8rem;">HD</span>
                     </div>
                 </div>
-                <button class="action-btn magnetic full-width" id="downloadActionBtn">Download MP4</button>
+                <button class="action-btn magnetic" id="downloadActionBtn">Download MP4</button>
             </div>
         </div>
     </main>
