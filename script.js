@@ -1,143 +1,148 @@
-// --- CONFIGURATION & STATE ---
+// --- CONFIG & STATE ---
 const state = {
-    audio: document.getElementById('audioPlayer'),
+    audio: null,
+    audioCtx: null,
+    analyser: null,
     queue: [],
     currentIndex: 0,
-    isPlaying: false,
-    audioCtx: null,
-    analyser: null
+    isPlaying: false
 };
-
-// --- ROUTER (SPA LOGIC) ---
-const router = {
-    current: 'home',
-    navigate: (page) => {
-        // Update Nav Active State
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        const activeBtn = document.getElementById(`nav-${page}`);
-        if(activeBtn) activeBtn.classList.add('active');
-
-        const app = document.getElementById('app-content');
-        app.innerHTML = ''; // Clear current content
-
-        // Render New View
-        if (page === 'home') renderHome(app);
-        else if (page === 'music') renderMusic(app);
-        else if (page === 'ai') renderAI(app);
-        else if (page === 'dl') renderDL(app);
-
-        router.current = page;
-    }
-};
-
-// --- VIEW RENDERERS ---
-function renderHome(container) {
-    container.innerHTML = `
-        <div class="landing-container">
-            <h1 class="hero-logo">SIRIMILLA VINAY</h1>
-            <p style="color:var(--text-secondary); margin-bottom:30px; letter-spacing:1px;">PREMIUM AUDIO & AI EXPERIENCE</p>
-            <div>
-                <button class="btn-primary" onclick="router.navigate('music')"><i class="fa-solid fa-music"></i> Launch Player</button>
-                <button class="btn-primary" onclick="router.navigate('ai')"><i class="fa-solid fa-robot"></i> AI Studio</button>
-            </div>
-        </div>
-    `;
-}
-
-function renderMusic(container) {
-    container.innerHTML = `
-        <div class="search-container">
-            <input type="text" id="searchInput" class="search-input" placeholder="Search for songs, artists...">
-            <button class="btn-icon" onclick="searchMusic()"><i class="fa-solid fa-magnifying-glass"></i></button>
-        </div>
-        <div id="musicGrid" class="music-grid"></div>
-    `;
-    // Load default if queue empty, else show current queue
-    if(state.queue.length === 0) fetchSongs('Top Hits India');
-    else renderGrid();
-}
-
-function renderAI(container) {
-    container.innerHTML = `
-        <div class="chat-wrapper" style="max-width:800px; margin:0 auto;">
-            <div id="chatContainer" class="chat-container">
-                <div class="message ai">Hello! I am connected to Llama 3 via Groq. How can I help?</div>
-            </div>
-            <div class="search-container">
-                <input type="text" id="aiPrompt" class="search-input" placeholder="Ask AI...">
-                <button class="btn-icon" onclick="sendAiMessage()"><i class="fa-solid fa-paper-plane"></i></button>
-            </div>
-        </div>
-    `;
-    // Attach Enter key listener
-    setTimeout(() => {
-        document.getElementById('aiPrompt').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') sendAiMessage();
-        });
-    }, 100);
-}
-
-function renderDL(container) {
-    container.innerHTML = `
-        <div class="landing-container">
-            <h2>Universal Downloader</h2>
-            <div class="search-container" style="max-width:600px; margin:20px auto;">
-                <input type="text" id="dlUrl" class="search-input" placeholder="Paste YouTube/Insta link...">
-                <button class="btn-icon" onclick="startDownload()"><i class="fa-solid fa-download"></i></button>
-            </div>
-            <div id="dlResult" style="margin-top:20px; color:var(--accent);"></div>
-        </div>
-    `;
-}
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Start at Home
-    router.navigate('home');
+    setupTheme();
+    setupCursor();
+    setupVisualizer(); // Runs on all pages for background effect
 
-    // Global Event Listeners for Player
-    setupPlayerEvents();
-    
-    // Theme
-    document.getElementById('themeToggle').onclick = () => {
-        const curr = document.documentElement.getAttribute('data-theme');
-        document.documentElement.setAttribute('data-theme', curr === 'dark' ? 'light' : 'dark');
-    };
-
-    setupVisualizer();
+    // PAGE SPECIFIC LOGIC
+    if (document.getElementById('musicGrid')) {
+        setupMusicPlayer();
+    } 
+    else if (document.getElementById('chatContainer')) {
+        setupAI();
+    } 
+    else if (document.getElementById('videoUrl')) {
+        setupDownloader();
+    }
 });
 
-// --- MUSIC LOGIC ---
+// --- GLOBAL UTILS ---
+function setupTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    const toggle = document.getElementById('themeToggle');
+    if(toggle) {
+        toggle.onclick = () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+        };
+    }
+}
+
+function setupCursor() {
+    const cursor = document.getElementById('cursor');
+    if(!cursor) return;
+    
+    let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
+    document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+
+    function animate() {
+        cursorX += (mouseX - cursorX) * 0.15;
+        cursorY += (mouseY - cursorY) * 0.15;
+        cursor.style.left = `${cursorX}px`;
+        cursor.style.top = `${cursorY}px`;
+        requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+
+    // Magnetic Effect
+    document.querySelectorAll('.magnetic').forEach(el => {
+        el.onmouseenter = () => cursor.classList.add('hovered');
+        el.onmouseleave = () => cursor.classList.remove('hovered');
+    });
+}
+
+// --- VISUALIZER (Background Animation) ---
+function setupVisualizer() {
+    const canvas = document.getElementById('bgCanvas');
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    function animate() {
+        requestAnimationFrame(animate);
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        // Idle animation since audio only plays on music page
+        const time = Date.now() * 0.002;
+        const color1 = document.documentElement.getAttribute('data-theme') === 'dark' ? '#1a0b2e' : '#e0f7fa';
+        const color2 = document.documentElement.getAttribute('data-theme') === 'dark' ? '#000000' : '#ffffff';
+
+        const grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width);
+        grad.addColorStop(0, color1);
+        grad.addColorStop(1, color2);
+        
+        ctx.fillStyle = grad;
+        ctx.fillRect(0,0, canvas.width, canvas.height);
+    }
+    animate();
+}
+
+// =========================================
+// 🎵 MUSIC PLAYER LOGIC (Only runs on Music Page)
+// =========================================
+function setupMusicPlayer() {
+    state.audio = document.getElementById('audioPlayer');
+    fetchSongs('Top Hits India');
+
+    // Controls
+    document.getElementById('playBtn').onclick = togglePlay;
+    document.getElementById('fullPlayBtn').onclick = togglePlay;
+    document.getElementById('nextBtn').onclick = nextSong;
+    document.getElementById('fullNextBtn').onclick = nextSong;
+    document.getElementById('prevBtn').onclick = prevSong;
+    document.getElementById('fullPrevBtn').onclick = prevSong;
+    
+    // Search
+    document.getElementById('searchBtn').onclick = () => {
+        const val = document.getElementById('searchInput').value;
+        if(val) fetchSongs(val);
+    };
+
+    // Full Player Toggles
+    document.getElementById('miniPlayerInfo').onclick = () => document.getElementById('fullPlayer').classList.add('active');
+    document.getElementById('closeFullPlayer').onclick = () => document.getElementById('fullPlayer').classList.remove('active');
+}
+
 async function fetchSongs(query) {
     const grid = document.getElementById('musicGrid');
-    if(grid) grid.innerHTML = '<p style="color:white; text-align:center;">Loading...</p>';
+    grid.innerHTML = '<div class="loader"></div>';
 
     try {
-        const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=50`);
+        const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=40`);
         const data = await res.json();
         state.queue = data.results.filter(s => s.previewUrl);
-        state.currentIndex = 0;
         renderGrid();
     } catch(e) { console.error(e); }
 }
 
-function searchMusic() {
-    const val = document.getElementById('searchInput').value;
-    if(val) fetchSongs(val);
-}
-
 function renderGrid() {
     const grid = document.getElementById('musicGrid');
-    if(!grid) return;
     grid.innerHTML = '';
-
     state.queue.forEach((song, idx) => {
         const card = document.createElement('div');
-        card.className = 'song-card';
+        card.className = 'song-card magnetic';
         card.innerHTML = `
-            <div class="art-box" style="background-image:url('${song.artworkUrl100.replace('100x100','300x300')}')"></div>
-            <h4>${song.trackName}</h4>
-            <p style="color:var(--text-secondary); font-size:0.8rem;">${song.artistName}</p>
+            <div class="art-box" style="background-image:url('${song.artworkUrl100.replace('100x100','400x400')}')">
+                <div class="play-overlay"><i class="fa-solid fa-play"></i></div>
+            </div>
+            <div class="song-info">
+                <h3>${song.trackName}</h3>
+                <p>${song.artistName}</p>
+            </div>
         `;
         card.onclick = () => playSong(idx);
         grid.appendChild(card);
@@ -145,198 +150,107 @@ function renderGrid() {
 }
 
 function playSong(idx) {
-    // Audio Context Resume
-    if (!state.audioCtx) initAudioContext();
-    if (state.audioCtx.state === 'suspended') state.audioCtx.resume();
-
     state.currentIndex = idx;
     const song = state.queue[idx];
-
     state.audio.src = song.previewUrl;
     state.audio.play();
     state.isPlaying = true;
-
     updatePlayerUI(song);
-    // Show Dynamic Island
-    document.getElementById('dynamicIsland').classList.remove('hidden');
 }
 
 function togglePlay() {
-    if(state.audio.paused) {
-        state.audio.play();
-        state.isPlaying = true;
-    } else {
-        state.audio.pause();
-        state.isPlaying = false;
-    }
-    updateIcons();
+    if(state.audio.paused) { state.audio.play(); state.isPlaying = true; }
+    else { state.audio.pause(); state.isPlaying = false; }
+    updatePlayerUI(state.queue[state.currentIndex]);
+}
+
+function nextSong() {
+    let i = state.currentIndex + 1;
+    if(i >= state.queue.length) i = 0;
+    playSong(i);
+}
+
+function prevSong() {
+    let i = state.currentIndex - 1;
+    if(i < 0) i = state.queue.length - 1;
+    playSong(i);
 }
 
 function updatePlayerUI(song) {
-    // Mini Player
-    document.getElementById('miniTitle').innerText = song.trackName;
-    document.getElementById('miniArtist').innerText = song.artistName;
-    document.getElementById('miniArt').style.backgroundImage = `url('${song.artworkUrl60}')`;
-    document.getElementById('miniArt').classList.add('playing');
+    // Update Mini Player
+    document.getElementById('trackTitle').innerText = song.trackName;
+    document.getElementById('trackArtist').innerText = song.artistName;
+    document.getElementById('albumArt').style.backgroundImage = `url('${song.artworkUrl60}')`;
+    document.getElementById('musicPlayerBar').classList.add('active');
 
-    // Full Player
-    document.getElementById('fullTitle').innerText = song.trackName;
-    document.getElementById('fullArtist').innerText = song.artistName;
-    document.getElementById('fullArt').style.backgroundImage = `url('${song.artworkUrl100.replace('100x100','600x600')}')`;
-    
-    updateIcons();
-}
+    // Update Full Player
+    document.getElementById('fullTrackTitle').innerText = song.trackName;
+    document.getElementById('fullTrackArtist').innerText = song.artistName;
+    document.getElementById('fullAlbumArt').style.backgroundImage = `url('${song.artworkUrl100.replace('100x100','600x600')}')`;
 
-function updateIcons() {
+    // Icons
     const icon = state.isPlaying ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
-    document.getElementById('miniPlay').innerHTML = icon;
-    document.getElementById('fullPlay').innerHTML = icon;
-    
-    const wave = document.getElementById('diWave');
-    state.isPlaying ? wave.style.opacity = '1' : wave.style.opacity = '0';
-    
-    const miniArt = document.getElementById('miniArt');
-    state.isPlaying ? miniArt.style.animationPlayState = 'running' : miniArt.style.animationPlayState = 'paused';
+    document.getElementById('playBtn').innerHTML = icon;
+    document.getElementById('fullPlayBtn').innerHTML = icon;
 }
 
-function setupPlayerEvents() {
-    // Mini & Full Controls
-    const els = ['miniPlay', 'fullPlay'];
-    els.forEach(id => document.getElementById(id).onclick = (e) => { e.stopPropagation(); togglePlay(); });
-
-    const nexts = ['miniNext', 'fullNext'];
-    nexts.forEach(id => document.getElementById(id).onclick = (e) => { 
-        e.stopPropagation(); 
-        let next = state.currentIndex + 1; 
-        if(next >= state.queue.length) next = 0;
-        playSong(next);
-    });
-
-    const prevs = ['miniPrev', 'fullPrev'];
-    prevs.forEach(id => document.getElementById(id).onclick = (e) => { 
-        e.stopPropagation(); 
-        let prev = state.currentIndex - 1; 
-        if(prev < 0) prev = state.queue.length - 1;
-        playSong(prev);
-    });
-
-    // Full Screen Toggle
-    window.openFullPlayer = () => document.getElementById('fullPlayer').classList.add('active');
-    window.closeFullPlayer = () => document.getElementById('fullPlayer').classList.remove('active');
-
-    // Progress Bar
-    state.audio.ontimeupdate = () => {
-        if(!state.audio.duration) return;
-        const pct = (state.audio.currentTime / state.audio.duration) * 100;
-        document.getElementById('fullProgressFill').style.width = pct + '%';
-        
-        // Time Text
-        const format = t => {
-            const m = Math.floor(t/60);
-            const s = Math.floor(t%60).toString().padStart(2,'0');
-            return `${m}:${s}`;
-        };
-        document.getElementById('fullCurrTime').innerText = format(state.audio.currentTime);
-    };
-    
-    // Seek
-    document.getElementById('fullProgressBar').onclick = (e) => {
-        const rect = e.target.getBoundingClientRect();
-        const pct = (e.clientX - rect.left) / rect.width;
-        state.audio.currentTime = pct * state.audio.duration;
-    };
-}
-
-// --- AI LOGIC (Vercel Backend) ---
-async function sendAiMessage() {
+// =========================================
+// 🤖 AI CHAT LOGIC
+// =========================================
+function setupAI() {
+    const btn = document.getElementById('generateBtn');
     const input = document.getElementById('aiPrompt');
-    const text = input.value.trim();
-    if(!text) return;
+    const container = document.getElementById('chatContainer');
 
-    const chat = document.getElementById('chatContainer');
-    chat.innerHTML += `<div class="message user">${text}</div>`;
-    input.value = '';
-    chat.scrollTop = chat.scrollHeight;
+    async function send() {
+        const text = input.value.trim();
+        if(!text) return;
 
-    const loadMsg = document.createElement('div');
-    loadMsg.className = 'message ai';
-    loadMsg.innerText = '...';
-    chat.appendChild(loadMsg);
+        // User Bubble
+        container.innerHTML += `<div class="message user"><div class="bubble">${text}</div></div>`;
+        input.value = '';
+        container.scrollTop = container.scrollHeight;
 
-    try {
-        const res = await fetch('/api/generate', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ prompt: text })
-        });
-        const data = await res.json();
-        loadMsg.innerText = data.result || data.error;
-    } catch(e) {
-        loadMsg.innerText = "Error connecting to AI.";
-    }
-}
+        // AI Loading Bubble
+        const loadId = Date.now();
+        container.innerHTML += `<div class="message ai" id="${loadId}"><div class="bubble">Thinking...</div></div>`;
+        container.scrollTop = container.scrollHeight;
 
-// --- DOWNLOADER SIMULATION ---
-function startDownload() {
-    const res = document.getElementById('dlResult');
-    res.innerHTML = "Fetching video details...";
-    setTimeout(() => {
-        res.innerHTML = `
-            <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:10px; display:inline-block;">
-                <img src="https://picsum.photos/300/170" style="border-radius:10px; display:block; margin-bottom:10px;">
-                <h3>Simulated Video</h3>
-                <button class="btn-primary" onclick="showToast('Download Started')">Download MP4</button>
-            </div>
-        `;
-    }, 1500);
-}
-
-// --- VISUALIZER ---
-function initAudioContext() {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    state.audioCtx = new AudioContext();
-    state.analyser = state.audioCtx.createAnalyser();
-    const source = state.audioCtx.createMediaElementSource(state.audio);
-    source.connect(state.analyser);
-    state.analyser.connect(state.audioCtx.destination);
-    state.analyser.fftSize = 256;
-}
-
-function setupVisualizer() {
-    const canvas = document.getElementById('bgCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    function animate() {
-        requestAnimationFrame(animate);
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        
-        let bass = 0;
-        if(state.analyser) {
-            const data = new Uint8Array(state.analyser.frequencyBinCount);
-            state.analyser.getByteFrequencyData(data);
-            bass = data[0];
+        try {
+            const res = await fetch('/api/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: text })
+            });
+            const data = await res.json();
+            document.getElementById(loadId).innerHTML = `<div class="avatar"><i class="fa-solid fa-robot"></i></div><div class="bubble">${data.result || data.error}</div>`;
+        } catch(e) {
+            document.getElementById(loadId).innerText = "Error connecting.";
         }
-
-        const grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width);
-        const intensity = Math.min(0.3 + (bass/500), 0.8);
-        
-        // Theme aware colors
-        const theme = document.documentElement.getAttribute('data-theme');
-        const color = theme === 'dark' ? `rgba(100, 0, 255, ${intensity})` : `rgba(0, 150, 255, ${intensity})`;
-        
-        grad.addColorStop(0, color);
-        grad.addColorStop(1, 'transparent');
-        
-        ctx.fillStyle = grad;
-        ctx.fillRect(0,0,canvas.width, canvas.height);
     }
-    animate();
+
+    if(btn) btn.onclick = send;
+    if(input) input.addEventListener('keypress', (e) => { if(e.key === 'Enter') send(); });
 }
 
-window.showToast = (msg) => {
-    const t = document.getElementById('toast');
-    t.innerText = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2000);
-};
+// =========================================
+// ⬇️ DOWNLOADER LOGIC
+// =========================================
+function setupDownloader() {
+    const btn = document.getElementById('fetchVideoBtn');
+    if(btn) {
+        btn.onclick = () => {
+            const loader = document.getElementById('videoLoader');
+            const result = document.getElementById('dlResult');
+            
+            loader.classList.remove('hidden');
+            result.classList.add('hidden');
+            
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                result.classList.remove('hidden');
+                document.getElementById('thumbPreview').src = "https://picsum.photos/600/340?r="+Math.random();
+            }, 1500);
+        };
+    }
+}
