@@ -14,7 +14,7 @@
     <div class="full-bg-overlay"></div>
     <canvas id="bgCanvas"></canvas>
 
-    <nav>
+    <nav class="animate-enter">
         <div class="nav-container">
             <a href="index.html" class="logo-container magnetic">
                 <div class="logo-text">SIRIMILLA VINAY</div>
@@ -25,15 +25,15 @@
         </div>
     </nav>
 
-    <main class="content-section centered-view">
-        <div class="glass-panel sitemap-panel">
-            <h2>Site Navigation</h2>
-            <ul class="sitemap-list">
-                <li><a href="index.html" class="magnetic">Home</a></li>
-                <li><a href="music.html" class="magnetic">Music Player</a></li>
-                <li><a href="videodownloader.html" class="magnetic">Video Downloader</a></li>
-                <li><a href="ai.html" class="magnetic">AI Studio</a></li>
-                <li><a href="sitemap.html" class="magnetic">Sitemap</a></li>
+    <main class="content-section centered-view" style="display:flex; justify-content:center; padding-top:100px;">
+        <div class="glass-panel sitemap-panel animate-enter delay-1" style="width:100%; max-width:500px;">
+            <h2 style="margin-bottom:20px;">Site Navigation</h2>
+            <ul class="sitemap-list" style="list-style:none; display:flex; flex-direction:column; gap:15px;">
+                <li><a href="index.html" class="magnetic" style="color:var(--text-primary); text-decoration:none; font-size:1.2rem;">Home</a></li>
+                <li><a href="music.html" class="magnetic" style="color:var(--text-primary); text-decoration:none; font-size:1.2rem;">Music Player</a></li>
+                <li><a href="videodownloader.html" class="magnetic" style="color:var(--text-primary); text-decoration:none; font-size:1.2rem;">Video Downloader</a></li>
+                <li><a href="ai.html" class="magnetic" style="color:var(--text-primary); text-decoration:none; font-size:1.2rem;">AI Studio</a></li>
+                <li><a href="sitemap.html" class="magnetic" style="color:var(--text-primary); text-decoration:none; font-size:1.2rem;">Sitemap</a></li>
             </ul>
         </div>
     </main>
