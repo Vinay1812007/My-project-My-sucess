@@ -1,33 +1,24 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Downloader</title>
 <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-<div id="snow-container"></div>
 
-<nav>
-  <div class="nav-container">
-    <a href="index.html" class="logo-text">SIRIMILLA VINAY</a>
-    <div class="nav-right">
-      <a href="music.html" class="tab-btn">Music</a>
-      <a href="videodownloader.html" class="tab-btn active">DL</a>
-      <a href="ai.html" class="tab-btn">AI</a>
-    </div>
-  </div>
+<nav class="glass nav">
+  <a href="index.html">← Back</a>
+  <h2>Downloader</h2>
 </nav>
 
-<main class="content-section centered-view">
-  <div class="glass-panel">
-    <h2>Video Downloader</h2>
-    <input placeholder="Paste video link" />
-    <button>Download</button>
-  </div>
-</main>
+<section class="glass box">
+  <input id="videoLink" placeholder="Paste YouTube / Instagram / OTT link">
+  <button onclick="download()">Fetch</button>
+
+  <p class="note">
+    ⚠️ Backend-ready UI. Connect your API safely.
+  </p>
+</section>
 
 <script src="script.js"></script>
 </body>
