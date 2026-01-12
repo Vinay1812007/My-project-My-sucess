@@ -3,38 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Downloader</title>
+    <title>Downloader - SIRIMILLA VINAY</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <div id="cursor"></div>
+    <div class="full-bg-overlay"></div>
     <canvas id="bgCanvas"></canvas>
 
     <nav>
-        <a href="index.html" class="logo-text">SIRIMILLA VINAY</a>
-        <div class="nav-right">
-            <a href="index.html" class="btn-icon"><i class="fa-solid fa-home"></i></a>
+        <div class="nav-container">
+            <a href="/" class="logo-container magnetic">
+                <div class="logo-text">SIRIMILLA VINAY</div>
+            </a>
+            <div class="nav-right">
+                <div class="tab-switcher">
+                    <a href="/music" class="tab-btn magnetic">Music</a>
+                    <a href="/videodownloader" class="tab-btn active magnetic">DL</a>
+                    <a href="/ai" class="tab-btn magnetic">AI</a>
+                </div>
+                <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+            </div>
         </div>
     </nav>
 
-    <main class="video-dl-container">
-        <h1>Universal Downloader</h1>
-        <p style="color:var(--text-secondary); margin-bottom:20px;">Download from YouTube, Instagram, TikTok</p>
-        
-        <div class="dl-input-group">
-            <input type="text" id="videoUrl" placeholder="Paste link here...">
-            <button id="fetchVideoBtn" class="action-btn">Fetch</button>
-        </div>
-
-        <div id="videoLoader" class="hidden">Searching...</div>
-
-        <div id="dlResult" class="dl-result hidden">
-            <div class="preview-card">
-                <img id="thumbPreview" src="" alt="Thumbnail">
-                <h3 id="vidTitle">Video Title</h3>
+    <main class="content-section centered-view">
+        <div class="video-dl-container glass-panel">
+            <h2 class="page-title">Universal DL</h2>
+            <div class="dl-input-group">
+                <input type="text" id="videoUrl" placeholder="Paste video link here..." class="magnetic">
+                <button id="fetchVideoBtn" class="magnetic icon-only"><i class="fa-solid fa-arrow-right"></i></button>
             </div>
-            <button class="action-btn" style="margin-top:10px;">Download MP4</button>
+
+            <div id="videoLoader" class="loader hidden"></div>
+
+            <div id="dlResult" class="dl-result hidden">
+                <div class="preview-card">
+                    <img id="thumbPreview" src="" alt="Thumbnail" style="width:100%; border-radius:10px; margin-bottom:10px;">
+                    <h3>Video Found</h3>
+                </div>
+                <button class="landing-btn magnetic" style="margin: 0 auto;">Download MP4</button>
+            </div>
         </div>
     </main>
 
