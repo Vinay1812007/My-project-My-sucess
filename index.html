@@ -1,36 +1,48 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIRIMILLA VINAY</title>
+<title>Winter Edition 2026</title>
+
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-<div id="snow-container"></div>
 
-<nav>
-  <div class="nav-container">
-    <div class="logo-text">SIRIMILLA VINAY</div>
-    <div class="nav-right">
-      <a href="music.html" class="tab-btn">Music</a>
-      <a href="videodownloader.html" class="tab-btn">DL</a>
-      <a href="ai.html" class="tab-btn">AI</a>
-    </div>
-  </div>
+<!-- ❄️ Snow -->
+<div id="snow"></div>
+
+<!-- 🎵 Background Music -->
+<audio id="bgMusic" loop>
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<!-- 🎧 Music Button -->
+<button id="musicToggle">🎵</button>
+
+<!-- 🌐 NAV -->
+<nav class="glass">
+  <h1>WINTER 2026</h1>
 </nav>
 
-<main class="landing-container">
-  <h1 class="hero-logo">AI STUDIO</h1>
-  <p class="hero-subtitle">Music • AI • Downloader</p>
+<!-- HERO -->
+<section class="hero">
+  <h2 class="reveal">Build the Future</h2>
+  <p class="reveal delay">Glass UI • Animations • AI Ready</p>
+</section>
 
-  <div class="landing-buttons">
-    <a href="ai.html" class="landing-btn">🤖 AI Studio</a>
-    <a href="music.html" class="landing-btn">🎵 Music</a>
-    <a href="videodownloader.html" class="landing-btn">⬇️ Downloader</a>
-  </div>
-</main>
+<!-- FEATURES -->
+<section class="cards">
+  <div class="card glass reveal">iOS Glass UI</div>
+  <div class="card glass reveal delay">Smooth Animations</div>
+  <div class="card glass reveal delay2">Background Music</div>
+</section>
+
+<!-- FOOTER -->
+<footer class="glass reveal">
+  © 2026 Winter Edition
+</footer>
 
 <script src="script.js"></script>
 </body>
