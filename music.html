@@ -12,10 +12,9 @@
 
     <div id="cursor"></div>
     <div class="full-bg-overlay"></div>
-    <div id="partyOverlay"></div>
     <canvas id="bgCanvas"></canvas>
 
-    <nav>
+    <nav class="animate-enter">
         <div class="nav-container">
             <a href="index.html" class="logo-container magnetic">
                 <div class="logo-text">SIRIMILLA VINAY</div>
@@ -32,34 +31,26 @@
     </nav>
 
     <main class="content-section">
-        <div class="search-container">
-            <div class="search-bar">
-                <button id="searchBtn" class="ai-btn magnetic"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <div class="search-container animate-enter delay-1" style="display:flex; justify-content:center; margin-bottom:20px;">
+            <div class="chat-input-area" style="width:100%; max-width:600px;">
                 <input type="text" id="searchInput" placeholder="Search songs, artists..." class="magnetic">
+                <button id="searchBtn" class="send-btn magnetic"><i class="fa-solid fa-magnifying-glass"></i></button>
             </div>
         </div>
 
-        <div class="buttons-row">
-            <button class="personalized-btn magnetic" id="myMixBtn">
-                <i class="fa-solid fa-headphones"></i> My Mix 🎧
-            </button>
-        </div>
-
-        <div class="chips-container" id="moodChips">
+        <div class="chips-container animate-enter delay-2" id="moodChips">
             <button class="chip active magnetic" data-query="Trending">🔥 Trending</button>
             <button class="chip magnetic" data-query="BGM">🎵 BGM</button>
-            <button class="chip magnetic" data-query="Melody">❤️ Melody</button>
+            <button class="chip magnetic" data-query="Melody">💖 Melody</button>
             <button class="chip magnetic" data-query="Party">🎉 Party</button>
             <button class="chip magnetic" data-query="Bass Boosted">🔊 Bass</button>
         </div>
 
         <div class="music-grid" id="musicGrid">
-            <div class="loader hidden" id="loader"></div>
-            <!-- Results injected here -->
-        </div>
+            <div class="loader hidden" id="loader" style="color:white; text-align:center; width:100%;">Loading...</div>
+            </div>
     </main>
 
-    <!-- Mini Player -->
     <div class="player-bar" id="musicPlayerBar">
         <div class="now-playing-info magnetic" id="miniPlayerInfo">
             <div class="now-playing-art" id="albumArt"></div>
@@ -70,11 +61,9 @@
         </div>
 
         <div class="player-center">
-            <div class="controls">
-                <button class="btn-control magnetic" id="prevBtn"><i class="fa-solid fa-backward-step"></i></button>
-                <button class="btn-play magnetic" id="playBtn"><i class="fa-solid fa-play"></i></button>
-                <button class="btn-control magnetic" id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
-            </div>
+            <button class="btn-control magnetic"><i class="fa-solid fa-backward-step"></i></button>
+            <button class="btn-play magnetic" id="playBtn"><i class="fa-solid fa-play"></i></button>
+            <button class="btn-control magnetic"><i class="fa-solid fa-forward-step"></i></button>
         </div>
 
         <div class="volume-control">
@@ -82,50 +71,20 @@
         </div>
     </div>
 
-    <!-- Full Screen Player Overlay -->
     <div class="full-player" id="fullPlayer">
         <button id="closeFullPlayer" class="magnetic icon-btn-top-left"><i class="fa-solid fa-chevron-down"></i></button>
-        <button id="settingsToggle" class="magnetic icon-btn-top-right"><i class="fa-solid fa-sliders"></i></button>
-
-        <div id="settingsPanel" class="settings-panel">
-            <h3>Audio Settings</h3>
-            <div class="eq-slider"><span>Bass</span><input type="range" min="-10" max="10" value="0" id="bassRange"></div>
-            <div class="eq-slider"><span>Treble</span><input type="range" min="-10" max="10" value="0" id="trebleRange"></div>
-            <div class="eq-slider"><span>Vol</span><input type="range" min="0" max="1" step="0.1" value="1" id="volRange"></div>
-        </div>
 
         <div class="fp-content">
-            <div class="fp-main">
-                <div class="full-art-container"><div class="full-art" id="fullAlbumArt"></div></div>
-                <div class="full-info">
-                    <h2 id="fullTrackTitle">Select a Track</h2>
-                    <p id="fullTrackArtist">...</p>
-                </div>
-                
-                <div class="progress-container">
-                    <span class="time" id="fullCurrTime">0:00</span>
-                    <input type="range" id="fullProgressBar" value="0" max="100" class="magnetic">
-                    <span class="time" id="fullTotalTime">0:00</span>
-                </div>
-
-                <div class="extended-controls">
-                    <button class="btn-control magnetic" id="btnShuffle"><i class="fa-solid fa-shuffle"></i></button>
-                    <button class="btn-control magnetic" id="btnSeekBack"><i class="fa-solid fa-rotate-left"></i> 10s</button>
-                    <button class="btn-control magnetic" id="btnSeekFwd"><i class="fa-solid fa-rotate-right"></i> 10s</button>
-                    <button class="btn-control magnetic" id="btnRepeat"><i class="fa-solid fa-repeat"></i></button>
-                </div>
-
-                <div class="main-controls">
-                    <button class="btn-control magnetic big-icon" id="fullPrevBtn"><i class="fa-solid fa-backward-step"></i></button>
-                    <button class="btn-play magnetic big-play" id="fullPlayBtn"><i class="fa-solid fa-play"></i></button>
-                    <button class="btn-control magnetic big-icon" id="fullNextBtn"><i class="fa-solid fa-forward-step"></i></button>
-                </div>
-
-                <div class="extended-controls bottom-actions">
-                    <button class="btn-control magnetic" id="btnParty" title="Party Light"><i class="fa-solid fa-flashlight"></i></button>
-                    <button class="btn-control magnetic" title="Like"><i class="fa-regular fa-heart"></i></button>
-                    <button class="btn-control magnetic" title="Download"><i class="fa-solid fa-download"></i></button>
-                </div>
+            <div class="full-art" id="fullAlbumArt"></div>
+            <div class="full-info">
+                <h2 id="fullTrackTitle">Select a Track</h2>
+                <p id="fullTrackArtist">...</p>
+            </div>
+            
+            <div class="main-controls">
+                <button class="btn-control magnetic big-icon"><i class="fa-solid fa-backward-step"></i></button>
+                <button class="btn-play magnetic big-play" id="fullPlayBtn"><i class="fa-solid fa-play"></i></button>
+                <button class="btn-control magnetic big-icon"><i class="fa-solid fa-forward-step"></i></button>
             </div>
         </div>
     </div>
