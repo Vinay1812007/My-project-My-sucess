@@ -1,30 +1,29 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Music</title>
 <link rel="stylesheet" href="style.css">
 </head>
+<body class="neon-bg">
 
-<body>
-<div id="snow-container"></div>
-
-<nav>
-  <div class="nav-container">
-    <a href="index.html" class="logo-text">SIRIMILLA VINAY</a>
-    <div class="nav-right">
-      <a href="music.html" class="tab-btn active">Music</a>
-      <a href="videodownloader.html" class="tab-btn">DL</a>
-      <a href="ai.html" class="tab-btn">AI</a>
-    </div>
-  </div>
+<nav class="glass nav">
+  <a href="index.html">← Back</a>
+  <h2>Music</h2>
 </nav>
 
-<main class="content-section">
-  <h2>🎧 Music Player</h2>
-  <p>Music UI Ready (API can be added later)</p>
-</main>
+<section class="music-ui glass">
+  <h3>Now Playing</h3>
+
+  <div class="visualizer"></div>
+
+  <audio id="player" controls>
+    <source src="audio.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="lyrics glass" id="lyrics">
+    🎵 Lyrics will appear here
+  </div>
+</section>
 
 <script src="script.js"></script>
 </body>
