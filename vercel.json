@@ -1,10 +1,10 @@
 {
   "cleanUrls": true,
+  "trailingSlash": false,
   "rewrites": [
-    { "source": "/", "destination": "/index.html" },
     { "source": "/music", "destination": "/music.html" },
-    { "source": "/videodownloader", "destination": "/videodownloader.html" },
     { "source": "/ai", "destination": "/ai.html" },
+    { "source": "/videodownloader", "destination": "/videodownloader.html" },
     { "source": "/sitemap", "destination": "/sitemap.html" },
     { "source": "/api/generate", "destination": "/api/generate.js" }
   ]
