@@ -32,7 +32,7 @@ export default async function handler(req) {
       },
       body: JSON.stringify({
         messages: messages,
-        // UPDATED MODEL HERE:
+        // FIX: Updated model name below
         model: "llama-3.3-70b-versatile", 
         temperature: 0.7,
         max_tokens: 1024
