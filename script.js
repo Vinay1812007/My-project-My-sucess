@@ -71,11 +71,14 @@ document.addEventListener('DOMContentLoaded', () => {
     initDiscoVisualizer(); 
 });
 
-// --- AI CHAT LOGIC ---
+// --- AI CHAT LOGIC (SECURE VERCEL VERSION) ---
 function setupAI() {
     const btn = document.getElementById('generateBtn');
     const input = document.getElementById('aiPrompt');
     const container = document.getElementById('chatContainer');
+    
+    // Client-side history (to maintain context in UI)
+    let clientHistory = [];
 
     function appendMessage(role, text) {
         const div = document.createElement('div');
@@ -106,15 +109,41 @@ function setupAI() {
         const text = input.value.trim();
         if(!text) return;
         
+        // 1. Add user message to UI
         appendMessage('user', text);
         input.value = '';
         
+        // 2. Show loading bubble
         const loadingBubble = appendMessage('ai', 'Thinking...');
         
-        // Mock Response for Demo
-        setTimeout(() => {
-            loadingBubble.innerText = "This is a demo response. To get real answers, you would need to connect to an API like OpenAI or Google Gemini in the backend.";
-        }, 1500);
+        try {
+            // 3. Call internal Vercel API
+            // Ensure you have created api/generate.js as discussed
+            const response = await fetch('/api/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    prompt: text,
+                    history: clientHistory // Send history for context
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.error) {
+                loadingBubble.innerText = "Error: " + data.error;
+            } else {
+                // 4. Update UI with AI response
+                loadingBubble.innerText = data.result;
+                
+                // 5. Update client history
+                clientHistory.push({ role: "user", content: text });
+                clientHistory.push({ role: "assistant", content: data.result });
+            }
+        } catch(e) {
+            console.error(e);
+            loadingBubble.innerText = "Connection error. Please try again later.";
+        }
     }
 
     if(btn) btn.onclick = sendRequest;
@@ -150,6 +179,7 @@ function setupMusicPlayer() {
     });
 
     setupControls();
+    // Initial load
     fetchSongs('Latest India Hits');
 }
 
@@ -299,7 +329,7 @@ function initDiscoVisualizer() {
     animate();
 }
 
-// --- DOWNLOADER ---
+// --- DOWNLOADER (Simulation) ---
 function setupDownloader() {
     const fetchBtn = document.getElementById('fetchVideoBtn');
     if(fetchBtn) fetchBtn.onclick = () => {
@@ -312,6 +342,7 @@ function setupDownloader() {
         result.classList.add('hidden');
         loader.classList.remove('hidden');
         
+        // Simulated Fetch Delay
         setTimeout(() => {
             loader.classList.add('hidden');
             result.classList.remove('hidden');
