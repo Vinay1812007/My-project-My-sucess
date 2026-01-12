@@ -4,11 +4,9 @@ const state = {
     audioCtx: null,
     analyser: null,
     source: null,
-    filters: { bass: null, treble: null },
     songQueue: [],
     currentIndex: 0,
-    isPartyMode: false,
-    colorHash: 0
+    theme: 'dark'
 };
 
 // --- CUSTOM CURSOR ---
@@ -21,9 +19,9 @@ document.addEventListener('mousemove', (e) => {
 });
 
 function animateCursor() {
-    cursorX += (mouseX - cursorX) * 0.15;
-    cursorY += (mouseY - cursorY) * 0.15;
-    if (cursor) {
+    if (window.innerWidth > 768 && cursor) {
+        cursorX += (mouseX - cursorX) * 0.15;
+        cursorY += (mouseY - cursorY) * 0.15;
         cursor.style.left = `${cursorX}px`;
         cursor.style.top = `${cursorY}px`;
     }
@@ -32,6 +30,7 @@ function animateCursor() {
 requestAnimationFrame(animateCursor);
 
 function applyMagnetic() {
+    if (window.innerWidth <= 768) return;
     document.querySelectorAll('.magnetic').forEach(el => {
         el.onmouseenter = () => cursor && cursor.classList.add('hovered');
         el.onmouseleave = () => cursor && cursor.classList.remove('hovered');
@@ -42,26 +41,37 @@ function applyMagnetic() {
 document.addEventListener('DOMContentLoaded', () => {
     applyMagnetic();
     
+    // Theme Toggle Logic
     const themeBtn = document.getElementById('themeToggle');
     if (themeBtn) {
         themeBtn.onclick = () => {
             const html = document.documentElement;
-            html.setAttribute('data-theme', html.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+            const current = html.getAttribute('data-theme');
+            const next = current === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', next);
+            
+            // Icon Swap
+            const icon = themeBtn.querySelector('i');
+            if(icon) {
+                icon.className = next === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            }
         };
     }
 
+    // Page Specific Init
     if (document.getElementById('musicGrid')) {
         setupMusicPlayer();
     } else if (document.getElementById('videoUrl')) {
         setupDownloader();
     } else if (document.getElementById('chatContainer')) {
         setupAI();
-    } else {
-        initDiscoVisualizer(true); 
     }
+    
+    // Always init visualizer background
+    initDiscoVisualizer(); 
 });
 
-// --- AI CHAT LOGIC (Updated for Chat UI) ---
+// --- AI CHAT LOGIC ---
 function setupAI() {
     const btn = document.getElementById('generateBtn');
     const input = document.getElementById('aiPrompt');
@@ -99,27 +109,12 @@ function setupAI() {
         appendMessage('user', text);
         input.value = '';
         
-        // Show typing
         const loadingBubble = appendMessage('ai', 'Thinking...');
         
-        try {
-            const response = await fetch('/api/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: text })
-            });
-            const data = await response.json();
-            
-            // Replace loading text with result or error
-            if (data.error) {
-                loadingBubble.innerText = "Error: " + data.error;
-            } else {
-                loadingBubble.innerText = data.result;
-            }
-        } catch(e) {
-            console.error(e);
-            loadingBubble.innerText = "Connection error. Please try again later.";
-        }
+        // Mock Response for Demo
+        setTimeout(() => {
+            loadingBubble.innerText = "This is a demo response. To get real answers, you would need to connect to an API like OpenAI or Google Gemini in the backend.";
+        }, 1500);
     }
 
     if(btn) btn.onclick = sendRequest;
@@ -147,12 +142,12 @@ function setupMusicPlayer() {
     if (searchBtn) searchBtn.onclick = () => fetchSongs(searchInput.value || 'Trending');
 
     document.querySelectorAll('.chip').forEach(chip => {
-        chip.onclick = () => fetchSongs(chip.dataset.query + ' Songs India');
+        chip.onclick = () => {
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            fetchSongs(chip.dataset.query + ' Songs India');
+        };
     });
-
-    if(document.getElementById('myMixBtn')) {
-        document.getElementById('myMixBtn').onclick = () => fetchSongs(['Best of 2024 India', 'Late Night LoFi'][Math.floor(Math.random()*2)]);
-    }
 
     setupControls();
     fetchSongs('Latest India Hits');
@@ -167,21 +162,28 @@ async function fetchSongs(query) {
     if (loader) { grid.appendChild(loader); loader.classList.remove('hidden'); }
 
     try {
-        const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=30&country=IN`);
+        const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=24&country=IN`);
         const data = await res.json();
         
         if (loader) loader.classList.add('hidden');
 
-        state.songQueue = data.results.map(s => ({
-            id: s.trackId, trackName: s.trackName, artistName: s.artistName,
-            artwork: s.artworkUrl100.replace('100x100', '600x600'), previewUrl: s.previewUrl
-        }));
+        state.songQueue = data.results.filter(s => s.previewUrl); 
 
         state.songQueue.forEach((song, idx) => {
-            if (!song.previewUrl) return;
             const card = document.createElement('div');
             card.className = 'song-card magnetic';
-            card.innerHTML = `<div class="art-box" style="background-image:url('${song.artwork}')"><div class="play-overlay"><i class="fa-solid fa-play"></i></div></div><div class="song-info"><h3>${song.trackName}</h3><p>${song.artistName}</p></div>`;
+            card.style.animationDelay = `${idx * 0.05}s`; 
+            
+            const artwork = song.artworkUrl100.replace('100x100', '600x600');
+            card.innerHTML = `
+                <div class="art-box" style="background-image:url('${artwork}')">
+                    <div class="play-overlay"><i class="fa-solid fa-play"></i></div>
+                </div>
+                <div class="song-info">
+                    <h3>${song.trackName}</h3>
+                    <p>${song.artistName}</p>
+                </div>`;
+            
             card.onclick = () => { state.currentIndex = idx; playTrack(song); };
             grid.appendChild(card);
         });
@@ -189,6 +191,7 @@ async function fetchSongs(query) {
     } catch (e) {
         console.error(e);
         if (loader) loader.classList.add('hidden');
+        grid.innerHTML = '<p style="text-align:center; width:100%; color: var(--text-secondary)">Failed to load music. Try again.</p>';
     }
 }
 
@@ -196,23 +199,44 @@ function playTrack(song) {
     if (!song) return;
     const setText = (id, txt) => { const el = document.getElementById(id); if(el) el.innerText = txt; };
     const setBg = (id, url) => { const el = document.getElementById(id); if(el) el.style.backgroundImage = `url('${url}')`; };
+    
+    const artwork = song.artworkUrl100.replace('100x100', '600x600');
     setText('trackTitle', song.trackName); setText('trackArtist', song.artistName);
     setText('fullTrackTitle', song.trackName); setText('fullTrackArtist', song.artistName);
-    setBg('albumArt', song.artwork); setBg('fullAlbumArt', song.artwork);
+    setBg('albumArt', artwork); setBg('fullAlbumArt', artwork);
+    
     document.getElementById('musicPlayerBar').classList.add('active');
     
     initAudioEngine();
-    if (state.audio) { state.audio.src = song.previewUrl; state.audio.play(); }
+    if (state.audio) { 
+        state.audio.src = song.previewUrl; 
+        state.audio.play().catch(e => console.log("Autoplay blocked")); 
+    }
 }
 
 function setupControls() {
     const { audio } = state;
+    const playBtn = document.getElementById('playBtn');
+    const fullPlayBtn = document.getElementById('fullPlayBtn');
+
     if (!audio) return;
-    const toggle = () => audio.paused ? audio.play() : audio.pause();
-    document.getElementById('playBtn').onclick = toggle;
-    document.getElementById('fullPlayBtn').onclick = toggle;
     
+    const toggle = () => {
+        if(audio.paused) {
+            audio.play();
+            playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            fullPlayBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+        } else {
+            audio.pause();
+            playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+            fullPlayBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+        }
+    };
+
+    playBtn.onclick = toggle;
+    fullPlayBtn.onclick = toggle;
     document.getElementById('miniPlayerInfo').onclick = () => document.getElementById('fullPlayer').classList.add('active');
+    document.getElementById('expandBtn').onclick = () => document.getElementById('fullPlayer').classList.add('active');
     document.getElementById('closeFullPlayer').onclick = () => document.getElementById('fullPlayer').classList.remove('active');
 }
 
@@ -225,32 +249,50 @@ function initAudioEngine() {
     state.source = state.audioCtx.createMediaElementSource(state.audio);
     state.source.connect(state.analyser);
     state.analyser.connect(state.audioCtx.destination);
-    initDiscoVisualizer();
+    state.analyser.fftSize = 256;
 }
 
-function initDiscoVisualizer(autoAnimate = false) {
+function initDiscoVisualizer() {
     const canvas = document.getElementById('bgCanvas');
     if(!canvas) return;
     const ctx = canvas.getContext('2d');
     
+    // Resize Handler
+    const resize = () => {
+        canvas.width = window.innerWidth; 
+        canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', resize);
+    resize();
+    
     function animate() {
         requestAnimationFrame(animate);
-        let bass = 100;
+        let bass = 0;
+        
         if (state.analyser) {
             const bufferLen = state.analyser.frequencyBinCount;
             const data = new Uint8Array(bufferLen);
             state.analyser.getByteFrequencyData(data);
-            bass = data[0]; 
+            // Average the lower frequencies for bass
+            for(let i=0; i<10; i++) bass += data[i];
+            bass = bass / 10;
         } else {
-             bass = 100 + Math.sin(Date.now() * 0.002) * 50;
+             // Idle animation
+             bass = 50 + Math.sin(Date.now() * 0.002) * 20;
         }
 
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        ctx.fillStyle = '#000'; ctx.fillRect(0,0,canvas.width, canvas.height);
+        ctx.fillStyle = '#000'; 
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillRect(0,0,canvas.width, canvas.height);
         
-        const grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width);
-        grad.addColorStop(0, `hsla(200, 100%, 50%, ${bass/300})`);
+        // Dynamic Gradient Background
+        const grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width * 0.8);
+        const hue = (Date.now() * 0.05) % 360;
+        const opacity = Math.min(bass / 150, 0.8);
+        
+        grad.addColorStop(0, `hsla(${hue}, 80%, 50%, ${opacity})`);
         grad.addColorStop(1, 'transparent');
+        
         ctx.fillStyle = grad;
         ctx.fillRect(0,0,canvas.width,canvas.height);
     }
@@ -261,15 +303,22 @@ function initDiscoVisualizer(autoAnimate = false) {
 function setupDownloader() {
     const fetchBtn = document.getElementById('fetchVideoBtn');
     if(fetchBtn) fetchBtn.onclick = () => {
-        document.getElementById('videoLoader').classList.remove('hidden');
+        const url = document.getElementById('videoUrl').value;
+        if(!url) return;
+
+        const loader = document.getElementById('videoLoader');
+        const result = document.getElementById('dlResult');
+        
+        result.classList.add('hidden');
+        loader.classList.remove('hidden');
+        
         setTimeout(() => {
-            document.getElementById('videoLoader').classList.add('hidden');
-            document.getElementById('dlResult').classList.remove('hidden');
+            loader.classList.add('hidden');
+            result.classList.remove('hidden');
+            result.classList.add('animate-enter'); 
+            
             document.getElementById('thumbPreview').src = "https://picsum.photos/600/340?r="+Math.random();
+            document.getElementById('vidTitle').innerText = "Video Found: " + url.substring(0, 20) + "...";
         }, 1500);
-    };
-    const pasteBtn = document.getElementById('pasteBtn');
-    if(pasteBtn) pasteBtn.onclick = async () => {
-        try { document.getElementById('videoUrl').value = await navigator.clipboard.readText(); } catch(e) {}
     };
 }
