@@ -1,45 +1,22 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Studio</title>
+<title>Chatbot</title>
 <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-<div id="snow-container"></div>
 
-<nav>
-  <div class="nav-container">
-    <a href="index.html" class="logo-text">SIRIMILLA VINAY</a>
-    <div class="nav-right">
-      <a href="music.html" class="tab-btn">Music</a>
-      <a href="videodownloader.html" class="tab-btn">DL</a>
-      <a href="ai.html" class="tab-btn active">AI</a>
-    </div>
-  </div>
+<nav class="glass nav">
+  <a href="index.html">← Back</a>
+  <h2>Chatbot AI</h2>
 </nav>
 
-<main class="chat-wrapper">
-  <div class="chat-container glass-panel" id="chatContainer">
-    <div class="message ai">
-      <div class="bubble">Hello 👋 Ask me anything!</div>
-    </div>
-  </div>
+<section class="chat glass">
+  <div id="messages"></div>
 
-  <div class="chat-input-area glass-panel">
-    <input id="aiPrompt" placeholder="Ask here..." />
-    <button onclick="sendAI()">Send</button>
-  </div>
-
-  <!-- AI CATEGORY -->
-  <div class="glass-panel ai-category">
-    <h4>AI Category</h4>
-    <button onclick="setPrompt('Explain step by step')">SC-1: Study & Learn</button>
-    <button onclick="setPrompt('Search and summarize')">SC-2: Web Search</button>
-  </div>
-</main>
+  <input id="prompt" placeholder="Ask anything…">
+  <button onclick="send()">Send</button>
+</section>
 
 <script src="script.js"></script>
 </body>
