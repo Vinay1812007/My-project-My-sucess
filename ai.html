@@ -11,38 +11,31 @@
 <body>
 
     <div id="cursor"></div>
-    <div class="full-bg-overlay"></div>
+    <div id="snowContainer"></div>
     <canvas id="bgCanvas"></canvas>
 
     <nav>
-        <div class="nav-container">
-            <a href="/" class="logo-container magnetic">
-                <div class="logo-text">SIRIMILLA VINAY</div>
-            </a>
-            <div class="nav-right">
-                <div class="tab-switcher">
-                    <a href="/music" class="tab-btn magnetic">Music</a>
-                    <a href="/videodownloader" class="tab-btn magnetic">DL</a>
-                    <a href="/ai" class="tab-btn active magnetic">AI</a>
-                </div>
-                <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+        <a href="/" class="logo-text magnetic">SIRIMILLA VINAY</a>
+        <div class="nav-right">
+            <div class="tab-switcher">
+                <a href="music" class="tab-btn magnetic">Music</a>
+                <a href="videodownloader" class="tab-btn magnetic">DL</a>
+                <a href="ai" class="tab-btn active magnetic">AI</a>
             </div>
+            <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
         </div>
     </nav>
 
-    <main class="chat-wrapper">
-        <div class="chat-container glass-panel" id="chatContainer">
+    <main class="chat-wrapper reveal">
+        <div class="chat-container" id="chatContainer">
             <div class="message ai">
-                <div class="avatar"><i class="fa-solid fa-robot"></i></div>
-                <div class="bubble">Hello! I am your AI assistant. Ask me anything!</div>
+                <div class="bubble">Hello! I am your AI assistant. How can I help you?</div>
             </div>
         </div>
 
-        <div class="chat-input-area glass-panel">
-            <div class="input-wrapper">
-                <input type="text" id="aiPrompt" placeholder="Ask anything..." autocomplete="off">
-                <button id="generateBtn" class="magnetic send-btn"><i class="fa-solid fa-paper-plane"></i></button>
-            </div>
+        <div style="background:var(--card-bg); padding:10px; border-radius:50px; display:flex; gap:10px; border:1px solid var(--glass-border);">
+            <input type="text" id="aiPrompt" placeholder="Ask anything..." style="flex:1; background:transparent; border:none; color:white; padding:0 15px; outline:none;">
+            <button id="generateBtn" class="theme-btn magnetic"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
     </main>
 
