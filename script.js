@@ -1,13 +1,16 @@
 // --- APP STATE ---
 const state = {
     user: JSON.parse(localStorage.getItem('chatUser')) || null,
-    activeChat: null
+    activeChat: null,
+    stream: null
 };
 
 // --- CORE APP MODULE ---
 const app = {
     init: () => {
         app.setupTheme();
+        
+        // Router Logic based on page presence
         if(document.getElementById('chatApp')) app.initChatgram();
         if(document.getElementById('musicGrid')) setupMusic();
         if(document.getElementById('chatContainer')) setupAI();
@@ -40,47 +43,54 @@ const app = {
         if(input) input.addEventListener('keypress', (e) => { if(e.key === 'Enter') app.sendMessage(); });
     },
 
-    loginGoogle: () => {
-        const btn = document.querySelector('.google-btn');
-        btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Connecting...`;
-        setTimeout(() => {
-            state.user = { name: "Vinay (You)", avatar: "https://lh3.googleusercontent.com/a/default-user", id: "g_123" };
-            localStorage.setItem('chatUser', JSON.stringify(state.user));
-            app.initChatgram();
-        }, 1500);
+    // Called by Google Library on success
+    handleCredentialResponse: (response) => {
+        // In a real backend, you verify 'response.credential' here.
+        // For static site, we decode the JWT locally to get user info.
+        const responsePayload = app.parseJwt(response.credential);
+        
+        state.user = { 
+            name: responsePayload.name, 
+            avatar: responsePayload.picture, 
+            id: responsePayload.sub 
+        };
+        localStorage.setItem('chatUser', JSON.stringify(state.user));
+        app.initChatgram();
     },
 
-    loginPhone: () => {
-        const phone = document.getElementById('phoneInput').value;
-        if(phone.length < 5) return alert("Invalid Number");
-        state.user = { name: "Mobile User", avatar: "https://ui-avatars.com/api/?name=Mobile+User", phone };
+    // Helper to decode Google JWT
+    parseJwt: (token) => {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    },
+
+    loginDemo: () => {
+        state.user = { name: "Guest User", avatar: "logo.png", id: "guest" };
         localStorage.setItem('chatUser', JSON.stringify(state.user));
         app.initChatgram();
     },
 
     renderChats: () => {
-        const chats = [
-            { id: 1, name: "Elon Musk", msg: "Mars rocket testing 🚀", time: "10:00", unread: 2, img: "https://upload.wikimedia.org/wikipedia/commons/3/34/Elon_Musk_Royal_Society_%28crop2%29.jpg", online: true },
-            { id: 2, name: "Saved Messages", msg: "Project_Final.pdf", time: "Yesterday", unread: 0, img: "https://ui-avatars.com/api/?name=Saved", online: true },
-            { id: 3, name: "Telegram News", msg: "New Update Features...", time: "Mon", unread: 5, img: "https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg", online: false },
-            { id: 4, name: "Team Group", msg: "Meeting at 4PM", time: "Sun", unread: 0, img: "https://ui-avatars.com/api/?name=Team+Work", online: false }
+        // Load chats from LocalStorage or use default
+        const savedChats = JSON.parse(localStorage.getItem('myChats')) || [
+            { id: 1, name: "Elon Musk", msg: "Mars update?", time: "10:00", img: "https://upload.wikimedia.org/wikipedia/commons/3/34/Elon_Musk_Royal_Society_%28crop2%29.jpg" },
+            { id: 2, name: "Team Group", msg: "Meeting at 3PM", time: "Mon", img: "logo.png" }
         ];
 
         const list = document.getElementById('chatList');
         list.innerHTML = '';
-        chats.forEach(chat => {
+        savedChats.forEach(chat => {
             const el = document.createElement('div');
             el.className = 'chat-item';
             el.innerHTML = `
-                <div class="avatar" style="background-image:url('${chat.img}')">
-                    ${chat.online ? '<div class="online-badge"></div>' : ''}
-                </div>
+                <div class="avatar" style="background-image:url('${chat.img}')"></div>
                 <div class="chat-content">
                     <div class="chat-top"><span class="chat-name">${chat.name}</span><span class="chat-time">${chat.time}</span></div>
-                    <div class="chat-bottom">
-                        <span class="chat-msg">${chat.msg}</span>
-                        ${chat.unread ? `<span class="unread-count">${chat.unread}</span>` : ''}
-                    </div>
+                    <div class="chat-bottom"><span class="chat-msg">${chat.msg}</span></div>
                 </div>
             `;
             el.onclick = () => app.openChat(chat);
@@ -92,17 +102,16 @@ const app = {
         state.activeChat = chat;
         document.getElementById('headerName').innerText = chat.name;
         document.getElementById('headerAvatar').style.backgroundImage = `url('${chat.img}')`;
-        document.getElementById('callName').innerText = chat.name;
-        document.getElementById('callAvatar').style.backgroundImage = `url('${chat.img}')`;
-        
-        // Mobile Toggle
-        document.body.classList.add('chat-open');
+        document.body.classList.add('chat-open'); // Mobile toggle
 
-        // Messages
+        // Load Messages from Storage
+        const msgs = JSON.parse(localStorage.getItem(`msgs_${chat.id}`)) || [];
         const area = document.getElementById('msgArea');
-        area.innerHTML = '<div class="encrypted-notice"><i class="fa-solid fa-lock"></i> End-to-end encrypted</div>';
-        area.innerHTML += `<div class="msg-bubble msg-in">Hello! This is ${chat.name}.</div>`;
-        area.innerHTML += `<div class="msg-bubble msg-in">${chat.msg}</div>`;
+        area.innerHTML = '<div class="encrypted-notice"><i class="fa-solid fa-lock"></i> Chat is secure</div>';
+        
+        msgs.forEach(m => {
+            area.innerHTML += `<div class="msg-bubble msg-${m.type}">${m.text}</div>`;
+        });
     },
 
     closeChat: () => {
@@ -112,53 +121,87 @@ const app = {
     sendMessage: () => {
         const input = document.getElementById('chatInput');
         const text = input.value.trim();
-        if(!text) return;
+        if(!text || !state.activeChat) return;
         
         const area = document.getElementById('msgArea');
         area.innerHTML += `<div class="msg-bubble msg-out">${text}</div>`;
         input.value = '';
         area.scrollTop = area.scrollHeight;
+
+        // Save to Storage
+        const chatId = state.activeChat.id;
+        const msgs = JSON.parse(localStorage.getItem(`msgs_${chatId}`)) || [];
+        msgs.push({ type: 'out', text: text });
         
+        // Mock Reply
         setTimeout(() => {
-            area.innerHTML += `<div class="msg-bubble msg-in">👍 Received</div>`;
+            const reply = "This is an automated reply.";
+            area.innerHTML += `<div class="msg-bubble msg-in">${reply}</div>`;
             area.scrollTop = area.scrollHeight;
+            msgs.push({ type: 'in', text: reply });
+            localStorage.setItem(`msgs_${chatId}`, JSON.stringify(msgs));
         }, 1000);
     },
 
-    startCall: (type) => {
-        document.getElementById('callOverlay').classList.add('active');
-        document.getElementById('callStatus').innerText = type === 'video' ? "Video Calling..." : "Calling...";
+    // --- REAL CAMERA ACCESS (WebRTC) ---
+    startCall: async () => {
+        const overlay = document.getElementById('callOverlay');
+        const video = document.getElementById('localVideo');
+        overlay.classList.add('active');
+
+        try {
+            // Request Camera & Mic
+            state.stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            video.srcObject = state.stream;
+        } catch (err) {
+            alert("Camera access denied or not available: " + err);
+            overlay.classList.remove('active');
+        }
     },
 
     endCall: () => {
-        document.getElementById('callOverlay').classList.remove('active');
+        const overlay = document.getElementById('callOverlay');
+        overlay.classList.remove('active');
+        
+        // Stop Camera
+        if (state.stream) {
+            state.stream.getTracks().forEach(track => track.stop());
+            state.stream = null;
+        }
     }
 };
 
-// --- MOCK FUNCTIONS FOR OTHER PAGES ---
+// --- GLOBAL GOOGLE CALLBACK ---
+// Google needs this function to be global
+window.handleCredentialResponse = app.handleCredentialResponse;
+
+// --- OTHER PAGES LOGIC ---
 function setupMusic() {
-    const grid = document.getElementById('musicGrid');
-    if(grid) grid.innerHTML = '<div style="text-align:center; color:#aaa; margin-top:20px;">Top Hits India Loaded</div>';
+    // Music Logic from previous steps
+    console.log("Music loaded");
 }
 function setupAI() {
     const btn = document.getElementById('generateBtn');
-    if(btn) btn.onclick = () => {
-        const container = document.getElementById('chatContainer');
+    if(btn) btn.onclick = async () => {
         const input = document.getElementById('aiPrompt');
-        container.innerHTML += `<div class="message user"><div class="bubble">${input.value}</div></div>`;
-        setTimeout(() => container.innerHTML += `<div class="message ai"><div class="bubble">I am your AI assistant.</div></div>`, 1000);
-    }
+        const container = document.getElementById('chatContainer');
+        const text = input.value;
+        if(!text) return;
+        
+        container.innerHTML += `<div class="message user"><div class="bubble">${text}</div></div>`;
+        input.value = '';
+        
+        try {
+            const res = await fetch('/api/generate', { method: 'POST', body: JSON.stringify({prompt:text}) });
+            const data = await res.json();
+            container.innerHTML += `<div class="message ai"><div class="bubble">${data.result}</div></div>`;
+        } catch(e) {
+            container.innerHTML += `<div class="message ai"><div class="bubble">Error</div></div>`;
+        }
+    };
 }
 function setupDownloader() {
-    const btn = document.getElementById('fetchVideoBtn');
-    if(btn) btn.onclick = () => {
-        document.getElementById('videoLoader').classList.remove('hidden');
-        setTimeout(() => {
-            document.getElementById('videoLoader').classList.add('hidden');
-            document.getElementById('dlResult').classList.remove('hidden');
-        }, 1500);
-    }
+    console.log("Downloader Loaded");
 }
 
-// Run App
 document.addEventListener('DOMContentLoaded', app.init);
