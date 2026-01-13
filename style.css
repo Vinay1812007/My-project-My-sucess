@@ -1,4 +1,4 @@
-/* --- BASE VARIABLES --- */
+/* --- BASE & VARIABLES --- */
 :root {
     --bg-color: #0f0f0f;
     --card-bg: rgba(30, 30, 30, 0.6);
@@ -27,18 +27,12 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-main); -webkit-tap-highlight-color: transparent; }
 
-html, body { height: 100%; width: 100%; overflow: hidden; } /* Fix Body Scroll Freeze */
+/* FIX SCROLL FREEZING */
+html, body { height: 100%; width: 100%; overflow: hidden; } 
 body { background-color: var(--bg-color); color: var(--text-primary); transition: background-color 0.5s ease; }
 
-/* --- BACKGROUNDS & SNOW --- */
+/* --- BACKGROUNDS --- */
 #bgCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.5; pointer-events: none; }
-#snowContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
-
-.snowflake {
-    position: absolute; top: -10px; background: white; border-radius: 50%; opacity: 0.8;
-    animation: fall linear infinite; will-change: transform;
-}
-@keyframes fall { to { transform: translateY(110vh); } }
 
 /* --- NAVIGATION --- */
 nav {
@@ -47,7 +41,6 @@ nav {
     background: rgba(0,0,0,0.2); backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border);
 }
 .logo-container { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.nav-logo { height: 35px; width: auto; object-fit: contain; }
 .logo-text { font-size: 1.2rem; font-weight: 800; color: var(--text-primary); text-transform: uppercase; }
 .nav-right { display: flex; gap: 10px; align-items: center; }
 
@@ -61,13 +54,7 @@ nav {
 .tab-btn.active { background: var(--text-primary); color: var(--bg-color); }
 .theme-btn { width: 35px; height: 35px; border-radius: 50%; background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-/* --- MAIN SCROLL AREA --- */
-.page-scroll-container {
-    height: 100%; padding-top: var(--nav-height); overflow-y: auto; overflow-x: hidden;
-    scroll-behavior: smooth; position: relative;
-}
-
-/* --- CHATGRAM (Fixed Layout) --- */
+/* --- CHATGRAM UI (Fixed Layout) --- */
 .chat-app {
     display: flex; height: 100%; width: 100%; position: absolute; top: var(--nav-height); bottom: 0; left: 0;
     background: var(--bg-color); overflow: hidden;
@@ -121,6 +108,7 @@ nav {
     display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
 }
 .chat-user-info { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.avatar-small { width: 35px; height: 35px; border-radius: 50%; background-size: cover; background-position: center; }
 .user-meta h4 { font-size: 1rem; margin: 0; }
 .status-online { color: var(--accent); font-size: 0.8rem; }
 .chat-actions { display: flex; gap: 15px; color: var(--text-primary); }
@@ -186,16 +174,11 @@ nav {
 
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 136, 204, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(0, 136, 204, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 136, 204, 0); } }
 
-/* --- LANDING & OTHER PAGES --- */
-.landing-container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 80vh; text-align: center; }
-.hero-logo { font-size: 3.5rem; margin-bottom: 20px; background: linear-gradient(135deg, #fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.landing-buttons { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
-.landing-link { padding: 12px 30px; border-radius: 50px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
-.landing-link:hover { background: var(--accent); color: white; }
-
-/* Responsive */
-.mobile-back-btn { display: none; }
+/* --- OTHER PAGES --- */
+.content-section { height: 100%; overflow-y: auto; padding: calc(var(--nav-height) + 20px) 20px 20px; }
+.centered-view { display: flex; justify-content: center; }
 .hidden { display: none !important; }
+.mobile-only { display: none; }
 
 @media (max-width: 768px) {
     .chat-sidebar { width: 100%; position: absolute; top: 0; bottom: 0; left: 0; z-index: 20; background: var(--bg-color); transition: transform 0.3s ease; }
@@ -203,8 +186,5 @@ nav {
     
     body.chat-open .chat-sidebar { transform: translateX(-100%); }
     body.chat-open .chat-main { transform: translateX(0); z-index: 30; }
-    
-    .mobile-back-btn { display: block; font-size: 1.2rem; margin-right: 10px; background: none; border: none; color: var(--text-primary); }
-    .tab-btn span { display: none; }
-    #cursor { display: none; }
+    .mobile-only { display: block; }
 }
