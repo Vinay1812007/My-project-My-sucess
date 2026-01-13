@@ -5,9 +5,8 @@
     { "source": "/music", "destination": "/music.html" },
     { "source": "/ai", "destination": "/ai.html" },
     { "source": "/videodownloader", "destination": "/videodownloader.html" },
+    { "source": "/Chats", "destination": "/chats.html" },
     { "source": "/sitemap", "destination": "/sitemap.html" },
-    { "source": "/Chats", "destination": "/index.html" },
-    { "source": "/Chats/call", "destination": "/index.html" },
     { "source": "/api/generate", "destination": "/api/generate.js" }
   ]
 }
