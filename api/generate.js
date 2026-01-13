@@ -5,15 +5,14 @@ export default async function (req, context) {
   }
 
   try {
-    // Netlify specific way to parse body
     const body = await req.json(); 
     const { prompt } = body;
     
-    // Get API Key from Netlify Environment Variables
+    // Netlify Environment Variable Access
     const apiKey = Netlify.env.get("GROQ_API_KEY") || process.env.GROQ_API_KEY;
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'Server config error: API Key missing' }), {
+      return new Response(JSON.stringify({ error: 'API Key missing' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -30,7 +29,7 @@ export default async function (req, context) {
             { role: "system", content: "You are a helpful AI assistant." },
             { role: "user", content: prompt }
         ],
-        model: "llama-3.3-70b-versatile", // Fixed Model Name
+        model: "llama-3.3-70b-versatile",
         temperature: 0.7,
         max_tokens: 1024
       })
