@@ -1,162 +1,135 @@
-// --- APP STATE ---
-const state = {
-    user: JSON.parse(localStorage.getItem('chatUser')) || null,
-    activeChat: null,
-    stream: null
-};
-
-// --- CORE APP MODULE ---
 const app = {
+    user: null,
+    currentTab: 'chat',
+    
     init: () => {
-        app.setupTheme();
-        
-        // Router Logic
-        if(document.getElementById('chatApp')) app.initChatgram();
-        if(document.getElementById('musicGrid')) setupMusic();
-        if(document.getElementById('chatContainer')) setupAI();
-        if(document.getElementById('videoUrl')) setupDownloader();
-    },
-
-    setupTheme: () => {
-        const saved = localStorage.getItem('theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', saved);
-        const btn = document.getElementById('themeToggle');
-        if(btn) btn.onclick = () => {
-            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-        };
-    },
-
-    // --- CHATGRAM LOGIC ---
-    initChatgram: () => {
-        if (state.user) {
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('chatApp').classList.remove('hidden');
-            app.renderChats();
+        // Check Session
+        const session = localStorage.getItem('chatgram_user');
+        if (session) {
+            app.user = JSON.parse(session);
+            app.loadWorkspace();
         } else {
-            document.getElementById('loginScreen').classList.remove('hidden');
-            document.getElementById('chatApp').classList.add('hidden');
+            document.getElementById('authScreen').classList.remove('hidden');
         }
-        const input = document.getElementById('chatInput');
-        if(input) input.addEventListener('keypress', (e) => { if(e.key === 'Enter') app.sendMessage(); });
     },
 
-    // SIMULATED GOOGLE LOGIN (Fixes Error 401)
-    loginGoogle: () => {
-        const btn = document.querySelector('.google-btn');
-        btn.innerHTML = `<span><i class="fa-solid fa-circle-notch fa-spin"></i> Connecting...</span>`;
+    // --- AUTHENTICATION (Simulated) ---
+    login: (provider) => {
+        const btn = document.querySelector(`.social-btn.${provider}`);
+        if(btn) btn.style.opacity = '0.7';
         
+        // Simulate Network Delay
         setTimeout(() => {
-            state.user = { 
-                name: "Google User", 
-                avatar: "https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg", 
-                id: "google_123" 
+            const mockUser = {
+                name: "Vinay Sirimilla",
+                email: "vinay@chatgram.com",
+                avatar: "https://ui-avatars.com/api/?name=Vinay+Sirimilla&background=0088cc&color=fff",
+                id: "user_" + Date.now()
             };
-            localStorage.setItem('chatUser', JSON.stringify(state.user));
-            app.initChatgram();
-        }, 1500);
-    },
-
-    loginPhone: () => {
-        const phone = document.getElementById('phoneInput').value;
-        if(phone.length < 5) return alert("Invalid Number");
-        state.user = { name: "Mobile User", avatar: "logo.png", phone };
-        localStorage.setItem('chatUser', JSON.stringify(state.user));
-        app.initChatgram();
-    },
-
-    loginDemo: () => {
-        state.user = { name: "Guest User", avatar: "logo.png", id: "guest" };
-        localStorage.setItem('chatUser', JSON.stringify(state.user));
-        app.initChatgram();
-    },
-
-    renderChats: () => {
-        const chats = [
-            { id: 1, name: "Elon Musk", msg: "Mars update?", time: "10:00", img: "https://upload.wikimedia.org/wikipedia/commons/3/34/Elon_Musk_Royal_Society_%28crop2%29.jpg" },
-            { id: 2, name: "Team Group", msg: "Meeting at 3PM", time: "Mon", img: "logo.png" }
-        ];
-        const list = document.getElementById('chatList');
-        list.innerHTML = '';
-        chats.forEach(chat => {
-            const el = document.createElement('div');
-            el.className = 'chat-item';
-            el.innerHTML = `<div class="avatar" style="background-image:url('${chat.img}')"></div><div class="chat-content"><div class="chat-top"><span class="chat-name">${chat.name}</span><span class="chat-time">${chat.time}</span></div><div class="chat-bottom"><span class="chat-msg">${chat.msg}</span></div></div>`;
-            el.onclick = () => app.openChat(chat);
-            list.appendChild(el);
-        });
-    },
-
-    openChat: (chat) => {
-        state.activeChat = chat;
-        document.getElementById('headerName').innerText = chat.name;
-        document.getElementById('headerAvatar').style.backgroundImage = `url('${chat.img}')`;
-        document.body.classList.add('chat-open');
-        const area = document.getElementById('msgArea');
-        area.innerHTML = '<div class="encrypted-notice"><i class="fa-solid fa-lock"></i> Chat is secure</div>';
-    },
-
-    closeChat: () => {
-        document.body.classList.remove('chat-open');
-    },
-
-    sendMessage: () => {
-        const input = document.getElementById('chatInput');
-        const text = input.value.trim();
-        if(!text) return;
-        const area = document.getElementById('msgArea');
-        area.innerHTML += `<div class="msg-bubble msg-out">${text}</div>`;
-        input.value = '';
-        area.scrollTop = area.scrollHeight;
-        setTimeout(() => {
-            area.innerHTML += `<div class="msg-bubble msg-in">Message Received</div>`;
-            area.scrollTop = area.scrollHeight;
+            
+            localStorage.setItem('chatgram_user', JSON.stringify(mockUser));
+            app.user = mockUser;
+            document.getElementById('authScreen').style.display = 'none';
+            app.loadWorkspace();
         }, 1000);
     },
 
-    startCall: async () => {
-        const overlay = document.getElementById('callOverlay');
-        const video = document.getElementById('localVideo');
-        overlay.classList.add('active');
+    logout: () => {
+        localStorage.removeItem('chatgram_user');
+        window.location.reload();
+    },
+
+    // --- WORKSPACE LOGIC ---
+    loadWorkspace: () => {
+        document.getElementById('workspace').classList.remove('hidden');
+        document.getElementById('userAvatar').src = app.user.avatar;
+        app.switchTab('chat');
+        app.loadChats();
+        app.loadEmails();
+        app.showToast(`Welcome back, ${app.user.name}`);
+    },
+
+    switchTab: (tab) => {
+        // Update UI
+        document.querySelectorAll('.app-icon').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.app-view').forEach(el => el.classList.add('hidden'));
+        
+        // Find button index roughly
+        const icons = document.querySelectorAll('.app-icon');
+        if(tab === 'chat') icons[0].classList.add('active');
+        if(tab === 'call') icons[1].classList.add('active');
+        if(tab === 'email') icons[2].classList.add('active');
+
+        document.getElementById(`view-${tab}`).classList.remove('hidden');
+        app.currentTab = tab;
+        
+        // Special init for video
+        if(tab === 'call') app.initCamera();
+    },
+
+    // --- DATA MOCKING ---
+    loadChats: () => {
+        const chats = [
+            { name: "Elon Musk", msg: "Rocket launch successful!", time: "10:02 AM", unread: 2 },
+            { name: "Team Alpha", msg: "Meeting at 3 PM?", time: "Yesterday", unread: 0 },
+            { name: "Support Bot", msg: "Ticket #9283 resolved.", time: "Mon", unread: 5 }
+        ];
+        const list = document.getElementById('chatList');
+        list.innerHTML = chats.map(c => `
+            <div class="chat-preview-card">
+                <img src="https://ui-avatars.com/api/?name=${c.name}&background=random" class="avatar">
+                <div style="flex:1">
+                    <div style="display:flex; justify-content:space-between">
+                        <b>${c.name}</b>
+                        <small style="opacity:0.6">${c.time}</small>
+                    </div>
+                    <div style="font-size:0.9rem; opacity:0.8; margin-top:2px;">${c.msg}</div>
+                </div>
+            </div>
+        `).join('');
+    },
+
+    loadEmails: () => {
+        const emails = [
+            { from: "Google Security", subject: "New sign-in detected", time: "11:30 AM" },
+            { from: "Netlify", subject: "Build successful: chatgram-v2", time: "10:15 AM" },
+            { from: "HR Department", subject: "Holiday Calendar 2026", time: "Yesterday" }
+        ];
+        const list = document.getElementById('emailList');
+        list.innerHTML = emails.map(e => `
+            <div class="email-item">
+                <div class="email-sender">${e.from}</div>
+                <div class="email-subject">${e.subject}</div>
+                <div class="email-time">${e.time}</div>
+            </div>
+        `).join('');
+    },
+
+    // --- WEBRTC (Real Camera) ---
+    initCamera: async () => {
         try {
-            state.stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            video.srcObject = state.stream;
-        } catch (err) {
-            alert("Camera access denied: " + err);
-            overlay.classList.remove('active');
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            document.getElementById('localVideo').srcObject = stream;
+        } catch (e) {
+            app.showToast("Camera access denied or unavailable");
         }
     },
 
-    endCall: () => {
-        document.getElementById('callOverlay').classList.remove('active');
-        if (state.stream) {
-            state.stream.getTracks().forEach(track => track.stop());
-            state.stream = null;
-        }
+    toggleCam: () => {
+        const video = document.getElementById('localVideo');
+        video.srcObject.getVideoTracks()[0].enabled = !video.srcObject.getVideoTracks()[0].enabled;
+    },
+
+    toggleMic: () => app.showToast("Microphone toggled"),
+    shareScreen: () => app.showToast("Screen sharing started"),
+
+    // --- UTILS ---
+    showToast: (msg) => {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
     }
 };
-
-// Placeholders for other pages
-function setupMusic() {}
-function setupAI() {
-    const btn = document.getElementById('generateBtn');
-    if(btn) {
-        btn.onclick = async () => {
-            const input = document.getElementById('aiPrompt');
-            const container = document.getElementById('chatContainer');
-            container.innerHTML += `<div class="message user"><div class="bubble">${input.value}</div></div>`;
-            try {
-                const res = await fetch('/api/generate', { method: 'POST', body: JSON.stringify({prompt:input.value}) });
-                const data = await res.json();
-                container.innerHTML += `<div class="message ai"><div class="bubble">${data.result}</div></div>`;
-            } catch(e) { container.innerHTML += `<div class="message ai"><div class="bubble">Error</div></div>`; }
-        };
-    }
-}
-function setupDownloader() {}
-
-// Expose app to global scope for HTML onclick attributes
-window.app = app;
 
 document.addEventListener('DOMContentLoaded', app.init);
