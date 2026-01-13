@@ -5,7 +5,7 @@
     { "source": "/music", "destination": "/music.html" },
     { "source": "/ai", "destination": "/ai.html" },
     { "source": "/videodownloader", "destination": "/videodownloader.html" },
-    { "source": "/Chatgram", "destination": "/chats.html" },
+    { "source": "/chatgram", "destination": "/chatgram.html" },
     { "source": "/sitemap", "destination": "/sitemap.html" },
     { "source": "/api/generate", "destination": "/api/generate.js" }
   ]
