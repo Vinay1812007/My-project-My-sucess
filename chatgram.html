@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="app-mode">
 
@@ -18,9 +17,9 @@
             </a>
             <div class="nav-right">
                 <div class="tab-switcher">
-                    <a href="chatgram" class="tab-btn active magnetic"><i class="fa-brands fa-telegram"></i> <span>Chat</span></a>
-                    <a href="music" class="tab-btn magnetic"><i class="fa-solid fa-music"></i> <span>Music</span></a>
-                    <a href="ai" class="tab-btn magnetic"><i class="fa-solid fa-robot"></i> <span>AI</span></a>
+                    <a href="chatgram.html" class="tab-btn active magnetic"><i class="fa-brands fa-telegram"></i> <span>Chat</span></a>
+                    <a href="music.html" class="tab-btn magnetic"><i class="fa-solid fa-music"></i> <span>Music</span></a>
+                    <a href="ai.html" class="tab-btn magnetic"><i class="fa-solid fa-robot"></i> <span>AI</span></a>
                 </div>
                 <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
             </div>
@@ -33,16 +32,25 @@
             <h2>Chatgram</h2>
             <p style="color:var(--text-secondary); margin-bottom:20px;">Fast. Secure. Cloud-based.</p>
             
-            <div id="g_id_onload"
-                 data-client_id="YOUR_GOOGLE_CLIENT_ID"
-                 data-callback="handleCredentialResponse"
-                 data-auto_select="false">
+            <div class="input-group">
+                <i class="fa-solid fa-phone"></i>
+                <input type="tel" id="phoneInput" placeholder="+91 98765 43210" class="clean-input">
             </div>
-            <div class="g_id_signin" data-type="standard" data-size="large" data-theme="filled_black" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left"></div>
-
-            <div style="margin:20px 0; font-size:0.8rem;">OR</div>
             
-            <button class="landing-btn full-width magnetic" onclick="app.loginDemo()">Enter Guest Mode</button>
+            <button class="landing-btn full-width magnetic" onclick="app.loginPhone()">
+                Log in with Phone
+            </button>
+
+            <div style="margin:20px 0; font-size:0.8rem; color: #888;">OR</div>
+
+            <button class="google-btn magnetic" onclick="app.loginGoogle()">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="G">
+                <span>Continue with Google</span>
+            </button>
+            
+            <button class="landing-btn full-width magnetic" style="margin-top: 10px; background: #333;" onclick="app.loginDemo()">
+                Visitor Mode (No Login)
+            </button>
         </div>
     </div>
 
