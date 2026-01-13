@@ -1,132 +1,308 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chatgram Workspace</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>ChatGram • Sirimilla Vinay</title>
+
+  <!-- SEO -->
+  <meta name="description" content="ChatGram — a modern messenger with iMessage-style UI, reactions, voice notes, and local encryption simulation." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://sirimillavinay.online/chat" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="/favicon.png" />
+  <link rel="stylesheet" href="/style.css" />
 </head>
-<body class="app-mode">
 
-    <div id="authScreen" class="auth-screen">
-        <div class="auth-card glass-panel">
-            <div class="auth-logo">
-                <i class="fa-brands fa-telegram"></i>
-                <h1>Chatgram</h1>
-            </div>
-            <p>Enterprise Email, Chat & Video.</p>
-            
-            <div class="auth-methods">
-                <button class="social-btn google" onclick="app.login('google')">
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="G">
-                    <span>Continue with Google</span>
-                </button>
-                
-                <button class="social-btn apple" onclick="app.login('apple')">
-                    <i class="fa-brands fa-apple"></i>
-                    <span>Continue with Apple</span>
-                </button>
-            </div>
-            
-            <div class="divider"><span>OR</span></div>
-            
-            <div class="input-field">
-                <i class="fa-solid fa-envelope"></i>
-                <input type="email" placeholder="work@email.com">
-            </div>
-            <button class="primary-btn full" onclick="app.login('email')">Sign In</button>
-        </div>
+<body>
+<main role="main" aria-label="ChatGram" style="padding-bottom:140px">
+
+  <!-- HEADER -->
+  <header class="glass" style="margin:16px; padding:18px; display:flex; justify-content:space-between; align-items:center">
+    <div>
+      <h1 style="margin:0">💬 ChatGram</h1>
+      <div class="muted" id="status">Online</div>
     </div>
+    <input
+      id="search"
+      type="search"
+      placeholder="Search messages"
+      aria-label="Search messages"
+      style="padding:10px; border-radius:12px; border:none"
+    />
+  </header>
 
-    <div id="workspace" class="workspace hidden">
-        
-        <nav class="app-sidebar">
-            <div class="app-icon active" onclick="app.switchTab('chat')" title="Chats">
-                <i class="fa-solid fa-comment-dots"></i>
-            </div>
-            <div class="app-icon" onclick="app.switchTab('call')" title="Calls">
-                <i class="fa-solid fa-video"></i>
-            </div>
-            <div class="app-icon" onclick="app.switchTab('email')" title="Mailbox">
-                <i class="fa-solid fa-envelope"></i>
-                <span class="badge">3</span>
-            </div>
-            <div class="spacer"></div>
-            <div class="app-icon" onclick="app.logout()" title="Logout">
-                <img id="userAvatar" src="" class="user-avatar-mini">
-            </div>
-        </nav>
+  <!-- CHAT -->
+  <section id="chat"
+    style="
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    "
+    aria-live="polite"
+  ></section>
 
-        <section id="view-chat" class="app-view">
-            <div class="list-pane">
-                <div class="pane-header">
-                    <h2>Chats</h2>
-                    <button class="icon-btn"><i class="fa-solid fa-pen-to-square"></i></button>
-                </div>
-                <div class="search-box">
-                    <i class="fa-solid fa-search"></i>
-                    <input type="text" placeholder="Search">
-                </div>
-                <div class="chat-list" id="chatList"></div>
-            </div>
-            <div class="content-pane" id="chatContent">
-                <div class="empty-state">
-                    <i class="fa-brands fa-telegram"></i>
-                    <p>Select a chat to start messaging</p>
-                </div>
-            </div>
-        </section>
+</main>
 
-        <section id="view-call" class="app-view hidden">
-            <div class="call-interface">
-                <div class="video-grid">
-                    <div class="video-card local">
-                        <video id="localVideo" autoplay muted playsinline></video>
-                        <div class="video-label">You</div>
-                    </div>
-                    <div class="video-card remote placeholder">
-                        <div class="avatar-placeholder">Waiting for peer...</div>
-                    </div>
-                </div>
-                <div class="call-controls">
-                    <button class="control-btn" onclick="app.toggleMic()"><i class="fa-solid fa-microphone"></i></button>
-                    <button class="control-btn" onclick="app.toggleCam()"><i class="fa-solid fa-video"></i></button>
-                    <button class="control-btn hangup"><i class="fa-solid fa-phone-slash"></i></button>
-                    <button class="control-btn" onclick="app.shareScreen()"><i class="fa-solid fa-desktop"></i></button>
-                </div>
-            </div>
-        </section>
+<!-- INPUT BAR -->
+<footer class="glass"
+  style="
+    position:fixed;
+    bottom:70px;
+    left:16px;
+    right:16px;
+    padding:12px;
+    display:flex;
+    gap:8px;
+    align-items:center;
+  "
+>
+  <input type="file" id="image" accept="image/*" hidden />
+  <button id="imgBtn" class="button" aria-label="Send image">📷</button>
+  <button id="micBtn" class="button" aria-label="Record voice">🎤</button>
 
-        <section id="view-email" class="app-view hidden email-layout">
-            <div class="email-sidebar">
-                <button class="compose-btn" onclick="app.composeEmail()">
-                    <i class="fa-solid fa-pencil"></i> Compose
-                </button>
-                <div class="folder-list">
-                    <div class="folder-item active"><i class="fa-solid fa-inbox"></i> Inbox <span class="count">3</span></div>
-                    <div class="folder-item"><i class="fa-solid fa-star"></i> Starred</div>
-                    <div class="folder-item"><i class="fa-solid fa-paper-plane"></i> Sent</div>
-                    <div class="folder-item"><i class="fa-solid fa-trash"></i> Trash</div>
-                </div>
-            </div>
-            <div class="email-list" id="emailList">
-                </div>
-            <div class="email-reader hidden" id="emailReader">
-                <div class="reader-toolbar">
-                    <button onclick="app.closeEmail()"><i class="fa-solid fa-arrow-left"></i></button>
-                    <button><i class="fa-solid fa-trash"></i></button>
-                    <button><i class="fa-solid fa-reply"></i></button>
-                </div>
-                <div class="reader-body" id="readerContent"></div>
-            </div>
-        </section>
+  <textarea
+    id="input"
+    rows="1"
+    placeholder="Message…"
+    aria-label="Message"
+    style="flex:1; resize:none; padding:10px; border-radius:12px; border:none"
+  ></textarea>
 
-    </div>
+  <button id="send" class="button">Send</button>
+</footer>
 
-    <div id="toast" class="toast">Notification</div>
+<!-- NAV -->
+<nav class="navbar">
+  <a href="/home">Home</a>
+  <a href="/music">Music</a>
+  <a href="/chat.ai">AI</a>
+  <a href="/videodownloder">Video</a>
+  <a href="/chat" class="active">Chat</a>
+</nav>
 
-    <script src="script.js"></script>
+<script src="/script.js" defer></script>
+
+<script>
+(() => {
+  "use strict";
+
+  /* -------------------------
+     INDEXEDDB
+  ------------------------- */
+  const DB_NAME = "chatgram-db";
+  const STORE = "messages";
+  let db;
+
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = () => {
+        req.result.createObjectStore(STORE, { keyPath: "id" });
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function saveMessage(msg) {
+    const tx = db.transaction(STORE, "readwrite");
+    tx.objectStore(STORE).put(msg);
+  }
+
+  async function getMessages() {
+    const tx = db.transaction(STORE, "readonly");
+    const req = tx.objectStore(STORE).getAll();
+    return new Promise(res => {
+      req.onsuccess = () => res(req.result || []);
+    });
+  }
+
+  /* -------------------------
+     STATE
+  ------------------------- */
+  const chat = document.getElementById("chat");
+  const input = document.getElementById("input");
+  const sendBtn = document.getElementById("send");
+  const imgBtn = document.getElementById("imgBtn");
+  const imageInput = document.getElementById("image");
+  const micBtn = document.getElementById("micBtn");
+  const search = document.getElementById("search");
+  const statusEl = document.getElementById("status");
+
+  let recorder;
+  let chunks = [];
+
+  /* -------------------------
+     UTIL
+  ------------------------- */
+  function uuid() {
+    return crypto.randomUUID();
+  }
+
+  function encryptSim(text) {
+    return btoa(unescape(encodeURIComponent(text)));
+  }
+
+  function decryptSim(text) {
+    try {
+      return decodeURIComponent(escape(atob(text)));
+    } catch {
+      return text;
+    }
+  }
+
+  function bubble(msg) {
+    const el = document.createElement("div");
+    el.className = "glass";
+    el.style.maxWidth = "80%";
+    el.style.padding = "12px";
+    el.style.alignSelf = msg.me ? "flex-end" : "flex-start";
+    el.style.background = msg.me ? "rgba(76,159,254,0.9)" : "var(--glass)";
+    el.style.color = msg.me ? "#fff" : "inherit";
+    el.dataset.id = msg.id;
+
+    if (msg.type === "text") {
+      el.textContent = decryptSim(msg.content);
+    }
+
+    if (msg.type === "image") {
+      const img = document.createElement("img");
+      img.src = msg.content;
+      img.style.maxWidth = "200px";
+      img.style.borderRadius = "12px";
+      el.appendChild(img);
+    }
+
+    if (msg.type === "audio") {
+      const audio = document.createElement("audio");
+      audio.src = msg.content;
+      audio.controls = true;
+      el.appendChild(audio);
+    }
+
+    chat.appendChild(el);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  /* -------------------------
+     SEND TEXT
+  ------------------------- */
+  async function sendText() {
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = "";
+
+    const msg = {
+      id: uuid(),
+      type: "text",
+      content: encryptSim(text),
+      me: true,
+      ts: Date.now(),
+      read: true
+    };
+
+    bubble(msg);
+    await saveMessage(msg);
+  }
+
+  /* -------------------------
+     IMAGE
+  ------------------------- */
+  imgBtn.onclick = () => imageInput.click();
+  imageInput.onchange = async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const msg = {
+        id: uuid(),
+        type: "image",
+        content: reader.result,
+        me: true,
+        ts: Date.now()
+      };
+      bubble(msg);
+      await saveMessage(msg);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  /* -------------------------
+     VOICE
+  ------------------------- */
+  micBtn.onclick = async () => {
+    if (!recorder) {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      recorder = new MediaRecorder(stream);
+      recorder.ondataavailable = e => chunks.push(e.data);
+      recorder.onstop = async () => {
+        const blob = new Blob(chunks, { type: "audio/webm" });
+        chunks = [];
+        const url = URL.createObjectURL(blob);
+        const msg = {
+          id: uuid(),
+          type: "audio",
+          content: url,
+          me: true,
+          ts: Date.now()
+        };
+        bubble(msg);
+        await saveMessage(msg);
+      };
+    }
+
+    if (recorder.state === "inactive") {
+      recorder.start();
+      micBtn.textContent = "⏹";
+    } else {
+      recorder.stop();
+      micBtn.textContent = "🎤";
+    }
+  };
+
+  /* -------------------------
+     SEARCH
+  ------------------------- */
+  search.oninput = async e => {
+    const q = e.target.value.toLowerCase();
+    chat.innerHTML = "";
+    const msgs = await getMessages();
+    msgs
+      .filter(m => decryptSim(m.content || "").toLowerCase().includes(q))
+      .forEach(bubble);
+  };
+
+  /* -------------------------
+     NETWORK STATUS
+  ------------------------- */
+  function updateStatus() {
+    statusEl.textContent = navigator.onLine ? "Online" : "Offline";
+  }
+  window.addEventListener("online", updateStatus);
+  window.addEventListener("offline", updateStatus);
+  updateStatus();
+
+  /* -------------------------
+     INIT
+  ------------------------- */
+  document.addEventListener("DOMContentLoaded", async () => {
+    db = await openDB();
+    const msgs = await getMessages();
+    msgs.sort((a, b) => a.ts - b.ts).forEach(bubble);
+  });
+
+  sendBtn.onclick = sendText;
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendText();
+    }
+  });
+
+})();
+</script>
+
 </body>
 </html>
