@@ -43,8 +43,9 @@ const app = {
     },
 
     loginGoogle: () => {
-        const btn = document.querySelector('.google-btn span');
-        btn.innerText = "Connecting to Google...";
+        const btn = document.querySelector('.google-btn');
+        const span = btn.querySelector('span');
+        span.innerText = "Connecting to Google...";
         setTimeout(() => {
             state.user = { name: "Vinay (You)", avatar: "logo.png", id: "g_123" };
             localStorage.setItem('chatUser', JSON.stringify(state.user));
@@ -62,10 +63,10 @@ const app = {
 
     renderChats: () => {
         const chats = [
-            { id: 1, name: "Elon Musk", msg: "Mars rocket testing 🚀", time: "10:00", unread: 2, img: "https://upload.wikimedia.org/wikipedia/commons/3/34/Elon_Musk_Royal_Society_%28crop2%29.jpg" },
-            { id: 2, name: "Saved Messages", msg: "Project_Final.pdf", time: "Yesterday", unread: 0, img: "logo.png" },
-            { id: 3, name: "Telegram News", msg: "New Update Features...", time: "Mon", unread: 5, img: "https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" },
-            { id: 4, name: "Team Group", msg: "Meeting at 4PM", time: "Sun", unread: 0, img: "https://ui-avatars.com/api/?name=Team+Work" }
+            { id: 1, name: "Elon Musk", msg: "Mars rocket testing 🚀", time: "10:00", unread: 2, img: "https://upload.wikimedia.org/wikipedia/commons/3/34/Elon_Musk_Royal_Society_%28crop2%29.jpg", online: true },
+            { id: 2, name: "Saved Messages", msg: "Project_Final.pdf", time: "Yesterday", unread: 0, img: "logo.png", online: true },
+            { id: 3, name: "Telegram News", msg: "New Update Features...", time: "Mon", unread: 5, img: "https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg", online: false },
+            { id: 4, name: "Team Group", msg: "Meeting at 4PM", time: "Sun", unread: 0, img: "https://ui-avatars.com/api/?name=Team+Work", online: false }
         ];
 
         const list = document.getElementById('chatList');
@@ -74,7 +75,9 @@ const app = {
             const el = document.createElement('div');
             el.className = 'chat-item';
             el.innerHTML = `
-                <div class="avatar" style="background-image:url('${chat.img}')"></div>
+                <div class="avatar" style="background-image:url('${chat.img}')">
+                    ${chat.online ? '<div class="online-badge"></div>' : ''}
+                </div>
                 <div class="chat-content">
                     <div class="chat-top"><span class="chat-name">${chat.name}</span><span class="chat-time">${chat.time}</span></div>
                     <div class="chat-bottom">
@@ -136,22 +139,24 @@ const app = {
     }
 };
 
-// --- STANDARD PAGE FUNCTIONS (Mock implementations for completeness) ---
+// --- STANDARD PAGE FUNCTIONS (Mock implementations) ---
 function setupMusic() {
-    console.log("Music setup");
-    // Add existing music logic here if needed
+    console.log("Music Initialized");
+    const btn = document.getElementById('searchBtn');
+    if(btn) btn.onclick = () => alert("Search Logic Active");
 }
 function setupAI() {
-    console.log("AI setup");
     const btn = document.getElementById('generateBtn');
-    if(btn) btn.onclick = () => {
+    if(btn) btn.onclick = async () => {
         const area = document.getElementById('chatContainer');
         const input = document.getElementById('aiPrompt');
         area.innerHTML += `<div class="message user"><div class="bubble">${input.value}</div></div>`;
+        
+        // Mock API Call
         setTimeout(() => {
-            area.innerHTML += `<div class="message ai"><div class="bubble">I am your AI. (Use API for real response)</div></div>`;
+            area.innerHTML += `<div class="message ai"><div class="bubble">I am your AI assistant. (Connected to Logic)</div></div>`;
         }, 1000);
-    }
+    };
 }
 function setupDownloader() {
     const btn = document.getElementById('fetchVideoBtn');
