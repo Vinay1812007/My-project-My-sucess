@@ -8,7 +8,7 @@ export default async function (req, context) {
     const body = await req.json(); 
     const { prompt } = body;
     
-    // Netlify Environment Variable Access
+    // Netlify Env Var Access
     const apiKey = Netlify.env.get("GROQ_API_KEY") || process.env.GROQ_API_KEY;
 
     if (!apiKey) {
