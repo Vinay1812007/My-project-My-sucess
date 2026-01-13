@@ -4,35 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Chatgram - SIRIMILLA VINAY</title>
-    <link rel="icon" type="image/png" href="favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
-<body class="app-mode"> <nav>
-        <a href="index.html" class="logo-container">
-            <img src="logo.png" alt="SV" class="nav-logo">
-            <div class="logo-text">SIRIMILLA VINAY</div>
-        </a>
-        <div class="nav-right">
-            <div class="tab-switcher">
-                <a href="chatgram.html" class="tab-btn active"><i class="fa-brands fa-telegram"></i></a>
-                <a href="music.html" class="tab-btn"><i class="fa-solid fa-music"></i></a>
-                <a href="ai.html" class="tab-btn"><i class="fa-solid fa-robot"></i></a>
+<body class="app-mode">
+
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo-container magnetic">
+                <div class="logo-text">SIRIMILLA VINAY</div>
+            </a>
+            <div class="nav-right">
+                <div class="tab-switcher">
+                    <a href="chatgram" class="tab-btn active magnetic"><i class="fa-brands fa-telegram"></i> <span>Chat</span></a>
+                    <a href="music" class="tab-btn magnetic"><i class="fa-solid fa-music"></i> <span>Music</span></a>
+                    <a href="ai" class="tab-btn magnetic"><i class="fa-solid fa-robot"></i> <span>AI</span></a>
+                </div>
+                <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
             </div>
-            <button class="theme-btn" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
         </div>
     </nav>
 
     <div id="loginScreen" class="login-screen">
-        <div class="login-box">
-            <i class="fa-brands fa-telegram" style="font-size: 4rem; color:var(--accent); margin-bottom:15px;"></i>
+        <div class="login-box glass-panel">
+            <div class="login-logo"><i class="fa-brands fa-telegram"></i></div>
             <h2>Chatgram</h2>
-            <p style="color:var(--text-secondary); margin-bottom:25px;">Secure. Cloud-based.</p>
+            <p style="color:var(--text-secondary); margin-bottom:20px;">Fast. Secure. Cloud-based.</p>
             
             <div id="g_id_onload"
-                 data-client_id="YOUR_GOOGLE_CLIENT_ID_HERE"
+                 data-client_id="YOUR_GOOGLE_CLIENT_ID"
                  data-callback="handleCredentialResponse"
                  data-auto_select="false">
             </div>
@@ -40,7 +42,7 @@
 
             <div style="margin:20px 0; font-size:0.8rem;">OR</div>
             
-            <button class="landing-btn" style="width:100%" onclick="app.loginDemo()">Enter as Guest</button>
+            <button class="landing-btn full-width magnetic" onclick="app.loginDemo()">Enter Guest Mode</button>
         </div>
     </div>
 
@@ -54,33 +56,29 @@
             </div>
             <div class="chat-folders">
                 <div class="folder active">All</div>
-                <div class="folder">Personal</div>
                 <div class="folder">Work</div>
+                <div class="folder">Personal</div>
             </div>
             <div class="chat-list" id="chatList"></div>
         </div>
 
         <div class="chat-main">
             <div class="chat-header">
-                <div style="display:flex; align-items:center;">
-                    <button class="mobile-back-btn" onclick="app.closeChat()"><i class="fa-solid fa-arrow-left"></i></button>
-                    <div class="chat-user-info">
-                        <div class="avatar" id="headerAvatar"></div>
-                        <div class="user-meta">
-                            <h4 id="headerName">Select Chat</h4>
-                            <span class="status-online">online</span>
-                        </div>
+                <button class="mobile-back-btn" onclick="app.closeChat()"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="chat-user-info">
+                    <div class="avatar" id="headerAvatar"></div>
+                    <div class="user-meta">
+                        <h4 id="headerName">Select Chat</h4>
+                        <span class="status-online">online</span>
                     </div>
                 </div>
                 <div class="chat-actions">
                     <button class="icon-btn" onclick="app.startCall()"><i class="fa-solid fa-video"></i></button>
                 </div>
             </div>
-
             <div class="messages-area" id="msgArea"></div>
-
             <div class="chat-input-bar">
-                <input type="text" id="chatInput" class="chat-input" placeholder="Message..." autocomplete="off">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Message...">
                 <button class="send-btn" onclick="app.sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
@@ -89,10 +87,9 @@
     <div id="callOverlay" class="call-overlay">
         <div class="video-container">
             <video id="localVideo" autoplay playsinline muted></video>
-            <div style="position:absolute; top:20px; left:20px; color:white; background:rgba(0,0,0,0.5); padding:5px 10px; border-radius:5px;">You (Local Camera)</div>
+            <div style="position:absolute; top:20px; left:20px; color:white; background:rgba(0,0,0,0.5); padding:5px;">You</div>
         </div>
         <div class="call-controls-bar">
-            <button class="call-btn btn-mute"><i class="fa-solid fa-microphone-slash"></i></button>
             <button class="call-btn btn-end" onclick="app.endCall()"><i class="fa-solid fa-phone-slash"></i></button>
         </div>
     </div>
