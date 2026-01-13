@@ -1,8 +1,6 @@
 {
-  "name": "chatgram-super-app",
-  "version": "2.0.0",
-  "description": "Email, Chat, and Calling Platform",
   "scripts": {
-    "build": "echo 'Build complete'"
+    "build": "echo Build complete",
+    "deploy": "wrangler deploy"
   }
 }
