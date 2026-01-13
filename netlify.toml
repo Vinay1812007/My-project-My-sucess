@@ -12,7 +12,7 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# Page Redirects
+# Page Rewrites
 [[redirects]]
   from = "/music"
   to = "/music.html"
