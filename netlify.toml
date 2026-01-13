@@ -6,13 +6,13 @@
 [dev]
   framework = "#static"
 
-# 1. API Redirects (Must be first)
+# API Redirects
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
 
-# 2. Page Rewrites (Clean URLs)
+# Page Rewrites
 [[redirects]]
   from = "/music"
   to = "/music.html"
@@ -38,7 +38,7 @@
   to = "/sitemap.html"
   status = 200
 
-# 3. Fallback (For everything else)
+# Fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"
