@@ -1,10 +1,5 @@
 {
-  "name": "chatgram-super-app",
-  "main": "worker.js",
-  "compatibility_date": "2026-01-13",
-
-  "assets": {
-    "directory": ".",
-    "binding": "ASSETS"
-  }
+  "name": "sirimilla-site",
+  "compatibility_date": "2025-01-01",
+  "pages_build_output_dir": "."
 }
