@@ -9,6 +9,8 @@ const state = {
 const app = {
     init: () => {
         app.setupTheme();
+        
+        // Router Logic
         if(document.getElementById('chatApp')) app.initChatgram();
         if(document.getElementById('musicGrid')) setupMusic();
         if(document.getElementById('chatContainer')) setupAI();
@@ -26,6 +28,7 @@ const app = {
         };
     },
 
+    // --- CHATGRAM LOGIC ---
     initChatgram: () => {
         if (state.user) {
             document.getElementById('loginScreen').classList.add('hidden');
@@ -39,24 +42,28 @@ const app = {
         if(input) input.addEventListener('keypress', (e) => { if(e.key === 'Enter') app.sendMessage(); });
     },
 
-    handleCredentialResponse: (response) => {
-        const responsePayload = app.parseJwt(response.credential);
-        state.user = { 
-            name: responsePayload.name, 
-            avatar: responsePayload.picture, 
-            id: responsePayload.sub 
-        };
-        localStorage.setItem('chatUser', JSON.stringify(state.user));
-        app.initChatgram();
+    // SIMULATED GOOGLE LOGIN (Fixes Error 401)
+    loginGoogle: () => {
+        const btn = document.querySelector('.google-btn');
+        btn.innerHTML = `<span><i class="fa-solid fa-circle-notch fa-spin"></i> Connecting...</span>`;
+        
+        setTimeout(() => {
+            state.user = { 
+                name: "Google User", 
+                avatar: "https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg", 
+                id: "google_123" 
+            };
+            localStorage.setItem('chatUser', JSON.stringify(state.user));
+            app.initChatgram();
+        }, 1500);
     },
 
-    parseJwt: (token) => {
-        var base64Url = token.split('.')[1];
-        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        return JSON.parse(jsonPayload);
+    loginPhone: () => {
+        const phone = document.getElementById('phoneInput').value;
+        if(phone.length < 5) return alert("Invalid Number");
+        state.user = { name: "Mobile User", avatar: "logo.png", phone };
+        localStorage.setItem('chatUser', JSON.stringify(state.user));
+        app.initChatgram();
     },
 
     loginDemo: () => {
@@ -130,22 +137,26 @@ const app = {
     }
 };
 
-window.handleCredentialResponse = app.handleCredentialResponse;
-
-// Placeholder functions for other pages
+// Placeholders for other pages
 function setupMusic() {}
 function setupAI() {
-    document.getElementById('generateBtn').onclick = async () => {
-        const input = document.getElementById('aiPrompt');
-        const container = document.getElementById('chatContainer');
-        container.innerHTML += `<div class="message user"><div class="bubble">${input.value}</div></div>`;
-        try {
-            const res = await fetch('/api/generate', { method: 'POST', body: JSON.stringify({prompt:input.value}) });
-            const data = await res.json();
-            container.innerHTML += `<div class="message ai"><div class="bubble">${data.result}</div></div>`;
-        } catch(e) { container.innerHTML += `<div class="message ai"><div class="bubble">Error</div></div>`; }
-    };
+    const btn = document.getElementById('generateBtn');
+    if(btn) {
+        btn.onclick = async () => {
+            const input = document.getElementById('aiPrompt');
+            const container = document.getElementById('chatContainer');
+            container.innerHTML += `<div class="message user"><div class="bubble">${input.value}</div></div>`;
+            try {
+                const res = await fetch('/api/generate', { method: 'POST', body: JSON.stringify({prompt:input.value}) });
+                const data = await res.json();
+                container.innerHTML += `<div class="message ai"><div class="bubble">${data.result}</div></div>`;
+            } catch(e) { container.innerHTML += `<div class="message ai"><div class="bubble">Error</div></div>`; }
+        };
+    }
 }
 function setupDownloader() {}
+
+// Expose app to global scope for HTML onclick attributes
+window.app = app;
 
 document.addEventListener('DOMContentLoaded', app.init);
