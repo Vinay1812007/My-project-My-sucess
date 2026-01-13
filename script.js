@@ -1,81 +1,140 @@
-// --- STATE & CONFIG ---
+// --- STATE ---
 const state = {
-    audio: null, audioCtx: null, analyser: null,
-    queue: [], currentIndex: 0, isPlaying: false,
-    user: JSON.parse(localStorage.getItem('chatUser')) || null
+    audio: null,
+    queue: [],
+    user: JSON.parse(localStorage.getItem('chatUser')) || null,
+    theme: localStorage.getItem('theme') || 'dark'
 };
 
+// --- INIT ---
 document.addEventListener('DOMContentLoaded', () => {
-    setupTheme();
+    // 1. Theme
+    document.documentElement.setAttribute('data-theme', state.theme);
+    document.getElementById('themeToggle').onclick = toggleTheme;
+
+    // 2. Cursor & Visuals
     setupCursor();
     createSnow();
     setupVisualizer();
 
-    // Page Specifics
-    if (document.getElementById('musicGrid')) setupMusicPlayer();
+    // 3. Page Logic
+    if (document.getElementById('chatApp')) setupChatgram();
+    if (document.getElementById('musicGrid')) setupMusic();
     if (document.getElementById('chatContainer')) setupAI();
     if (document.getElementById('videoUrl')) setupDownloader();
-    if (document.getElementById('chatApp')) setupChatgram();
 });
 
-// --- CHATGRAM LOGIC (Telegram Clone) ---
+// ==========================================
+// 💬 CHATGRAM LOGIC (Authentication & UI)
+// ==========================================
 function setupChatgram() {
-    if (!state.user) {
-        document.getElementById('loginScreen').classList.remove('hidden');
+    const loginScreen = document.getElementById('loginScreen');
+    const chatApp = document.getElementById('chatApp');
+
+    // Check Auth
+    if (state.user) {
+        loginScreen.classList.add('hidden');
+        chatApp.classList.remove('hidden');
+        loadChats();
     } else {
-        initChatInterface();
+        loginScreen.classList.remove('hidden');
+        chatApp.classList.add('hidden');
     }
 
-    window.loginUser = () => {
-        const phone = document.getElementById('phoneInput').value;
-        if (phone.length > 5) {
-            state.user = { phone, name: "User" };
+    // Google Login Simulation
+    window.loginGoogle = () => {
+        const btn = document.querySelector('.google-btn span');
+        const originalText = btn.innerText;
+        btn.innerText = "Connecting...";
+        
+        setTimeout(() => {
+            state.user = { name: "Google User", avatar: "https://lh3.googleusercontent.com/a/default-user=s120", id: "g_123" };
             localStorage.setItem('chatUser', JSON.stringify(state.user));
-            document.getElementById('loginScreen').classList.add('hidden');
-            initChatInterface();
-        } else {
-            alert("Enter a valid number");
-        }
+            loginScreen.classList.add('hidden');
+            chatApp.classList.remove('hidden');
+            loadChats();
+        }, 1500);
+    };
+
+    // Phone Login Simulation
+    window.loginPhone = () => {
+        const phone = document.getElementById('phoneInput').value;
+        if(phone.length < 5) return alert("Invalid Phone Number");
+        state.user = { name: "Mobile User", avatar: "logo.png", phone };
+        localStorage.setItem('chatUser', JSON.stringify(state.user));
+        loginScreen.classList.add('hidden');
+        chatApp.classList.remove('hidden');
+        loadChats();
     };
 }
 
-function initChatInterface() {
+function loadChats() {
     const chats = [
-        { id: 1, name: "Elon Musk", msg: "Mars rocket ready?", img: "https://upload.wikimedia.org/wikipedia/commons/3/34/Elon_Musk_Royal_Society_%28crop2%29.jpg" },
-        { id: 2, name: "Saved Messages", msg: "File_project_v2.zip", img: "logo.png" },
-        { id: 3, name: "Pavel Durov", msg: "Telegram update looks good", img: "https://upload.wikimedia.org/wikipedia/commons/0/06/Pavel_Durov_2017.jpg" }
+        { id: 1, name: "Saved Messages", msg: "File_Report_Final.pdf", time: "12:00", unread: 0, img: "logo.png", online: true },
+        { id: 2, name: "Elon Musk", msg: "Rocket launch in 5 mins 🚀", time: "11:45", unread: 2, img: "https://upload.wikimedia.org/wikipedia/commons/3/34/Elon_Musk_Royal_Society_%28crop2%29.jpg", online: true },
+        { id: 3, name: "Project Team", msg: "Meeting at 4 PM", time: "Yesterday", unread: 5, img: "https://ui-avatars.com/api/?name=Team+Work&background=random", online: false },
+        { id: 4, name: "Telegram News", msg: "New Update Features...", time: "Mon", unread: 0, img: "https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg", online: false }
     ];
 
     const list = document.getElementById('chatList');
     list.innerHTML = '';
+    
     chats.forEach(chat => {
-        const el = document.createElement('div');
-        el.className = 'chat-item';
-        el.innerHTML = `
-            <div class="avatar" style="background-image:url('${chat.img}')"></div>
-            <div class="chat-info"><h4>${chat.name}</h4><p>${chat.msg}</p></div>
+        const div = document.createElement('div');
+        div.className = 'chat-item';
+        div.onclick = () => openChat(chat);
+        div.innerHTML = `
+            <div class="chat-img" style="background-image:url('${chat.img}')">
+                ${chat.online ? '<div class="online-dot"></div>' : ''}
+            </div>
+            <div class="chat-content">
+                <div class="chat-top">
+                    <span class="chat-name">${chat.name}</span>
+                    <span class="chat-time">${chat.time}</span>
+                </div>
+                <div class="chat-bottom">
+                    <span class="chat-msg">${chat.msg}</span>
+                    ${chat.unread ? `<span class="unread-count">${chat.unread}</span>` : ''}
+                </div>
+            </div>
         `;
-        el.onclick = () => openChat(chat);
-        list.appendChild(el);
+        list.appendChild(div);
     });
 }
 
 function openChat(chat) {
     document.getElementById('headerName').innerText = chat.name;
     document.getElementById('headerAvatar').style.backgroundImage = `url('${chat.img}')`;
-    document.getElementById('chatSidebar').classList.add('hidden'); // Mobile logic
+    document.getElementById('headerStatus').innerText = chat.online ? 'online' : 'last seen recently';
     
+    // Set Call Avatar
+    document.getElementById('callName').innerText = chat.name;
+    document.getElementById('callAvatar').style.backgroundImage = `url('${chat.img}')`;
+    document.getElementById('callBg').style.backgroundImage = `url('${chat.img}')`;
+
+    // Toggle Mobile Sidebar
+    if (window.innerWidth < 768) {
+        document.getElementById('chatSidebar').classList.add('closed');
+    }
+
+    // Mock Messages
     const area = document.getElementById('msgArea');
-    area.innerHTML = `
-        <div class="msg-bubble msg-in">Hello! This is ${chat.name}.</div>
-        <div class="msg-bubble msg-in">Encrypted chat started 🔒</div>
-    `;
+    area.innerHTML = '<div class="encrypted-notice"><i class="fa-solid fa-lock"></i> Messages are end-to-end encrypted</div>';
+    
+    // Simulating History
+    const msgs = [
+        { type: 'in', text: `Hi! This is ${chat.name}.` },
+        { type: 'in', text: chat.msg }
+    ];
+    msgs.forEach(m => {
+        area.innerHTML += `<div class="msg-bubble msg-${m.type}">${m.text}</div>`;
+    });
 }
 
 window.sendChatMessage = () => {
     const input = document.getElementById('chatInput');
     const text = input.value.trim();
-    if (!text) return;
+    if(!text) return;
     
     const area = document.getElementById('msgArea');
     area.innerHTML += `<div class="msg-bubble msg-out">${text}</div>`;
@@ -83,116 +142,87 @@ window.sendChatMessage = () => {
     area.scrollTop = area.scrollHeight;
     
     setTimeout(() => {
-        area.innerHTML += `<div class="msg-bubble msg-in">Received: ${text}</div>`;
+        area.innerHTML += `<div class="msg-bubble msg-in">👍 Received</div>`;
         area.scrollTop = area.scrollHeight;
     }, 1000);
 };
 
-window.toggleSidebar = () => {
-    document.getElementById('chatSidebar').classList.toggle('hidden');
+window.toggleSidebar = () => document.getElementById('chatSidebar').classList.toggle('closed');
+
+window.startCall = (type) => {
+    const overlay = document.getElementById('callOverlay');
+    overlay.classList.add('active');
+    document.getElementById('callStatus').innerText = type === 'video' ? "Video Calling..." : "Calling...";
 };
 
-// --- AI LOGIC (Groq Fix) ---
+window.endCall = () => {
+    document.getElementById('callOverlay').classList.remove('active');
+};
+
+// ==========================================
+// 🎵 MUSIC, AI, UTILS (Standard)
+// ==========================================
+function setupMusic() {
+    // Basic setup for music.html functionality
+    const btn = document.getElementById('searchBtn');
+    if(btn) btn.onclick = () => alert("Search Logic Here");
+}
+
 function setupAI() {
     const btn = document.getElementById('generateBtn');
-    const input = document.getElementById('aiPrompt');
-    const container = document.getElementById('chatContainer');
-
-    async function send() {
-        const text = input.value.trim();
-        if(!text) return;
-        
+    if(btn) btn.onclick = async () => {
+        const input = document.getElementById('aiPrompt');
+        const container = document.getElementById('chatContainer');
+        const text = input.value;
         container.innerHTML += `<div class="message user"><div class="bubble">${text}</div></div>`;
-        input.value = '';
-        container.scrollTop = container.scrollHeight;
-
-        const loadId = Date.now();
-        container.innerHTML += `<div class="message ai" id="${loadId}"><div class="bubble">...</div></div>`;
-
+        
         try {
-            const res = await fetch('/api/generate', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ prompt: text })
-            });
+            const res = await fetch('/api/generate', { method: 'POST', body: JSON.stringify({prompt:text}) });
             const data = await res.json();
-            document.getElementById(loadId).innerHTML = `<div class="bubble">${data.result || data.error}</div>`;
+            container.innerHTML += `<div class="message ai"><div class="bubble">${data.result}</div></div>`;
         } catch(e) {
-            document.getElementById(loadId).innerHTML = `<div class="bubble">Connection failed.</div>`;
+            container.innerHTML += `<div class="message ai"><div class="bubble">Error</div></div>`;
         }
-    }
-    if(btn) btn.onclick = send;
-    if(input) input.addEventListener('keypress', e => { if(e.key==='Enter') send(); });
+    };
 }
 
-// --- MUSIC LOGIC ---
-function setupMusicPlayer() {
-    state.audio = document.getElementById('audioPlayer');
-    fetchSongs('Top Hits India');
-    document.getElementById('playBtn').onclick = togglePlay;
-    document.getElementById('searchBtn').onclick = () => fetchSongs(document.getElementById('searchInput').value);
+function setupDownloader() {
+    const btn = document.getElementById('fetchVideoBtn');
+    if(btn) btn.onclick = () => {
+        document.getElementById('videoLoader').classList.remove('hidden');
+        setTimeout(() => {
+            document.getElementById('videoLoader').classList.add('hidden');
+            document.getElementById('dlResult').classList.remove('hidden');
+            document.getElementById('thumbPreview').src = "https://picsum.photos/600/350";
+        }, 1500);
+    };
 }
 
-async function fetchSongs(query) {
-    const grid = document.getElementById('musicGrid');
-    grid.innerHTML = '<div style="color:white; text-align:center; padding:20px;">Loading...</div>';
-    try {
-        const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=40`);
-        const data = await res.json();
-        state.queue = data.results.filter(s => s.previewUrl);
-        renderGrid();
-    } catch(e) { console.error(e); }
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
 }
 
-function renderGrid() {
-    const grid = document.getElementById('musicGrid');
-    grid.innerHTML = '';
-    state.queue.forEach((song, idx) => {
-        const card = document.createElement('div');
-        card.className = 'song-card magnetic reveal';
-        card.innerHTML = `
-            <div class="art-box" style="background-image:url('${song.artworkUrl100.replace('100x100','400x400')}')">
-                <div class="play-overlay"><i class="fa-solid fa-play"></i></div>
-            </div>
-            <h4>${song.trackName}</h4>
-            <p>${song.artistName}</p>
-        `;
-        card.onclick = () => playSong(idx);
-        grid.appendChild(card);
+function setupCursor() {
+    if(window.innerWidth < 768) return;
+    const c = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+        c.style.left = e.clientX + 'px';
+        c.style.top = e.clientY + 'px';
     });
 }
 
-function playSong(idx) {
-    state.currentIndex = idx;
-    state.audio.src = state.queue[idx].previewUrl;
-    state.audio.play();
-    state.isPlaying = true;
-    updatePlayerUI(state.queue[idx]);
-}
-
-function togglePlay() {
-    state.audio.paused ? state.audio.play() : state.audio.pause();
-    state.isPlaying = !state.audio.paused;
-    updatePlayerUI(state.queue[state.currentIndex]);
-}
-
-function updatePlayerUI(song) {
-    document.getElementById('trackTitle').innerText = song.trackName;
-    document.getElementById('trackArtist').innerText = song.artistName;
-    document.getElementById('albumArt').style.backgroundImage = `url('${song.artworkUrl100}')`;
-    document.getElementById('playBtn').innerHTML = state.isPlaying ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
-    document.getElementById('musicPlayerBar').classList.add('active');
-}
-
-// --- UTILS ---
 function createSnow() {
     const container = document.getElementById('snowContainer');
-    for(let i=0; i<40; i++) {
+    if(!container) return;
+    for(let i=0; i<30; i++) {
         const f = document.createElement('div');
         f.className = 'snowflake';
-        f.style.left = Math.random() * 100 + 'vw';
-        f.style.animationDuration = Math.random() * 5 + 5 + 's';
-        f.style.width = Math.random() * 3 + 2 + 'px';
+        f.style.left = Math.random()*100 + 'vw';
+        f.style.animationDuration = Math.random()*5 + 5 + 's';
+        f.style.width = Math.random()*3 + 2 + 'px';
         f.style.height = f.style.width;
         container.appendChild(f);
     }
@@ -200,20 +230,17 @@ function createSnow() {
 
 function setupVisualizer() {
     const canvas = document.getElementById('bgCanvas');
+    if(!canvas) return;
     const ctx = canvas.getContext('2d');
     function loop() {
         requestAnimationFrame(loop);
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
         const grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width);
-        grad.addColorStop(0, '#111'); grad.addColorStop(1, '#000');
-        ctx.fillStyle = grad; ctx.fillRect(0,0,canvas.width,canvas.height);
+        grad.addColorStop(0, '#1a1a1a');
+        grad.addColorStop(1, '#000000');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0,0,canvas.width,canvas.height);
     }
     loop();
-}
-
-function setupTheme() { document.getElementById('themeToggle').onclick = () => document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
-function setupCursor() { 
-    if(window.innerWidth < 768) return;
-    const c = document.getElementById('cursor'); 
-    document.addEventListener('mousemove', e => { c.style.left = e.clientX+'px'; c.style.top = e.clientY+'px'; }); 
 }
