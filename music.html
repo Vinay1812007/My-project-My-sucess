@@ -1,132 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Music • Sirimilla Vinay</title>
+  <meta charset="UTF-8">
+  <title>Music | Sirimilla Vinay</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- SEO -->
-  <meta name="description" content="Stream and discover music with a fast, beautiful Spotify-style player. Free and legal previews." />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://sirimillavinay.online/music" />
+  <link rel="icon" href="/favicon.png">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="/favicon.png" />
-  <link rel="stylesheet" href="/style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+      background: linear-gradient(180deg, #0b0b0b, #000);
+      color: #fff;
+    }
+
+    header {
+      padding: 20px;
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .playlist {
+      padding: 20px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .track {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.08);
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .track:hover {
+      background: rgba(255,255,255,0.14);
+    }
+
+    .track img {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    .track-info {
+      flex: 1;
+    }
+
+    .track-info strong {
+      display: block;
+      font-size: 15px;
+    }
+
+    .track-info span {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    .player {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      background: rgba(20,20,20,0.9);
+      backdrop-filter: blur(14px);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .player button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .progress {
+      flex: 1;
+    }
+  </style>
 </head>
 
 <body>
-<main role="main" aria-label="Music Player" style="padding-bottom:120px">
 
-  <!-- HEADER -->
-  <header class="glass" style="margin:16px; padding:20px">
-    <h1>🎵 Music</h1>
-    <input
-      id="search"
-      type="search"
-      placeholder="Search songs, artists, albums…"
-      aria-label="Search music"
-      style="width:100%; margin-top:12px; padding:12px; border-radius:12px; border:none"
-    />
-  </header>
+<header>🎵 Music</header>
 
-  <!-- RESULTS -->
-  <section id="results" style="padding:16px; display:grid; gap:12px"></section>
-
-</main>
-
-<!-- MINI PLAYER -->
-<footer class="glass" style="
-  position:fixed;
-  bottom:70px;
-  left:16px;
-  right:16px;
-  padding:14px;
-  display:flex;
-  align-items:center;
-  gap:12px;
-">
-  <img id="cover" src="" alt="" width="48" height="48" style="border-radius:8px; display:none" />
-  <div style="flex:1">
-    <strong id="title">Not Playing</strong>
-    <div class="muted" id="artist"></div>
+<section class="playlist">
+  <div class="track" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">
+    <img src="https://picsum.photos/200?1">
+    <div class="track-info">
+      <strong>SoundHelix Track 1</strong>
+      <span>Public Preview Audio</span>
+    </div>
   </div>
-  <button class="button" id="play">▶</button>
-</footer>
 
-<!-- NAV -->
-<nav class="navbar">
-  <a href="/home">Home</a>
-  <a href="/music" class="active">Music</a>
-  <a href="/chat.ai">AI</a>
-  <a href="/videodownloder">Video</a>
-  <a href="/chat">Chat</a>
-</nav>
+  <div class="track" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3">
+    <img src="https://picsum.photos/200?2">
+    <div class="track-info">
+      <strong>SoundHelix Track 2</strong>
+      <span>Public Preview Audio</span>
+    </div>
+  </div>
 
-<script src="/script.js" defer></script>
+  <div class="track" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3">
+    <img src="https://picsum.photos/200?3">
+    <div class="track-info">
+      <strong>SoundHelix Track 3</strong>
+      <span>Public Preview Audio</span>
+    </div>
+  </div>
+</section>
+
+<div class="player">
+  <button id="playPause">▶️</button>
+  <input type="range" id="seek" class="progress" value="0">
+</div>
+
+<audio id="audio"></audio>
 
 <script>
-(() => {
-  "use strict";
+  const audio = document.getElementById("audio");
+  const playPause = document.getElementById("playPause");
+  const seek = document.getElementById("seek");
 
-  const results = document.getElementById("results");
-  const search = document.getElementById("search");
-  const audio = new Audio();
-  let current = null;
+  document.querySelectorAll(".track").forEach(track => {
+    track.onclick = () => {
+      audio.src = track.dataset.src;
+      audio.play();
+      playPause.textContent = "⏸";
+    };
+  });
 
-  async function searchMusic(q) {
-    results.innerHTML = "<p class='muted'>Searching…</p>";
-    const res = await fetch(`/api/music-proxy?q=${encodeURIComponent(q)}`);
-    const data = await res.json();
-
-    results.innerHTML = "";
-    data.results.forEach(track => {
-      if (!track.previewUrl) return;
-
-      const card = document.createElement("div");
-      card.className = "glass";
-      card.style.padding = "14px";
-      card.innerHTML = `
-        <strong>${track.trackName}</strong>
-        <div class="muted">${track.artistName}</div>
-      `;
-      card.onclick = () => play(track);
-      results.appendChild(card);
-    });
-  }
-
-  function play(track) {
-    current = track;
-    audio.src = track.previewUrl;
-    audio.play();
-
-    document.getElementById("title").textContent = track.trackName;
-    document.getElementById("artist").textContent = track.artistName;
-
-    const img = document.getElementById("cover");
-    img.src = track.artworkUrl100;
-    img.style.display = "block";
-  }
-
-  document.getElementById("play").onclick = () => {
-    if (audio.paused) audio.play();
-    else audio.pause();
+  playPause.onclick = () => {
+    if (audio.paused) {
+      audio.play();
+      playPause.textContent = "⏸";
+    } else {
+      audio.pause();
+      playPause.textContent = "▶️";
+    }
   };
 
-  search.addEventListener("input", e => {
-    if (e.target.value.length > 2) {
-      searchMusic(e.target.value);
-    }
-  });
+  audio.ontimeupdate = () => {
+    seek.value = (audio.currentTime / audio.duration) * 100 || 0;
+  };
 
-  // Keyboard shortcuts
-  document.addEventListener("keydown", e => {
-    if (e.code === "Space" && current) {
-      e.preventDefault();
-      audio.paused ? audio.play() : audio.pause();
-    }
-  });
-
-})();
+  seek.oninput = () => {
+    audio.currentTime = (seek.value / 100) * audio.duration;
+  };
 </script>
 
 </body>
