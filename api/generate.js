@@ -1,19 +1,19 @@
 export default async function (req, context) {
-  // Only allow POST requests
+  // Only allow POST
   if (req.method !== "POST") {
     return new Response("Method Not Allowed", { status: 405 });
   }
 
   try {
-    // Netlify reads the body stream differently, this helper handles it
+    // Netlify specific way to parse body
     const body = await req.json(); 
     const { prompt } = body;
     
-    // Access environment variables securely
+    // Get API Key from Netlify Environment Variables
     const apiKey = Netlify.env.get("GROQ_API_KEY") || process.env.GROQ_API_KEY;
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'API Key missing' }), {
+      return new Response(JSON.stringify({ error: 'Server config error: API Key missing' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -30,7 +30,7 @@ export default async function (req, context) {
             { role: "system", content: "You are a helpful AI assistant." },
             { role: "user", content: prompt }
         ],
-        model: "llama-3.3-70b-versatile",
+        model: "llama-3.3-70b-versatile", // Fixed Model Name
         temperature: 0.7,
         max_tokens: 1024
       })
