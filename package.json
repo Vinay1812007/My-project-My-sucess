@@ -1,9 +1,8 @@
 {
-  "name": "sirimilla-vinay-project",
-  "version": "1.0.0",
-  "description": "Premium Audio & Visuals Experience",
+  "name": "chatgram-super-app",
+  "version": "2.0.0",
+  "description": "Email, Chat, and Calling Platform",
   "scripts": {
-    "build": "echo 'No build step required for static files'"
-  },
-  "dependencies": {}
+    "build": "echo 'Build complete'"
+  }
 }
