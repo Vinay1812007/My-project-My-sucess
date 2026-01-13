@@ -1,0 +1,19 @@
+[build]
+  command = "npm run build" # Or your specific build command
+  publish = "."             # Or "dist" / "public" if you have a build output folder
+  functions = "api"         # Tells Netlify your functions are in the 'api' folder
+
+[dev]
+  framework = "#static"     # Helps Netlify Dev detect config
+
+# Rewrite rules to make your API accessible at /api/...
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Fallback for Single Page Applications (SPA) - keeps your current routing working
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
