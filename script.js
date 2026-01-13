@@ -9,7 +9,6 @@ const app = {
     init: () => {
         app.setupTheme();
         if(document.getElementById('chatApp')) app.initChatgram();
-        // Init other pages if elements exist
         if(document.getElementById('musicGrid')) setupMusic();
         if(document.getElementById('chatContainer')) setupAI();
         if(document.getElementById('videoUrl')) setupDownloader();
@@ -26,7 +25,7 @@ const app = {
         };
     },
 
-    // --- CHATGRAM FUNCTIONS ---
+    // --- CHATGRAM LOGIC ---
     initChatgram: () => {
         if (state.user) {
             document.getElementById('loginScreen').classList.add('hidden');
@@ -37,17 +36,15 @@ const app = {
             document.getElementById('chatApp').classList.add('hidden');
         }
         
-        // Input Listener
         const input = document.getElementById('chatInput');
         if(input) input.addEventListener('keypress', (e) => { if(e.key === 'Enter') app.sendMessage(); });
     },
 
     loginGoogle: () => {
         const btn = document.querySelector('.google-btn');
-        const span = btn.querySelector('span');
-        span.innerText = "Connecting to Google...";
+        btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Connecting...`;
         setTimeout(() => {
-            state.user = { name: "Vinay (You)", avatar: "logo.png", id: "g_123" };
+            state.user = { name: "Vinay (You)", avatar: "https://lh3.googleusercontent.com/a/default-user", id: "g_123" };
             localStorage.setItem('chatUser', JSON.stringify(state.user));
             app.initChatgram();
         }, 1500);
@@ -56,7 +53,7 @@ const app = {
     loginPhone: () => {
         const phone = document.getElementById('phoneInput').value;
         if(phone.length < 5) return alert("Invalid Number");
-        state.user = { name: "Mobile User", avatar: "logo.png", phone };
+        state.user = { name: "Mobile User", avatar: "https://ui-avatars.com/api/?name=Mobile+User", phone };
         localStorage.setItem('chatUser', JSON.stringify(state.user));
         app.initChatgram();
     },
@@ -64,7 +61,7 @@ const app = {
     renderChats: () => {
         const chats = [
             { id: 1, name: "Elon Musk", msg: "Mars rocket testing 🚀", time: "10:00", unread: 2, img: "https://upload.wikimedia.org/wikipedia/commons/3/34/Elon_Musk_Royal_Society_%28crop2%29.jpg", online: true },
-            { id: 2, name: "Saved Messages", msg: "Project_Final.pdf", time: "Yesterday", unread: 0, img: "logo.png", online: true },
+            { id: 2, name: "Saved Messages", msg: "Project_Final.pdf", time: "Yesterday", unread: 0, img: "https://ui-avatars.com/api/?name=Saved", online: true },
             { id: 3, name: "Telegram News", msg: "New Update Features...", time: "Mon", unread: 5, img: "https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg", online: false },
             { id: 4, name: "Team Group", msg: "Meeting at 4PM", time: "Sun", unread: 0, img: "https://ui-avatars.com/api/?name=Team+Work", online: false }
         ];
@@ -98,10 +95,10 @@ const app = {
         document.getElementById('callName').innerText = chat.name;
         document.getElementById('callAvatar').style.backgroundImage = `url('${chat.img}')`;
         
-        // MOBILE LOGIC: Add class to body to slide views
+        // Mobile Toggle
         document.body.classList.add('chat-open');
 
-        // Fake Messages
+        // Messages
         const area = document.getElementById('msgArea');
         area.innerHTML = '<div class="encrypted-notice"><i class="fa-solid fa-lock"></i> End-to-end encrypted</div>';
         area.innerHTML += `<div class="msg-bubble msg-in">Hello! This is ${chat.name}.</div>`;
@@ -109,7 +106,6 @@ const app = {
     },
 
     closeChat: () => {
-        // MOBILE LOGIC: Remove class to slide back
         document.body.classList.remove('chat-open');
     },
 
@@ -139,24 +135,19 @@ const app = {
     }
 };
 
-// --- STANDARD PAGE FUNCTIONS (Mock implementations) ---
+// --- MOCK FUNCTIONS FOR OTHER PAGES ---
 function setupMusic() {
-    console.log("Music Initialized");
-    const btn = document.getElementById('searchBtn');
-    if(btn) btn.onclick = () => alert("Search Logic Active");
+    const grid = document.getElementById('musicGrid');
+    if(grid) grid.innerHTML = '<div style="text-align:center; color:#aaa; margin-top:20px;">Top Hits India Loaded</div>';
 }
 function setupAI() {
     const btn = document.getElementById('generateBtn');
-    if(btn) btn.onclick = async () => {
-        const area = document.getElementById('chatContainer');
+    if(btn) btn.onclick = () => {
+        const container = document.getElementById('chatContainer');
         const input = document.getElementById('aiPrompt');
-        area.innerHTML += `<div class="message user"><div class="bubble">${input.value}</div></div>`;
-        
-        // Mock API Call
-        setTimeout(() => {
-            area.innerHTML += `<div class="message ai"><div class="bubble">I am your AI assistant. (Connected to Logic)</div></div>`;
-        }, 1000);
-    };
+        container.innerHTML += `<div class="message user"><div class="bubble">${input.value}</div></div>`;
+        setTimeout(() => container.innerHTML += `<div class="message ai"><div class="bubble">I am your AI assistant.</div></div>`, 1000);
+    }
 }
 function setupDownloader() {
     const btn = document.getElementById('fetchVideoBtn');
