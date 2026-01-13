@@ -1,0 +1,9 @@
+{
+  "name": "sirimilla-vinay-project",
+  "version": "1.0.0",
+  "description": "Premium Audio & Visuals Experience",
+  "scripts": {
+    "build": "echo 'No build step required for static files'"
+  },
+  "dependencies": {}
+}
