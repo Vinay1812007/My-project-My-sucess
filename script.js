@@ -9,7 +9,6 @@ const state = {
 const app = {
     init: () => {
         app.setupTheme();
-        
         if(document.getElementById('chatApp')) app.initChatgram();
         if(document.getElementById('musicGrid')) setupMusic();
         if(document.getElementById('chatContainer')) setupAI();
@@ -40,7 +39,6 @@ const app = {
         if(input) input.addEventListener('keypress', (e) => { if(e.key === 'Enter') app.sendMessage(); });
     },
 
-    // GOOGLE LOGIN HANDLER
     handleCredentialResponse: (response) => {
         const responsePayload = app.parseJwt(response.credential);
         state.user = { 
