@@ -10,33 +10,29 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div id="cursor"></div>
-    <div id="snowContainer"></div>
-    <canvas id="bgCanvas"></canvas>
-
     <nav>
-        <a href="/" class="logo-container magnetic">
-            <img src="logo.png" alt="SV" class="nav-logo">
-            <div class="logo-text">SIRIMILLA VINAY</div>
-        </a>
-        <div class="nav-right">
-            <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+        <div class="nav-container">
+            <a href="index.html" class="logo-container">
+                <div class="logo-text">SIRIMILLA VINAY</div>
+            </a>
+            <div class="nav-right">
+                <button class="theme-btn" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+            </div>
         </div>
     </nav>
 
-    <main class="content-section reveal">
-        <div class="video-dl-container">
-            <h2>Site Map</h2>
-            <ul style="list-style:none; padding:0; margin-top:20px; font-size:1.2rem;">
-                <li style="margin-bottom:15px;"><a href="/" class="magnetic" style="color:white; text-decoration:none;">Home</a></li>
-                <li style="margin-bottom:15px;"><a href="music" class="magnetic" style="color:white; text-decoration:none;">Music Player</a></li>
-                <li style="margin-bottom:15px;"><a href="ai" class="magnetic" style="color:white; text-decoration:none;">AI Studio</a></li>
-                <li style="margin-bottom:15px;"><a href="videodownloader" class="magnetic" style="color:white; text-decoration:none;">Video Downloader</a></li>
+    <main class="content-section centered-view">
+        <div class="login-box glass-panel" style="margin: 50px auto;">
+            <h2>Site Navigation</h2>
+            <ul style="list-style:none; padding:0; text-align:left; margin-top:20px;">
+                <li style="margin:10px 0;"><a href="index.html" style="color:var(--accent); text-decoration:none; font-size:1.1rem;"><i class="fa-solid fa-home"></i> Home</a></li>
+                <li style="margin:10px 0;"><a href="chats.html" style="color:var(--accent); text-decoration:none; font-size:1.1rem;"><i class="fa-brands fa-telegram"></i> Chatgram</a></li>
+                <li style="margin:10px 0;"><a href="music.html" style="color:var(--accent); text-decoration:none; font-size:1.1rem;"><i class="fa-solid fa-music"></i> Music Player</a></li>
+                <li style="margin:10px 0;"><a href="ai.html" style="color:var(--accent); text-decoration:none; font-size:1.1rem;"><i class="fa-solid fa-robot"></i> AI Studio</a></li>
+                <li style="margin:10px 0;"><a href="videodownloader.html" style="color:var(--accent); text-decoration:none; font-size:1.1rem;"><i class="fa-solid fa-download"></i> Downloader</a></li>
             </ul>
         </div>
     </main>
-
     <script src="script.js"></script>
 </body>
 </html>
