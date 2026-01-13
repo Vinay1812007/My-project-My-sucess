@@ -3,104 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chatgram - SIRIMILLA VINAY</title>
+    <title>Chatgram Workspace</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="app-mode">
 
-    <nav>
-        <div class="nav-container">
-            <a href="/" class="logo-container magnetic">
-                <div class="logo-text">SIRIMILLA VINAY</div>
-            </a>
-            <div class="nav-right">
-                <div class="tab-switcher">
-                    <a href="chatgram.html" class="tab-btn active magnetic"><i class="fa-brands fa-telegram"></i> <span>Chat</span></a>
-                    <a href="music.html" class="tab-btn magnetic"><i class="fa-solid fa-music"></i> <span>Music</span></a>
-                    <a href="ai.html" class="tab-btn magnetic"><i class="fa-solid fa-robot"></i> <span>AI</span></a>
-                </div>
-                <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+    <div id="authScreen" class="auth-screen">
+        <div class="auth-card glass-panel">
+            <div class="auth-logo">
+                <i class="fa-brands fa-telegram"></i>
+                <h1>Chatgram</h1>
             </div>
-        </div>
-    </nav>
-
-    <div id="loginScreen" class="login-screen">
-        <div class="login-box glass-panel">
-            <div class="login-logo"><i class="fa-brands fa-telegram"></i></div>
-            <h2>Chatgram</h2>
-            <p style="color:var(--text-secondary); margin-bottom:20px;">Fast. Secure. Cloud-based.</p>
+            <p>Enterprise Email, Chat & Video.</p>
             
-            <div class="input-group">
-                <i class="fa-solid fa-phone"></i>
-                <input type="tel" id="phoneInput" placeholder="+91 98765 43210" class="clean-input">
+            <div class="auth-methods">
+                <button class="social-btn google" onclick="app.login('google')">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="G">
+                    <span>Continue with Google</span>
+                </button>
+                
+                <button class="social-btn apple" onclick="app.login('apple')">
+                    <i class="fa-brands fa-apple"></i>
+                    <span>Continue with Apple</span>
+                </button>
             </div>
             
-            <button class="landing-btn full-width magnetic" onclick="app.loginPhone()">
-                Log in with Phone
-            </button>
-
-            <div style="margin:20px 0; font-size:0.8rem; color: #888;">OR</div>
-
-            <button class="google-btn magnetic" onclick="app.loginGoogle()">
-                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="G">
-                <span>Continue with Google</span>
-            </button>
+            <div class="divider"><span>OR</span></div>
             
-            <button class="landing-btn full-width magnetic" style="margin-top: 10px; background: #333;" onclick="app.loginDemo()">
-                Visitor Mode (No Login)
-            </button>
+            <div class="input-field">
+                <i class="fa-solid fa-envelope"></i>
+                <input type="email" placeholder="work@email.com">
+            </div>
+            <button class="primary-btn full" onclick="app.login('email')">Sign In</button>
         </div>
     </div>
 
-    <div id="chatApp" class="chat-app hidden">
-        <div class="chat-sidebar">
-            <div class="sidebar-header">
-                <div class="search-bar-chat">
-                    <i class="fa-solid fa-magnifying-glass"></i>
+    <div id="workspace" class="workspace hidden">
+        
+        <nav class="app-sidebar">
+            <div class="app-icon active" onclick="app.switchTab('chat')" title="Chats">
+                <i class="fa-solid fa-comment-dots"></i>
+            </div>
+            <div class="app-icon" onclick="app.switchTab('call')" title="Calls">
+                <i class="fa-solid fa-video"></i>
+            </div>
+            <div class="app-icon" onclick="app.switchTab('email')" title="Mailbox">
+                <i class="fa-solid fa-envelope"></i>
+                <span class="badge">3</span>
+            </div>
+            <div class="spacer"></div>
+            <div class="app-icon" onclick="app.logout()" title="Logout">
+                <img id="userAvatar" src="" class="user-avatar-mini">
+            </div>
+        </nav>
+
+        <section id="view-chat" class="app-view">
+            <div class="list-pane">
+                <div class="pane-header">
+                    <h2>Chats</h2>
+                    <button class="icon-btn"><i class="fa-solid fa-pen-to-square"></i></button>
+                </div>
+                <div class="search-box">
+                    <i class="fa-solid fa-search"></i>
                     <input type="text" placeholder="Search">
                 </div>
+                <div class="chat-list" id="chatList"></div>
             </div>
-            <div class="chat-folders">
-                <div class="folder active">All</div>
-                <div class="folder">Work</div>
-                <div class="folder">Personal</div>
+            <div class="content-pane" id="chatContent">
+                <div class="empty-state">
+                    <i class="fa-brands fa-telegram"></i>
+                    <p>Select a chat to start messaging</p>
+                </div>
             </div>
-            <div class="chat-list" id="chatList"></div>
-        </div>
+        </section>
 
-        <div class="chat-main">
-            <div class="chat-header">
-                <button class="mobile-back-btn" onclick="app.closeChat()"><i class="fa-solid fa-arrow-left"></i></button>
-                <div class="chat-user-info">
-                    <div class="avatar" id="headerAvatar"></div>
-                    <div class="user-meta">
-                        <h4 id="headerName">Select Chat</h4>
-                        <span class="status-online">online</span>
+        <section id="view-call" class="app-view hidden">
+            <div class="call-interface">
+                <div class="video-grid">
+                    <div class="video-card local">
+                        <video id="localVideo" autoplay muted playsinline></video>
+                        <div class="video-label">You</div>
+                    </div>
+                    <div class="video-card remote placeholder">
+                        <div class="avatar-placeholder">Waiting for peer...</div>
                     </div>
                 </div>
-                <div class="chat-actions">
-                    <button class="icon-btn" onclick="app.startCall()"><i class="fa-solid fa-video"></i></button>
+                <div class="call-controls">
+                    <button class="control-btn" onclick="app.toggleMic()"><i class="fa-solid fa-microphone"></i></button>
+                    <button class="control-btn" onclick="app.toggleCam()"><i class="fa-solid fa-video"></i></button>
+                    <button class="control-btn hangup"><i class="fa-solid fa-phone-slash"></i></button>
+                    <button class="control-btn" onclick="app.shareScreen()"><i class="fa-solid fa-desktop"></i></button>
                 </div>
             </div>
-            <div class="messages-area" id="msgArea"></div>
-            <div class="chat-input-bar">
-                <input type="text" id="chatInput" class="chat-input" placeholder="Message..." autocomplete="off">
-                <button class="send-btn" onclick="app.sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        </section>
+
+        <section id="view-email" class="app-view hidden email-layout">
+            <div class="email-sidebar">
+                <button class="compose-btn" onclick="app.composeEmail()">
+                    <i class="fa-solid fa-pencil"></i> Compose
+                </button>
+                <div class="folder-list">
+                    <div class="folder-item active"><i class="fa-solid fa-inbox"></i> Inbox <span class="count">3</span></div>
+                    <div class="folder-item"><i class="fa-solid fa-star"></i> Starred</div>
+                    <div class="folder-item"><i class="fa-solid fa-paper-plane"></i> Sent</div>
+                    <div class="folder-item"><i class="fa-solid fa-trash"></i> Trash</div>
+                </div>
             </div>
-        </div>
+            <div class="email-list" id="emailList">
+                </div>
+            <div class="email-reader hidden" id="emailReader">
+                <div class="reader-toolbar">
+                    <button onclick="app.closeEmail()"><i class="fa-solid fa-arrow-left"></i></button>
+                    <button><i class="fa-solid fa-trash"></i></button>
+                    <button><i class="fa-solid fa-reply"></i></button>
+                </div>
+                <div class="reader-body" id="readerContent"></div>
+            </div>
+        </section>
+
     </div>
 
-    <div id="callOverlay" class="call-overlay">
-        <div class="video-container">
-            <video id="localVideo" autoplay playsinline muted></video>
-            <div style="position:absolute; top:20px; left:20px; color:white; background:rgba(0,0,0,0.5); padding:5px;">You</div>
-        </div>
-        <div class="call-controls-bar">
-            <button class="call-btn btn-end" onclick="app.endCall()"><i class="fa-solid fa-phone-slash"></i></button>
-        </div>
-    </div>
+    <div id="toast" class="toast">Notification</div>
 
     <script src="script.js"></script>
 </body>
