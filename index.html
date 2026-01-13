@@ -2,7 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SIRIMILLA VINAY</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,27 +11,31 @@
 </head>
 <body>
     <div id="cursor"></div>
-    <div id="snowContainer"></div>
     <canvas id="bgCanvas"></canvas>
 
     <nav>
-        <a href="/" class="logo-container magnetic">
+        <a href="index.html" class="logo-container">
+            <img src="logo.png" alt="SV" class="nav-logo">
             <div class="logo-text">SIRIMILLA VINAY</div>
         </a>
         <div class="nav-right">
-            <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+            <button class="theme-btn" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
         </div>
     </nav>
 
-    <main class="landing-container reveal">
-        <h1 class="hero-logo">SIRIMILLA VINAY</h1>
-        <div class="landing-buttons">
-            <a href="chats.html" class="landing-btn magnetic"><i class="fa-brands fa-telegram"></i> Chatgram</a>
-            <a href="music.html" class="landing-btn magnetic"><i class="fa-solid fa-music"></i> Music</a>
-            <a href="ai.html" class="landing-btn magnetic"><i class="fa-solid fa-robot"></i> AI</a>
-            <a href="videodownloader.html" class="landing-btn magnetic"><i class="fa-solid fa-download"></i> DL</a>
-        </div>
-    </main>
+    <div class="page-scroll-container">
+        <main class="landing-container">
+            <h1 class="hero-logo">SIRIMILLA VINAY</h1>
+            <p style="color:var(--text-secondary); letter-spacing:2px; margin-bottom:30px;">PREMIUM AUDIO & 8K VISUALS</p>
+            <div class="landing-buttons">
+                <a href="chatgram.html" class="landing-link"><i class="fa-brands fa-telegram"></i> Chatgram</a>
+                <a href="music.html" class="landing-link"><i class="fa-solid fa-music"></i> Music Player</a>
+                <a href="ai.html" class="landing-link"><i class="fa-solid fa-robot"></i> AI Studio</a>
+                <a href="videodownloader.html" class="landing-link"><i class="fa-solid fa-download"></i> Downloader</a>
+            </div>
+        </main>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
