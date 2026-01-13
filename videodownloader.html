@@ -1,51 +1,131 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Downloader - SIRIMILLA VINAY</title>
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Video Downloader • Sirimilla Vinay</title>
+
+  <!-- SEO -->
+  <meta name="description" content="Download public MP4 and M3U8 videos securely. Fast, legal, and production-safe." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://sirimillavinay.online/videodownloder" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="/favicon.png" />
+  <link rel="stylesheet" href="/style.css" />
 </head>
+
 <body>
+<main role="main" aria-label="Video Downloader" style="padding-bottom:120px">
 
-    <div id="cursor"></div>
-    <div id="snowContainer"></div>
-    <canvas id="bgCanvas"></canvas>
+  <!-- HEADER -->
+  <header class="glass" style="margin:16px; padding:22px">
+    <h1>🎬 Video Downloader</h1>
+    <p class="muted">Supports public MP4 and M3U8 URLs only</p>
 
-    <nav>
-        <a href="/" class="logo-container magnetic">
-            <img src="logo.png" alt="SV" class="nav-logo">
-            <div class="logo-text">SIRIMILLA VINAY</div>
-        </a>
-        <div class="nav-right">
-            <div class="tab-switcher">
-                <a href="music" class="tab-btn magnetic"><i class="fa-solid fa-music"></i> <span>Music</span></a>
-                <a href="videodownloader" class="tab-btn active magnetic"><i class="fa-solid fa-download"></i> <span>DL</span></a>
-                <a href="ai" class="tab-btn magnetic"><i class="fa-solid fa-robot"></i> <span>AI</span></a>
-            </div>
-            <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
-        </div>
-    </nav>
+    <input
+      id="url"
+      type="url"
+      placeholder="Paste public video URL…"
+      aria-label="Video URL"
+      style="width:100%; margin-top:12px; padding:12px; border-radius:12px; border:none"
+    />
 
-    <main class="content-section reveal">
-        <div class="video-dl-container">
-            <h2>Universal Downloader</h2>
-            <div style="display:flex; gap:10px; margin:30px 0; background:rgba(0,0,0,0.3); padding:10px; border-radius:50px;">
-                <input type="text" id="videoUrl" placeholder="Paste video link here..." style="flex:1; background:transparent; border:none; color:white; padding:10px 20px; outline:none;">
-                <button id="fetchVideoBtn" class="theme-btn magnetic"><i class="fa-solid fa-arrow-right"></i></button>
-            </div>
+    <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap">
+      <button id="analyze" class="button">Analyze</button>
+      <button id="download" class="button" disabled>Download</button>
+    </div>
+  </header>
 
-            <div id="videoLoader" class="hidden" style="color:white;">Processing...</div>
-            <div id="dlResult" class="hidden">
-                <img id="thumbPreview" src="" style="width:100%; border-radius:10px; margin-bottom:15px;">
-                <button class="landing-btn magnetic" style="margin:0 auto;">Download MP4</button>
-            </div>
-        </div>
-    </main>
+  <!-- PREVIEW -->
+  <section id="preview" style="padding:16px; display:none">
+    <div class="glass" style="padding:16px">
+      <strong>Detected Media</strong>
+      <p class="muted" id="type"></p>
+      <progress id="progress" value="0" max="100" style="width:100%"></progress>
+    </div>
+  </section>
 
-    <script src="script.js"></script>
+</main>
+
+<!-- NAV -->
+<nav class="navbar">
+  <a href="/home">Home</a>
+  <a href="/music">Music</a>
+  <a href="/chat.ai">AI</a>
+  <a href="/videodownloder" class="active">Video</a>
+  <a href="/chat">Chat</a>
+</nav>
+
+<script src="/script.js" defer></script>
+
+<script>
+(() => {
+  "use strict";
+
+  const urlInput = document.getElementById("url");
+  const analyzeBtn = document.getElementById("analyze");
+  const downloadBtn = document.getElementById("download");
+  const preview = document.getElementById("preview");
+  const typeEl = document.getElementById("type");
+  const progress = document.getElementById("progress");
+
+  let validatedURL = null;
+
+  function reset() {
+    preview.style.display = "none";
+    downloadBtn.disabled = true;
+    progress.value = 0;
+    validatedURL = null;
+  }
+
+  analyzeBtn.onclick = async () => {
+    reset();
+    const url = urlInput.value.trim();
+    if (!url) return alert("Enter a valid URL");
+
+    try {
+      const res = await fetch(`/api/video-proxy?url=${encodeURIComponent(url)}`, {
+        method: "HEAD"
+      });
+
+      if (!res.ok) throw new Error("Unsupported or blocked media");
+
+      const type = res.headers.get("content-type") || "Unknown";
+      typeEl.textContent = type;
+      validatedURL = url;
+      preview.style.display = "block";
+      downloadBtn.disabled = false;
+    } catch {
+      alert("This URL is not supported. Only public MP4 or M3U8 allowed.");
+    }
+  };
+
+  downloadBtn.onclick = async () => {
+    if (!validatedURL) return;
+
+    try {
+      progress.value = 10;
+      const res = await fetch(`/api/video-proxy?url=${encodeURIComponent(validatedURL)}`);
+      if (!res.ok) throw new Error("Download failed");
+
+      const blob = await res.blob();
+      progress.value = 80;
+
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "video";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      progress.value = 100;
+    } catch {
+      alert("Download failed. Try again.");
+    }
+  };
+
+})();
+</script>
+
 </body>
 </html>
