@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatgram - SIRIMILLA VINAY</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="cursor"></div>
+    <div id="snowContainer"></div>
+    <canvas id="bgCanvas"></canvas>
+
+    <nav>
+        <a href="/" class="logo-container magnetic">
+            <img src="logo.png" alt="SV" class="nav-logo">
+            <div class="logo-text">SIRIMILLA VINAY</div>
+        </a>
+        <div class="nav-right">
+            <div class="tab-switcher">
+                <a href="chats.html" class="tab-btn active magnetic"><i class="fa-brands fa-telegram"></i> <span>Chat</span></a>
+                <a href="music.html" class="tab-btn magnetic"><i class="fa-solid fa-music"></i> <span>Music</span></a>
+                <a href="ai.html" class="tab-btn magnetic"><i class="fa-solid fa-robot"></i> <span>AI</span></a>
+            </div>
+            <button class="theme-btn magnetic" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+        </div>
+    </nav>
+
+    <div id="loginScreen" class="login-screen hidden">
+        <div class="login-box glass-panel">
+            <img src="logo.png" style="width:80px; margin-bottom:20px;">
+            <h2>Welcome to Chatgram</h2>
+            <p style="color:var(--text-secondary);">Fast. Secure. Powerful.</p>
+            <input type="text" id="phoneInput" class="login-input" placeholder="+91 98765 43210">
+            <button class="landing-btn" style="width:100%; justify-content:center;" onclick="loginUser()">Start Messaging</button>
+        </div>
+    </div>
+
+    <div id="chatApp" class="chat-app reveal">
+        <div class="chat-sidebar" id="chatSidebar">
+            <div class="chat-header">
+                <input type="text" placeholder="Search" style="width:100%; padding:10px; border-radius:20px; border:none;">
+            </div>
+            <div class="chat-list" id="chatList"></div>
+        </div>
+
+        <div class="chat-main">
+            <div class="chat-header">
+                <button class="icon-only" onclick="toggleSidebar()"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="avatar" id="headerAvatar"></div>
+                <div class="chat-info">
+                    <h4 id="headerName" style="margin:0;">Select a Chat</h4>
+                    <span style="font-size:0.8rem; color:var(--accent);">online</span>
+                </div>
+                <div style="margin-left:auto; display:flex; gap:15px;">
+                    <i class="fa-solid fa-phone magnetic" style="cursor:pointer;"></i>
+                    <i class="fa-solid fa-video magnetic" style="cursor:pointer;"></i>
+                </div>
+            </div>
+
+            <div class="messages-area" id="msgArea"></div>
+
+            <div class="chat-input-bar">
+                <button class="icon-only"><i class="fa-solid fa-paperclip"></i></button>
+                <input type="text" id="chatInput" class="chat-input" placeholder="Message...">
+                <button class="theme-btn" onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
