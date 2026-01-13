@@ -9,6 +9,7 @@
     --glass-border: rgba(255, 255, 255, 0.1);
     --nav-height: 80px;
     --font-main: 'Outfit', sans-serif;
+    --chat-sidebar-width: 350px; /* Chatgram */
 }
 
 [data-theme="light"] {
@@ -17,6 +18,7 @@
     --text-primary: #111;
     --text-secondary: #555;
     --accent: #007aff;
+    --accent-glow: rgba(0, 122, 255, 0.4);
     --glass-border: rgba(0, 0, 0, 0.08);
 }
 
@@ -31,7 +33,7 @@ body {
     transition: background-color 0.5s ease;
 }
 
-/* --- BACKGROUNDS & SNOW --- */
+/* --- ANIMATIONS & SNOW --- */
 #bgCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.5; pointer-events: none; }
 #snowContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
 
@@ -42,12 +44,9 @@ body {
     border-radius: 50%;
     opacity: 0.8;
     animation: fall linear infinite;
-    will-change: transform; /* Performance Boost */
+    will-change: transform;
 }
-
-@keyframes fall {
-    to { transform: translateY(110vh); }
-}
+@keyframes fall { to { transform: translateY(110vh); } }
 
 /* --- NAVIGATION --- */
 nav {
@@ -57,18 +56,17 @@ nav {
     background: rgba(0,0,0,0.3); backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--glass-border);
 }
-
-.logo-container { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.nav-logo { height: 40px; width: auto; object-fit: contain; }
+.logo-container { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.nav-logo { height: 45px; width: auto; }
 .logo-text { font-size: 1.4rem; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: -0.5px; }
 .nav-right { display: flex; gap: 15px; align-items: center; }
 
-/* Tab Style Navigation */
+/* Tab Switcher */
 .tab-switcher { display: flex; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 50px; border: 1px solid var(--glass-border); }
 .tab-btn {
-    text-decoration: none; color: var(--text-secondary); padding: 8px 20px;
+    text-decoration: none; color: var(--text-secondary); padding: 8px 18px;
     border-radius: 50px; font-weight: 600; font-size: 0.9rem; transition: 0.3s;
-    background: transparent; border: none; display: flex; align-items: center; gap: 8px;
+    background: transparent; border: none; display: flex; align-items: center; gap: 6px;
 }
 .tab-btn.active { background: var(--text-primary); color: var(--bg-color); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 .tab-btn:hover:not(.active) { color: var(--text-primary); }
@@ -82,7 +80,7 @@ nav {
 }
 #cursor.hovered { width: 50px; height: 50px; opacity: 0.5; background: var(--accent); mix-blend-mode: normal; }
 
-/* --- ANIMATED BUTTONS --- */
+/* --- COMMON UI --- */
 .landing-btn {
     padding: 18px 45px; border-radius: 50px; font-size: 1.1rem; font-weight: 600;
     background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
@@ -90,74 +88,50 @@ nav {
     display: flex; align-items: center; gap: 12px;
     transition: 0.4s; position: relative; overflow: hidden;
 }
-.landing-btn::before {
-    content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: 0.5s;
-}
-.landing-btn:hover { 
-    transform: translateY(-5px); background: var(--accent); color: #000;
-    border-color: var(--accent); box-shadow: 0 0 25px var(--accent-glow);
-}
-.landing-btn:hover::before { left: 100%; }
-
-/* Icon Buttons */
-.theme-btn, .btn-control, .icon-only {
-    width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--glass-border);
-    background: rgba(255,255,255,0.05); color: var(--text-primary);
-    display: flex; align-items: center; justify-content: center; cursor: none; transition: 0.3s;
-}
-.theme-btn:hover, .btn-control:hover { 
-    background: var(--accent); color: #000; transform: rotate(10deg) scale(1.1); 
-    box-shadow: 0 0 15px var(--accent-glow);
-}
-
-/* --- SCROLL REVEAL --- */
+.landing-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 25px var(--accent-glow); }
+.theme-btn { width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: var(--text-primary); display: flex; align-items: center; justify-content: center; transition: 0.3s; }
 .reveal { opacity: 0; transform: translateY(30px); animation: fadeUp 0.8s ease forwards; }
 @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
-/* --- PAGE SECTIONS --- */
+/* --- CHATGRAM SPECIFIC --- */
+.chat-app { display: flex; height: calc(100vh - var(--nav-height)); overflow: hidden; }
+.chat-sidebar { width: var(--chat-sidebar-width); background: rgba(0,0,0,0.3); border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; }
+.chat-main { flex: 1; background: url('https://w.wallhaven.cc/full/vg/wallhaven-vg8885.jpg') center/cover; position: relative; display: flex; flex-direction: column; }
+.chat-main::before { content: ''; position: absolute; inset: 0; background: var(--bg-color); opacity: 0.85; }
+
+.chat-list { flex: 1; overflow-y: auto; }
+.chat-item { display: flex; gap: 15px; padding: 15px 20px; cursor: pointer; transition: 0.2s; border-bottom: 1px solid rgba(255,255,255,0.02); }
+.chat-item:hover, .chat-item.active { background: rgba(255,255,255,0.05); }
+.avatar { width: 50px; height: 50px; border-radius: 50%; background-size: cover; background-position: center; border: 1px solid var(--glass-border); }
+.chat-info h4 { font-size: 1rem; margin-bottom: 4px; }
+.chat-info p { font-size: 0.85rem; color: var(--text-secondary); }
+
+.chat-header { padding: 15px 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border-bottom: 1px solid var(--glass-border); z-index: 2; display: flex; align-items: center; gap: 15px; }
+.messages-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; z-index: 1; }
+.msg-bubble { max-width: 70%; padding: 10px 15px; border-radius: 12px; font-size: 0.95rem; line-height: 1.4; position: relative; }
+.msg-in { align-self: flex-start; background: rgba(255,255,255,0.1); border-bottom-left-radius: 2px; }
+.msg-out { align-self: flex-end; background: var(--accent); color: #000; border-bottom-right-radius: 2px; }
+.chat-input-bar { padding: 15px; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); z-index: 2; display: flex; gap: 10px; }
+.chat-input { flex: 1; background: rgba(255,255,255,0.1); border: none; padding: 12px 20px; border-radius: 30px; color: white; outline: none; }
+
+/* Login Screen */
+.login-screen { position: fixed; inset: 0; background: var(--bg-color); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+.login-box { background: var(--card-bg); padding: 40px; border-radius: 24px; border: 1px solid var(--glass-border); text-align: center; width: 90%; max-width: 400px; }
+.login-input { width: 100%; padding: 15px; margin: 20px 0; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; color: white; text-align: center; font-size: 1.1rem; }
+
+/* --- OTHER PAGES --- */
 .landing-container { min-height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-.hero-logo { 
-    font-size: 4.5rem; margin-bottom: 10px; 
-    background: linear-gradient(135deg, #fff 30%, #888 100%); 
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 25px rgba(255,255,255,0.1));
-}
-.landing-buttons { display: flex; gap: 20px; margin-top: 40px; flex-wrap: wrap; justify-content: center; }
+.hero-logo { font-size: 4rem; margin-bottom: 20px; background: linear-gradient(135deg, #fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.landing-buttons { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
 
-/* --- MUSIC UI --- */
-.content-section { max-width: 1600px; margin: 0 auto; padding: 20px 20px 120px; }
-.music-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 25px; margin-top: 30px; }
-.song-card {
-    background: var(--card-bg); padding: 15px; border-radius: 20px;
-    border: 1px solid var(--glass-border); transition: 0.4s; position: relative;
-    backdrop-filter: blur(10px);
-}
-.song-card:hover { transform: translateY(-10px); border-color: var(--accent); box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
-.art-box { width: 100%; aspect-ratio: 1; border-radius: 15px; background-size: cover; margin-bottom: 15px; position: relative; }
-.play-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.3s; }
-.song-card:hover .play-overlay { opacity: 1; }
-
-.player-bar {
-    position: fixed; bottom: 0; left: 0; width: 100%; height: 90px;
-    background: rgba(10,10,10,0.95); backdrop-filter: blur(30px);
-    border-top: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-between;
-    padding: 0 40px; transform: translateY(100%); transition: 0.5s ease; z-index: 500;
-}
+.player-bar { position: fixed; bottom: 0; width: 100%; height: 90px; background: rgba(10,10,10,0.95); border-top: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; transform: translateY(100%); transition: 0.5s ease; z-index: 500; }
 .player-bar.active { transform: translateY(0); }
-
-/* --- CHAT & DL --- */
-.chat-wrapper { max-width: 900px; margin: 20px auto; height: 80vh; display: flex; flex-direction: column; }
-.chat-container { flex: 1; background: var(--card-bg); border-radius: 24px; padding: 20px; overflow-y: auto; border: 1px solid var(--glass-border); }
-.video-dl-container { max-width: 800px; margin: 40px auto; text-align: center; background: var(--card-bg); padding: 40px; border-radius: 24px; border: 1px solid var(--glass-border); }
 
 /* Mobile */
 @media (max-width: 768px) {
+    .chat-sidebar { width: 100%; position: absolute; height: 100%; z-index: 10; background: var(--bg-color); transition: 0.3s; }
+    .chat-sidebar.hidden { transform: translateX(-100%); }
+    .chat-main { width: 100%; }
+    .tab-btn span { display: none; }
     #cursor { display: none; }
-    .hero-logo { font-size: 3rem; }
-    .player-bar { padding: 10px 20px; bottom: 10px; width: 95%; left: 2.5%; border-radius: 20px; }
-    .landing-buttons { flex-direction: column; width: 100%; }
-    .landing-btn { justify-content: center; }
-    .tab-btn span { display: none; } /* Hide text on mobile nav, keep icons */
 }
