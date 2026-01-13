@@ -1,0 +1,13 @@
+{
+  "name": "chatgram-super-app",
+  "compatibility_date": "2026-01-13",
+
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS"
+  },
+
+  "vars": {
+    "ENV": "production"
+  }
+}
