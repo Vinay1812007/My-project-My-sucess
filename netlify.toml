@@ -1,18 +1,18 @@
 [build]
-  command = ""          # Leave empty since you have static HTML files
-  publish = "."         # Serve files from the root directory
-  functions = "api"     # Tells Netlify your functions are in the 'api' folder
+  command = "npm run build"
+  publish = "."
+  functions = "api"
 
 [dev]
   framework = "#static"
 
-# Redirect all API calls to the serverless function
+# API Redirect
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
 
-# Handle Single Page Application (SPA) routing for clean URLs
+# Clean URL Rewrites
 [[redirects]]
   from = "/music"
   to = "/music.html"
@@ -38,7 +38,7 @@
   to = "/sitemap.html"
   status = 200
 
-# Catch-all fallback (optional, if you want everything else to go to home)
+# Fallback for anything else
 [[redirects]]
   from = "/*"
   to = "/index.html"
