@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "include": [
+    "/",
+    "/home",
+    "/music",
+    "/chat.ai",
+    "/videodownloder",
+    "/VI Messeger",
+    "/sitemap"
+  ],
+  "exclude": []
+}
