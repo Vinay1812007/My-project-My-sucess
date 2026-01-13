@@ -6,39 +6,11 @@
 [dev]
   framework = "#static"
 
-# 1. API Redirects
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
 
-# 2. Page Rewrites (Clean URLs)
-[[redirects]]
-  from = "/music"
-  to = "/music.html"
-  status = 200
-
-[[redirects]]
-  from = "/ai"
-  to = "/ai.html"
-  status = 200
-
-[[redirects]]
-  from = "/videodownloader"
-  to = "/videodownloader.html"
-  status = 200
-
-[[redirects]]
-  from = "/chatgram"
-  to = "/chatgram.html"
-  status = 200
-
-[[redirects]]
-  from = "/sitemap"
-  to = "/sitemap.html"
-  status = 200
-
-# 3. Fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"
