@@ -1,6 +1,7 @@
 {
+  "name": "sirimilla-site",
+  "version": "1.0.0",
   "scripts": {
-    "build": "echo Build complete",
-    "deploy": "wrangler deploy"
+    "build": "echo Build complete"
   }
 }
