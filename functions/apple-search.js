@@ -1,24 +1,29 @@
-   // --- Apple Music Search API ---
-    if (url.pathname === "/api/apple/search") {
-      const term = url.searchParams.get("q");
-      if (!term) {
-        return new Response("Missing search query", { status: 400 });
-      }
+export async function onRequestGet({ request, env }) {
+  const url = new URL(request.url);
+  const q = url.searchParams.get("q");
 
-      const apiURL =
-        `https://api.music.apple.com/v1/catalog/us/search?types=songs&limit=10&term=` +
-        encodeURIComponent(term);
+  if (!q) {
+    return new Response(
+      JSON.stringify({ error: "Missing search query" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
+  }
 
-      const res = await fetch(apiURL, {
-        headers: {
-          Authorization: `Bearer ${env.APPLE_MUSIC_TOKEN}`
-        }
-      });
+  const apiURL =
+    "https://api.music.apple.com/v1/catalog/us/search" +
+    "?types=songs&limit=12&term=" +
+    encodeURIComponent(q);
 
-      return new Response(res.body, {
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-store"
-        }
-      });
+  const res = await fetch(apiURL, {
+    headers: {
+      Authorization: `Bearer ${env.APPLE_MUSIC_TOKEN}`
     }
+  });
+
+  return new Response(res.body, {
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store"
+    }
+  });
+}
