@@ -1,15 +1,8 @@
 self.addEventListener("install", e => {
   e.waitUntil(
-    caches.open("vinay-v1").then(c =>
-      c.addAll([
-        "/",
-        "/index.html",
-        "/style.css",
-        "/script.js",
-        "/music.html",
-        "/ai.html",
-        "/videodownloader.html"
-      ])
-    )
+    caches.open("vinay-v2").then(c => c.addAll([
+      "/","/index.html","/ai.html","/music.html",
+      "/videodownloader.html","/style.css","/script.js"
+    ]))
   );
 });
