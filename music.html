@@ -2,162 +2,87 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Music | Sirimilla Vinay</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <link rel="icon" href="/favicon.png">
-
-  <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-      background: linear-gradient(180deg, #0b0b0b, #000);
-      color: #fff;
-    }
-
-    header {
-      padding: 20px;
-      font-size: 22px;
-      font-weight: 600;
-    }
-
-    .playlist {
-      padding: 20px;
-      display: grid;
-      gap: 14px;
-    }
-
-    .track {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 14px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.08);
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    .track:hover {
-      background: rgba(255,255,255,0.14);
-    }
-
-    .track img {
-      width: 50px;
-      height: 50px;
-      border-radius: 10px;
-      object-fit: cover;
-    }
-
-    .track-info {
-      flex: 1;
-    }
-
-    .track-info strong {
-      display: block;
-      font-size: 15px;
-    }
-
-    .track-info span {
-      font-size: 12px;
-      opacity: 0.7;
-    }
-
-    .player {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 16px;
-      background: rgba(20,20,20,0.9);
-      backdrop-filter: blur(14px);
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .player button {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 22px;
-      cursor: pointer;
-    }
-
-    .progress {
-      flex: 1;
-    }
-  </style>
+  <title>Music</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
 
-<header>🎵 Music</header>
+<header class="header">🎵 Music</header>
 
-<section class="playlist">
-  <div class="track" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">
-    <img src="https://picsum.photos/200?1">
-    <div class="track-info">
-      <strong>SoundHelix Track 1</strong>
-      <span>Public Preview Audio</span>
-    </div>
-  </div>
+<input
+  id="search"
+  class="search"
+  placeholder="Search songs, artists..."
+/>
 
-  <div class="track" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3">
-    <img src="https://picsum.photos/200?2">
-    <div class="track-info">
-      <strong>SoundHelix Track 2</strong>
-      <span>Public Preview Audio</span>
-    </div>
-  </div>
-
-  <div class="track" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3">
-    <img src="https://picsum.photos/200?3">
-    <div class="track-info">
-      <strong>SoundHelix Track 3</strong>
-      <span>Public Preview Audio</span>
-    </div>
-  </div>
-</section>
+<div id="list"></div>
 
 <div class="player">
-  <button id="playPause">▶️</button>
-  <input type="range" id="seek" class="progress" value="0">
+  <button id="play">▶️</button>
+  <span id="now">Nothing playing</span>
 </div>
 
 <audio id="audio"></audio>
 
 <script>
-  const audio = document.getElementById("audio");
-  const playPause = document.getElementById("playPause");
-  const seek = document.getElementById("seek");
+const input = document.getElementById("search");
+const list = document.getElementById("list");
+const audio = document.getElementById("audio");
+const playBtn = document.getElementById("play");
+const now = document.getElementById("now");
 
-  document.querySelectorAll(".track").forEach(track => {
-    track.onclick = () => {
-      audio.src = track.dataset.src;
+let currentUrl = null;
+
+input.addEventListener("input", async () => {
+  const q = input.value.trim();
+  if (q.length < 2) return;
+
+  const res = await fetch(
+    `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=20`
+  );
+  const data = await res.json();
+
+  list.innerHTML = "";
+
+  data.results.forEach(track => {
+    if (!track.previewUrl) return;
+
+    const div = document.createElement("div");
+    div.className = "track";
+    div.innerHTML = `
+      <img src="${track.artworkUrl100}">
+      <div>
+        <b>${track.trackName}</b><br>
+        <small>${track.artistName}</small>
+      </div>
+    `;
+
+    div.onclick = () => {
+      currentUrl = track.previewUrl;
+      audio.src = currentUrl;
       audio.play();
-      playPause.textContent = "⏸";
+      playBtn.textContent = "⏸";
+      now.textContent = track.trackName;
     };
+
+    list.appendChild(div);
   });
+});
 
-  playPause.onclick = () => {
-    if (audio.paused) {
-      audio.play();
-      playPause.textContent = "⏸";
-    } else {
-      audio.pause();
-      playPause.textContent = "▶️";
-    }
-  };
-
-  audio.ontimeupdate = () => {
-    seek.value = (audio.currentTime / audio.duration) * 100 || 0;
-  };
-
-  seek.oninput = () => {
-    audio.currentTime = (seek.value / 100) * audio.duration;
-  };
+playBtn.onclick = () => {
+  if (!currentUrl) return;
+  if (audio.paused) {
+    audio.play();
+    playBtn.textContent = "⏸";
+  } else {
+    audio.pause();
+    playBtn.textContent = "▶️";
+  }
+};
 </script>
-  
+
+<script src="/script.js"></script>
 </body>
 </html>
