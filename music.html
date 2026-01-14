@@ -1,111 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Music</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="/style.css">
+<meta charset="UTF-8">
+<title>Music</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
-<canvas id="wave" width="300" height="80"></canvas>
 
-<script type="module">
-import {drawWave} from "/assets/wave.js";
-const audio = document.getElementById("audio");
-drawWave(document.getElementById("wave"), audio);
+<div class="header">Music</div>
 
-let recent = JSON.parse(localStorage.getItem("recent")||"[]");
+<div class="safe-bottom" style="padding:16px">
 
-function addRecent(name){
-  recent.unshift(name);
-  recent = recent.slice(0,10);
-  localStorage.setItem("recent",JSON.stringify(recent));
-}
-</script>
+  <!-- Search -->
+  <input id="search" placeholder="Search songs, artists…" oninput="searchMusic()">
 
-<header class="header">🎵 Music</header>
+  <!-- Results -->
+  <div id="results" style="margin-top:16px"></div>
 
-<input
-  id="search"
-  class="search"
-  placeholder="Search songs, artists..."
-/>
-
-<div id="list"></div>
-
-<div class="player">
-  <button id="play">▶️</button>
-  <span id="now">Nothing playing</span>
 </div>
 
-<audio id="audio"></audio>
+<!-- Player -->
+<div id="player" class="glass" style="
+  position:fixed;
+  bottom:70px;
+  left:10px;
+  right:10px;
+  padding:12px;
+  display:none;
+  align-items:center;
+  gap:12px;
+">
+  <img id="cover" width="52" height="52" style="border-radius:10px">
+  <div style="flex:1">
+    <div id="title" style="font-size:14px;font-weight:500"></div>
+    <div id="artist" style="font-size:12px;opacity:.6"></div>
+    <canvas id="wave" height="24"></canvas>
+  </div>
+  <button class="button" onclick="toggle()">⏯</button>
+  <button class="button" onclick="fav()">❤️</button>
+</div>
 
+<!-- Tabs -->
+<div class="tab-bar">
+  <div class="tab-item" onclick="go('index.html')">Home</div>
+  <div class="tab-item" onclick="go('chatgram.html')">Chat</div>
+  <div class="tab-item active">Music</div>
+  <div class="tab-item" onclick="go('ai.html')">AI</div>
+</div>
+
+<script src="/assets/wave.js"></script>
 <script>
-const input = document.getElementById("search");
-const list = document.getElementById("list");
-const audio = document.getElementById("audio");
-const playBtn = document.getElementById("play");
-const now = document.getElementById("now");
-let favorites = JSON.parse(localStorage.getItem("fav") || "[]");
+/* ===============================
+   MUSIC APP CORE
+   =============================== */
 
-function toggleFav(track) {
-  if (favorites.includes(track)) {
-    favorites = favorites.filter(t => t !== track);
-  } else {
-    favorites.push(track);
-  }
-  localStorage.setItem("fav", JSON.stringify(favorites));
-}
+const audio = new Audio();
+let current = null;
 
-let currentUrl = null;
+const favs = JSON.parse(localStorage.favs || "[]");
+const recent = JSON.parse(localStorage.recent || "[]");
 
-input.addEventListener("input", async () => {
-  const q = input.value.trim();
-  if (q.length < 2) return;
-
+async function searchMusic() {
+  const q = search.value.trim();
+  if (!q) return;
   const res = await fetch(
     `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=20`
   );
-  const data = await res.json();
+  const json = await res.json();
+  render(json.results);
+}
 
-  list.innerHTML = "";
-
-  data.results.forEach(track => {
-    if (!track.previewUrl) return;
-
+function render(list) {
+  results.innerHTML = "";
+  list.forEach(track => {
     const div = document.createElement("div");
-    div.className = "track";
+    div.className = "glass";
+    div.style.padding = "12px";
+    div.style.marginBottom = "12px";
     div.innerHTML = `
-      <img src="${track.artworkUrl100}">
-      <div>
-        <b>${track.trackName}</b><br>
-        <small>${track.artistName}</small>
+      <div style="display:flex;gap:12px;align-items:center">
+        <img src="${track.artworkUrl100}" width="60" height="60" style="border-radius:10px">
+        <div style="flex:1">
+          <div style="font-size:14px">${track.trackName}</div>
+          <div style="font-size:12px;opacity:.6">${track.artistName}</div>
+        </div>
+        <button class="button">▶</button>
       </div>
     `;
-
-    div.onclick = () => {
-      currentUrl = track.previewUrl;
-      audio.src = currentUrl;
-      audio.play();
-      playBtn.textContent = "⏸";
-      now.textContent = track.trackName;
-    };
-
-    list.appendChild(div);
+    div.onclick = () => play(track);
+    results.appendChild(div);
   });
-});
+}
 
-playBtn.onclick = () => {
-  if (!currentUrl) return;
-  if (audio.paused) {
-    audio.play();
-    playBtn.textContent = "⏸";
-  } else {
-    audio.pause();
-    playBtn.textContent = "▶️";
+function play(track) {
+  current = track;
+  audio.src = track.previewUrl;
+  audio.play();
+
+  title.textContent = track.trackName;
+  artist.textContent = track.artistName;
+  cover.src = track.artworkUrl100;
+  player.style.display = "flex";
+
+  recent.unshift(track);
+  localStorage.recent = JSON.stringify(recent.slice(0, 10));
+
+  startWave(audio, document.getElementById("wave"));
+}
+
+function toggle() {
+  audio.paused ? audio.play() : audio.pause();
+}
+
+function fav() {
+  if (!favs.find(f => f.trackId === current.trackId)) {
+    favs.push(current);
+    localStorage.favs = JSON.stringify(favs);
+    alert("Added to Favorites ❤️");
   }
-};
+}
 </script>
 
 <script src="/script.js"></script>
