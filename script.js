@@ -1,3 +1,13 @@
+const nav = document.createElement("div");
+nav.className = "nav";
+nav.innerHTML = `
+  <a href="/">🏠 Home</a>
+  <a href="/music">🎵 Music</a>
+  <a href="/videodownloder">🎬 Video</a>
+  <a href="/chat.ai">🤖 AI</a>
+  <a href="/VI Messeger">💬 Chat</a>
+`;
+document.body.appendChild(nav);
 /* =========================================================
    GLOBAL SCRIPT — PRODUCTION RUNTIME
    ========================================================= */
