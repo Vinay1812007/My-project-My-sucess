@@ -1,40 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Video Downloader</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<title>Downloader</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="/style.css">
 </head>
+<body>
 
-<body class="glass">
-<header class="header">🎬 Video Tool</header>
+<div class="header">Downloader</div>
 
-<input id="url" class="search" placeholder="Paste public video URL">
+<div class="safe-bottom" style="padding:16px">
+  <input id="url" placeholder="Paste public media URL…" />
+  <button class="button" onclick="analyze()">Analyze</button>
 
-<button onclick="fetchMeta()">Fetch Info</button>
+  <div id="info" style="margin-top:16px"></div>
+</div>
 
-<div id="meta"></div>
+<div class="tab-bar">
+  <div class="tab-item" onclick="go('index.html')">Home</div>
+  <div class="tab-item" onclick="go('chatgram.html')">Chat</div>
+  <div class="tab-item" onclick="go('music.html')">Music</div>
+  <div class="tab-item" onclick="go('ai.html')">AI</div>
+</div>
 
 <script>
-async function fetchMeta() {
-  const url = document.getElementById("url").value.trim();
-  if (!url) return;
+async function analyze() {
+  const u = url.value.trim();
+  if (!u) return;
 
-  const res = await fetch(
+  info.innerHTML = "<div class='glass' style='padding:12px'>Fetching metadata…</div>";
+
+  const meta = await fetch(
     "https://api.allorigins.win/raw?url=" +
-    encodeURIComponent("https://jsonlink.io/api/extract?url=" + url)
-  );
+    encodeURIComponent("https://noembed.com/embed?url=" + u)
+  ).then(r => r.json());
 
-  const data = await res.json();
-
-  document.getElementById("meta").innerHTML = `
-    <div class="track">
-      <img src="${data.images?.[0] || ''}">
-      <div>
-        <b>${data.title || 'Unknown title'}</b><br>
-        <small>${data.description || ''}</small><br><br>
-        <a href="${url}" target="_blank">Open original source</a>
-      </div>
+  info.innerHTML = `
+    <div class="glass" style="padding:16px">
+      <img src="${meta.thumbnail_url || ""}" style="width:100%;border-radius:14px">
+      <h3>${meta.title || "Unknown title"}</h3>
+      <p>${meta.author_name || ""}</p>
+      <a class="button" href="${u}" target="_blank">
+        Open Original Source
+      </a>
     </div>
   `;
 }
