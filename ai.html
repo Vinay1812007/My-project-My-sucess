@@ -1,147 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>AI Chat • Sirimilla Vinay</title>
-
-  <!-- SEO -->
-  <meta name="description" content="Fast, free AI chat with streaming responses and chat history." />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://sirimillavinay.online/chat.ai" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="/favicon.png" />
-  <link rel="stylesheet" href="/style.css" />
+<meta charset="UTF-8">
+<title>Chat AI</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/style.css">
 </head>
 
-<body>
-<main role="main" aria-label="AI Chat" style="padding-bottom:140px">
+<body class="glass">
 
-  <!-- HEADER -->
-  <header class="glass" style="margin:16px; padding:18px">
-    <h1>🤖 AI Chat</h1>
-    <p class="muted">Streaming responses • Free models</p>
-  </header>
+<header class="header">🤖 Chat AI</header>
 
-  <!-- CHAT -->
-  <section id="chat" style="padding:16px; display:flex; flex-direction:column; gap:12px"></section>
+<div id="chat" class="chat"></div>
 
-</main>
+<div class="typing" id="typing">AI is typing…</div>
 
-<!-- INPUT -->
-<footer class="glass" style="
-  position:fixed;
-  bottom:70px;
-  left:16px;
-  right:16px;
-  padding:12px;
-  display:flex;
-  gap:10px;
-">
-  <textarea
-    id="input"
-    placeholder="Message AI…"
-    aria-label="Message AI"
-    rows="1"
-    style="flex:1; resize:none; padding:10px; border-radius:12px; border:none"
-  ></textarea>
-  <button id="send" class="button">Send</button>
-</footer>
-
-<!-- NAV -->
-<nav class="navbar">
-  <a href="/home">Home</a>
-  <a href="/music">Music</a>
-  <a href="/chat.ai" class="active">AI</a>
-  <a href="/videodownloder">Video</a>
-  <a href="/chat">Chat</a>
-</nav>
-
-<script src="/script.js" defer></script>
+<div class="input-bar">
+  <input id="msg" placeholder="Ask anything…" />
+  <button onclick="send()">Send</button>
+</div>
 
 <script>
-(() => {
-  "use strict";
+const chat = document.getElementById("chat");
+const typing = document.getElementById("typing");
+const input = document.getElementById("msg");
 
-  const chatEl = document.getElementById("chat");
-  const input = document.getElementById("input");
-  const sendBtn = document.getElementById("send");
+let history = JSON.parse(localStorage.getItem("chat_history") || "[]");
+history.forEach(addMsg);
 
-  let messages = [];
+function addMsg({role,text}) {
+  const div = document.createElement("div");
+  div.className = "bubble " + role;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
 
-  function addMessage(role, text) {
-    const bubble = document.createElement("div");
-    bubble.className = "glass";
-    bubble.style.padding = "14px";
-    bubble.style.maxWidth = "80%";
-    bubble.style.alignSelf = role === "user" ? "flex-end" : "flex-start";
-    bubble.style.background =
-      role === "user"
-        ? "rgba(76,159,254,0.9)"
-        : "var(--glass)";
-    bubble.style.color = role === "user" ? "#fff" : "inherit";
-    bubble.textContent = text;
-    chatEl.appendChild(bubble);
-    chatEl.scrollTop = chatEl.scrollHeight;
-    return bubble;
-  }
+async function send() {
+  const text = input.value.trim();
+  if (!text) return;
 
-  async function send() {
-    const text = input.value.trim();
-    if (!text) return;
+  addMsg({role:"user",text});
+  history.push({role:"user",text});
+  input.value="";
+  typing.style.display="block";
 
-    input.value = "";
-    messages.push({ role: "user", content: text });
-    addMessage("user", text);
+  // free public AI endpoint (no key)
+  const res = await fetch("https://api.allorigins.win/raw?url=" +
+    encodeURIComponent(
+      "https://api.affiliateplus.xyz/api/chatbot?message=" +
+      encodeURIComponent(text) +
+      "&name=Vinay&owner=Vinay&user=web"
+    )
+  );
 
-    const aiBubble = addMessage("assistant", "Typing…");
+  const data = await res.json();
+  typing.style.display="none";
 
-    try {
-      const res = await fetch("/api/ai-stream", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages,
-          model: "llama3-8b-8192",
-          temperature: 0.7
-        })
-      });
+  addMsg({role:"ai",text:data.message});
+  history.push({role:"ai",text:data.message});
 
-      if (!res.ok) throw new Error("AI error");
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let fullText = "";
-
-      aiBubble.textContent = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        fullText += chunk;
-        aiBubble.textContent = fullText;
-        chatEl.scrollTop = chatEl.scrollHeight;
-      }
-
-      messages.push({ role: "assistant", content: fullText });
-
-    } catch {
-      aiBubble.textContent = "⚠️ Error. Please try again.";
-    }
-  }
-
-  sendBtn.onclick = send;
-
-  input.addEventListener("keydown", e => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      send();
-    }
-  });
-
-})();
+  localStorage.setItem("chat_history", JSON.stringify(history));
+}
 </script>
 
+<script src="/script.js"></script>
 </body>
 </html>
