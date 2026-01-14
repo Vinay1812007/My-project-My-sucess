@@ -1,318 +1,174 @@
-body {
+/* ===============================
+   iOS GLASS + NEON DESIGN SYSTEM
+   =============================== */
+
+:root {
+  --bg-main: radial-gradient(circle at top, #1e1e2f, #050510 70%);
+  --glass-bg: rgba(255, 255, 255, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.25);
+  --neon-blue: #00c6ff;
+  --neon-pink: #ff4ecd;
+  --neon-green: #2dff9c;
+  --text-main: #ffffff;
+  --text-muted: rgba(255,255,255,0.6);
+  --blur: blur(18px);
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --shadow-glow: 0 0 25px rgba(0,198,255,0.35);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, system-ui;
-  background: linear-gradient(180deg,#111,#000);
-  color: #fff;
+  padding: 0;
+  background: var(--bg-main);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+  color: var(--text-main);
+  min-height: 100%;
 }
 
+/* ---------- Glass Card ---------- */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-glow);
+}
+
+/* ---------- Header ---------- */
 .header {
-  padding: 18px;
-  font-size: 22px;
+  padding: 24px;
+  font-size: 26px;
   font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.5px;
 }
 
-.search {
-  width: calc(100% - 24px);
-  margin: 12px;
-  padding: 14px;
-  border-radius: 14px;
-  border: none;
-  font-size: 15px;
+/* ---------- App Grid ---------- */
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  padding: 20px;
 }
 
-.track {
-  display: flex;
-  gap: 12px;
-  margin: 10px;
-  padding: 12px;
-  border-radius: 16px;
-  background: rgba(255,255,255,0.1);
+.app-card {
+  position: relative;
+  padding: 22px;
+  text-align: center;
   cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.track img {
-  width: 60px;
-  height: 60px;
-  border-radius: 12px;
+.app-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 0 35px rgba(255,255,255,0.35);
 }
 
-.player {
-  position: fixed;
-  bottom: 60px;
-  left: 0;
-  right: 0;
-  padding: 12px;
-  background: rgba(0,0,0,0.85);
-  display: flex;
-  gap: 12px;
-  align-items: center;
+.app-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
 }
 
-/* bottom nav */
-.nav {
+.app-title {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.app-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ---------- Neon Glow Accents ---------- */
+.neon-blue {
+  box-shadow: 0 0 25px rgba(0,198,255,0.6);
+}
+
+.neon-pink {
+  box-shadow: 0 0 25px rgba(255,78,205,0.6);
+}
+
+.neon-green {
+  box-shadow: 0 0 25px rgba(45,255,156,0.6);
+}
+
+/* ---------- Bottom iOS Tab Bar ---------- */
+.tab-bar {
   position: fixed;
   bottom: 0;
   width: 100%;
-  background: rgba(0,0,0,0.9);
+  height: 68px;
   display: flex;
   justify-content: space-around;
-  padding: 10px 0;
+  align-items: center;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(22px);
+  border-top: 1px solid rgba(255,255,255,0.2);
 }
 
-.nav a {
-  color: #fff;
-  text-decoration: none;
+.tab-item {
+  text-align: center;
   font-size: 12px;
-}
-/* =========================================================
-   GLOBAL DESIGN SYSTEM — iOS GLASSMORPHISM
-   Author: Production Build
-   ========================================================= */
-
-/* -------------------------
-   CSS RESET (SAFE)
-------------------------- */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html {
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-}
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "SF Pro Display",
-    "SF Pro Text",
-    system-ui,
-    sans-serif;
-  line-height: 1.5;
-  background: var(--bg);
-  color: var(--text);
-  overflow-x: hidden;
-}
-
-/* -------------------------
-   DESIGN TOKENS
-------------------------- */
-:root {
-  /* Colors */
-  --bg-light: radial-gradient(circle at top, #ffffff, #eef1f7);
-  --bg-dark: radial-gradient(circle at top, #151821, #05060a);
-
-  --glass-light: rgba(255, 255, 255, 0.65);
-  --glass-dark: rgba(18, 20, 30, 0.55);
-
-  --border-light: rgba(255, 255, 255, 0.35);
-  --border-dark: rgba(255, 255, 255, 0.08);
-
-  --text-light: #0b0d12;
-  --text-dark: #f4f5fa;
-  --text-muted-light: rgba(0, 0, 0, 0.55);
-  --text-muted-dark: rgba(255, 255, 255, 0.65);
-
-  /* Effects */
-  --blur: blur(22px);
-  --radius-sm: 12px;
-  --radius-md: 16px;
-  --radius-lg: 20px;
-
-  /* Motion */
-  --ease: cubic-bezier(.22,.61,.36,1);
-  --fast: 0.2s;
-  --normal: 0.35s;
-  --slow: 0.6s;
-}
-
-/* -------------------------
-   COLOR MODES
-------------------------- */
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: var(--bg-light);
-    --glass: var(--glass-light);
-    --border: var(--border-light);
-    --text: var(--text-light);
-    --text-muted: var(--text-muted-light);
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: var(--bg-dark);
-    --glass: var(--glass-dark);
-    --border: var(--border-dark);
-    --text: var(--text-dark);
-    --text-muted: var(--text-muted-dark);
-  }
-}
-
-/* -------------------------
-   ACCESSIBILITY
-------------------------- */
-:focus-visible {
-  outline: 2px solid #4c9ffe;
-  outline-offset: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* -------------------------
-   GLASS COMPONENT
-------------------------- */
-.glass {
-  background: var(--glass);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
-  box-shadow:
-    0 12px 30px rgba(0, 0, 0, 0.15);
-  transition:
-    transform var(--normal) var(--ease),
-    box-shadow var(--normal) var(--ease);
-}
-
-.glass:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 16px 40px rgba(0, 0, 0, 0.18);
-}
-
-/* -------------------------
-   BUTTONS
-------------------------- */
-.button {
-  appearance: none;
-  border: none;
+  color: var(--text-muted);
   cursor: pointer;
-  padding: 12px 18px;
-  border-radius: var(--radius-md);
-  background: rgba(76, 159, 254, 0.9);
-  color: #fff;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition:
-    transform var(--fast) var(--ease),
-    opacity var(--fast) var(--ease);
 }
 
-.button:hover {
-  transform: translateY(-1px);
-  opacity: 0.95;
+.tab-item.active {
+  color: var(--neon-blue);
+}
+
+/* ---------- Inputs ---------- */
+input, textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  color: white;
+  font-size: 15px;
+  outline: none;
+}
+
+input::placeholder {
+  color: rgba(255,255,255,0.6);
+}
+
+/* ---------- Buttons ---------- */
+.button {
+  background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink));
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0,198,255,0.5);
 }
 
 .button:active {
   transform: scale(0.97);
 }
 
-/* -------------------------
-   TEXT UTILITIES
-------------------------- */
-h1, h2, h3 {
-  line-height: 1.2;
-  letter-spacing: -0.02em;
+/* ---------- Animations ---------- */
+@keyframes pulse {
+  0% { box-shadow: 0 0 12px rgba(0,198,255,0.4); }
+  50% { box-shadow: 0 0 30px rgba(0,198,255,0.9); }
+  100% { box-shadow: 0 0 12px rgba(0,198,255,0.4); }
 }
 
-.muted {
-  color: var(--text-muted);
+.pulse {
+  animation: pulse 2s infinite;
 }
 
-/* -------------------------
-   NAV BAR (iOS STYLE)
-------------------------- */
-.navbar {
-  position: fixed;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 18px;
-  padding: 14px 22px;
-  border-radius: 999px;
-  background: var(--glass);
-  backdrop-filter: var(--blur);
-  border: 1px solid var(--border);
-  z-index: 1000;
-}
-
-.navbar a {
-  text-decoration: none;
-  color: var(--text);
-  font-size: 0.8rem;
-  opacity: 0.7;
-  transition: opacity var(--fast);
-}
-
-.navbar a.active {
-  opacity: 1;
-  font-weight: 600;
-}
-
-/* -------------------------
-   ANIMATIONS
-------------------------- */
-.fade-in {
-  animation: fadeIn var(--slow) var(--ease);
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-.glass {
-  background: linear-gradient(180deg,#111,#000);
-  backdrop-filter: blur(18px);
-}
-
-.chat {
-  height: calc(100vh - 150px);
-  overflow-y: auto;
-}
-
-.bubble {
-  padding: 12px;
-  border-radius: 18px;
-  margin: 8px;
-  max-width: 75%;
-}
-
-.user {
-  background:#007aff;
-  margin-left:auto;
-}
-
-.ai {
-  background:#2c2c2e;
-}
-
-.input-bar {
-  display:flex;
-  gap:8px;
-  padding:10px;
-}
-
-input {
-  flex:1;
-  border-radius:14px;
-  border:none;
-  padding:12px;
+/* ---------- Safe Area ---------- */
+.safe-bottom {
+  padding-bottom: 90px;
 }
