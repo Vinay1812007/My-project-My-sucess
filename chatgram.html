@@ -1,308 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>ChatGram • Sirimilla Vinay</title>
-
-  <!-- SEO -->
-  <meta name="description" content="ChatGram — a modern messenger with iMessage-style UI, reactions, voice notes, and local encryption simulation." />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://sirimillavinay.online/chat" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="/favicon.png" />
-  <link rel="stylesheet" href="/style.css" />
+<meta charset="UTF-8" />
+<title>Chatgram</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="/style.css" />
 </head>
 
 <body>
-<main role="main" aria-label="ChatGram" style="padding-bottom:140px">
 
-  <!-- HEADER -->
-  <header class="glass" style="margin:16px; padding:18px; display:flex; justify-content:space-between; align-items:center">
-    <div>
-      <h1 style="margin:0">💬 ChatGram</h1>
-      <div class="muted" id="status">Online</div>
-    </div>
-    <input
-      id="search"
-      type="search"
-      placeholder="Search messages"
-      aria-label="Search messages"
-      style="padding:10px; border-radius:12px; border:none"
-    />
-  </header>
+<!-- ================= HEADER ================= -->
+<div class="header">Chatgram</div>
 
-  <!-- CHAT -->
-  <section id="chat"
-    style="
-      padding:16px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    "
-    aria-live="polite"
-  ></section>
+<!-- ================= CHAT LIST ================= -->
+<div id="chatArea" class="safe-bottom" style="padding:16px;">
 
-</main>
+  <!-- Search -->
+  <input id="search" placeholder="Search messages…" oninput="searchMessages()" />
 
-<!-- INPUT BAR -->
-<footer class="glass"
-  style="
-    position:fixed;
-    bottom:70px;
-    left:16px;
-    right:16px;
-    padding:12px;
-    display:flex;
-    gap:8px;
-    align-items:center;
-  "
->
-  <input type="file" id="image" accept="image/*" hidden />
-  <button id="imgBtn" class="button" aria-label="Send image">📷</button>
-  <button id="micBtn" class="button" aria-label="Record voice">🎤</button>
+  <!-- Messages -->
+  <div id="messages"></div>
 
-  <textarea
-    id="input"
-    rows="1"
-    placeholder="Message…"
-    aria-label="Message"
-    style="flex:1; resize:none; padding:10px; border-radius:12px; border:none"
-  ></textarea>
+  <!-- Typing indicator -->
+  <div id="typing" style="font-size:13px;color:var(--text-muted);display:none;">
+    typing…
+  </div>
 
-  <button id="send" class="button">Send</button>
-</footer>
+</div>
 
-<!-- NAV -->
-<nav class="navbar">
-  <a href="/home">Home</a>
-  <a href="/music">Music</a>
-  <a href="/chat.ai">AI</a>
-  <a href="/videodownloder">Video</a>
-  <a href="/chat" class="active">Chat</a>
-</nav>
+<!-- ================= INPUT BAR ================= -->
+<div class="glass" style="
+  position:fixed;
+  bottom:70px;
+  width:100%;
+  padding:12px;
+  display:flex;
+  gap:10px;
+">
+  <input id="msg" placeholder="iMessage…" oninput="sendTyping()" />
+  <button class="button" onclick="send()">➤</button>
+</div>
 
-<script src="/script.js" defer></script>
+<!-- ================= TAB BAR ================= -->
+<div class="tab-bar">
+  <div class="tab-item" onclick="go('index.html')">Home</div>
+  <div class="tab-item active">Chat</div>
+  <div class="tab-item" onclick="go('music.html')">Music</div>
+  <div class="tab-item" onclick="go('ai.html')">AI</div>
+</div>
 
+<!-- ================= IMAGE / VIDEO ================= -->
+<input type="file" id="mediaInput" accept="image/*,video/*" hidden onchange="sendMedia()" />
+
+<!-- ================= SCRIPT ================= -->
 <script>
-(() => {
-  "use strict";
+/* ===============================
+   CHATGRAM CORE LOGIC
+   =============================== */
 
-  /* -------------------------
-     INDEXEDDB
-  ------------------------- */
-  const DB_NAME = "chatgram-db";
-  const STORE = "messages";
-  let db;
+const email = localStorage.email || prompt("Enter your email");
+localStorage.email = email;
 
-  function openDB() {
-    return new Promise((resolve, reject) => {
-      const req = indexedDB.open(DB_NAME, 1);
-      req.onupgradeneeded = () => {
-        req.result.createObjectStore(STORE, { keyPath: "id" });
-      };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
+const ws = new WebSocket(
+  `wss://${location.host}/?email=${encodeURIComponent(email)}`
+);
+
+const messagesEl = document.getElementById("messages");
+const typingEl = document.getElementById("typing");
+let messages = JSON.parse(localStorage.messages || "[]");
+
+/* ---------- Load Stored Messages ---------- */
+messages.forEach(render);
+
+/* ---------- WebSocket ---------- */
+ws.onmessage = e => {
+  const data = JSON.parse(e.data);
+
+  if (data.type === "typing") {
+    typingEl.style.display = "block";
+    setTimeout(() => typingEl.style.display = "none", 1200);
   }
 
-  async function saveMessage(msg) {
-    const tx = db.transaction(STORE, "readwrite");
-    tx.objectStore(STORE).put(msg);
+  if (data.type === "msg") {
+    messages.push(data);
+    save();
+    render(data);
+    sendRead(data.id);
   }
 
-  async function getMessages() {
-    const tx = db.transaction(STORE, "readonly");
-    const req = tx.objectStore(STORE).getAll();
-    return new Promise(res => {
-      req.onsuccess = () => res(req.result || []);
-    });
-  }
-
-  /* -------------------------
-     STATE
-  ------------------------- */
-  const chat = document.getElementById("chat");
-  const input = document.getElementById("input");
-  const sendBtn = document.getElementById("send");
-  const imgBtn = document.getElementById("imgBtn");
-  const imageInput = document.getElementById("image");
-  const micBtn = document.getElementById("micBtn");
-  const search = document.getElementById("search");
-  const statusEl = document.getElementById("status");
-
-  let recorder;
-  let chunks = [];
-
-  /* -------------------------
-     UTIL
-  ------------------------- */
-  function uuid() {
-    return crypto.randomUUID();
-  }
-
-  function encryptSim(text) {
-    return btoa(unescape(encodeURIComponent(text)));
-  }
-
-  function decryptSim(text) {
-    try {
-      return decodeURIComponent(escape(atob(text)));
-    } catch {
-      return text;
+  if (data.type === "reaction") {
+    const msg = messages.find(m => m.id === data.id);
+    if (msg) {
+      msg.reactions = msg.reactions || {};
+      msg.reactions[data.emoji] = true;
+      save();
+      redraw();
     }
   }
+};
 
-  function bubble(msg) {
-    const el = document.createElement("div");
-    el.className = "glass";
-    el.style.maxWidth = "80%";
-    el.style.padding = "12px";
-    el.style.alignSelf = msg.me ? "flex-end" : "flex-start";
-    el.style.background = msg.me ? "rgba(76,159,254,0.9)" : "var(--glass)";
-    el.style.color = msg.me ? "#fff" : "inherit";
-    el.dataset.id = msg.id;
+/* ---------- Send Message ---------- */
+function send() {
+  const text = msg.value.trim();
+  if (!text) return;
 
-    if (msg.type === "text") {
-      el.textContent = decryptSim(msg.content);
-    }
+  const data = {
+    type: "msg",
+    id: crypto.randomUUID(),
+    from: email,
+    text,
+    time: Date.now()
+  };
 
-    if (msg.type === "image") {
-      const img = document.createElement("img");
-      img.src = msg.content;
-      img.style.maxWidth = "200px";
-      img.style.borderRadius = "12px";
-      el.appendChild(img);
-    }
+  ws.send(JSON.stringify(data));
+  messages.push({ ...data, mine: true });
+  save();
+  render({ ...data, mine: true });
+  msg.value = "";
+}
 
-    if (msg.type === "audio") {
-      const audio = document.createElement("audio");
-      audio.src = msg.content;
-      audio.controls = true;
-      el.appendChild(audio);
-    }
+/* ---------- Typing ---------- */
+function sendTyping() {
+  ws.send(JSON.stringify({ type: "typing", from: email }));
+}
 
-    chat.appendChild(el);
-    chat.scrollTop = chat.scrollHeight;
-  }
+/* ---------- Read Receipt ---------- */
+function sendRead(id) {
+  ws.send(JSON.stringify({ type: "read", id }));
+}
 
-  /* -------------------------
-     SEND TEXT
-  ------------------------- */
-  async function sendText() {
-    const text = input.value.trim();
-    if (!text) return;
-    input.value = "";
+/* ---------- Reactions ---------- */
+function react(id, emoji) {
+  ws.send(JSON.stringify({ type: "reaction", id, emoji }));
+}
 
-    const msg = {
-      id: uuid(),
-      type: "text",
-      content: encryptSim(text),
-      me: true,
-      ts: Date.now(),
-      read: true
+/* ---------- Render Message ---------- */
+function render(m) {
+  const div = document.createElement("div");
+  div.className = "bubble " + (m.mine ? "blue" : "gray");
+  div.innerHTML = `
+    ${m.text || ""}
+    <div style="font-size:11px;opacity:.6;text-align:right;">
+      ${new Date(m.time).toLocaleTimeString()}
+    </div>
+    <div style="margin-top:4px;">
+      <span onclick="react('${m.id}','❤️')">❤️</span>
+      <span onclick="react('${m.id}','👍')">👍</span>
+      <span onclick="react('${m.id}','😂')">😂</span>
+    </div>
+  `;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+/* ---------- Redraw ---------- */
+function redraw() {
+  messagesEl.innerHTML = "";
+  messages.forEach(render);
+}
+
+/* ---------- Search ---------- */
+function searchMessages() {
+  const q = search.value.toLowerCase();
+  messagesEl.innerHTML = "";
+  messages
+    .filter(m => (m.text || "").toLowerCase().includes(q))
+    .forEach(render);
+}
+
+/* ---------- Media ---------- */
+function sendMedia() {
+  const file = mediaInput.files[0];
+  const reader = new FileReader();
+  reader.onload = () => {
+    const data = {
+      type: "msg",
+      id: crypto.randomUUID(),
+      from: email,
+      text: file.type.startsWith("image")
+        ? `<img src="${reader.result}" style="max-width:200px;border-radius:12px">`
+        : `<video src="${reader.result}" controls style="max-width:200px;border-radius:12px"></video>`,
+      time: Date.now()
     };
-
-    bubble(msg);
-    await saveMessage(msg);
-  }
-
-  /* -------------------------
-     IMAGE
-  ------------------------- */
-  imgBtn.onclick = () => imageInput.click();
-  imageInput.onchange = async e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const msg = {
-        id: uuid(),
-        type: "image",
-        content: reader.result,
-        me: true,
-        ts: Date.now()
-      };
-      bubble(msg);
-      await saveMessage(msg);
-    };
-    reader.readAsDataURL(file);
+    ws.send(JSON.stringify(data));
+    messages.push({ ...data, mine: true });
+    save();
+    render({ ...data, mine: true });
   };
+  reader.readAsDataURL(file);
+}
 
-  /* -------------------------
-     VOICE
-  ------------------------- */
-  micBtn.onclick = async () => {
-    if (!recorder) {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      recorder = new MediaRecorder(stream);
-      recorder.ondataavailable = e => chunks.push(e.data);
-      recorder.onstop = async () => {
-        const blob = new Blob(chunks, { type: "audio/webm" });
-        chunks = [];
-        const url = URL.createObjectURL(blob);
-        const msg = {
-          id: uuid(),
-          type: "audio",
-          content: url,
-          me: true,
-          ts: Date.now()
-        };
-        bubble(msg);
-        await saveMessage(msg);
-      };
-    }
-
-    if (recorder.state === "inactive") {
-      recorder.start();
-      micBtn.textContent = "⏹";
-    } else {
-      recorder.stop();
-      micBtn.textContent = "🎤";
-    }
+/* ---------- Voice Input UI ---------- */
+if ("webkitSpeechRecognition" in window) {
+  const mic = document.createElement("button");
+  mic.textContent = "🎤";
+  mic.className = "button";
+  mic.onclick = () => {
+    const r = new webkitSpeechRecognition();
+    r.onresult = e => msg.value = e.results[0][0].transcript;
+    r.start();
   };
+  document.querySelector(".glass").appendChild(mic);
+}
 
-  /* -------------------------
-     SEARCH
-  ------------------------- */
-  search.oninput = async e => {
-    const q = e.target.value.toLowerCase();
-    chat.innerHTML = "";
-    const msgs = await getMessages();
-    msgs
-      .filter(m => decryptSim(m.content || "").toLowerCase().includes(q))
-      .forEach(bubble);
-  };
-
-  /* -------------------------
-     NETWORK STATUS
-  ------------------------- */
-  function updateStatus() {
-    statusEl.textContent = navigator.onLine ? "Online" : "Offline";
-  }
-  window.addEventListener("online", updateStatus);
-  window.addEventListener("offline", updateStatus);
-  updateStatus();
-
-  /* -------------------------
-     INIT
-  ------------------------- */
-  document.addEventListener("DOMContentLoaded", async () => {
-    db = await openDB();
-    const msgs = await getMessages();
-    msgs.sort((a, b) => a.ts - b.ts).forEach(bubble);
-  });
-
-  sendBtn.onclick = sendText;
-  input.addEventListener("keydown", e => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendText();
-    }
-  });
-
-})();
+/* ---------- Storage ---------- */
+function save() {
+  localStorage.messages = JSON.stringify(messages);
+}
 </script>
 
+<script src="/script.js"></script>
 </body>
 </html>
