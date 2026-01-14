@@ -8,6 +8,21 @@
 </head>
 
 <body>
+<canvas id="wave" width="300" height="80"></canvas>
+
+<script type="module">
+import {drawWave} from "/assets/wave.js";
+const audio = document.getElementById("audio");
+drawWave(document.getElementById("wave"), audio);
+
+let recent = JSON.parse(localStorage.getItem("recent")||"[]");
+
+function addRecent(name){
+  recent.unshift(name);
+  recent = recent.slice(0,10);
+  localStorage.setItem("recent",JSON.stringify(recent));
+}
+</script>
 
 <header class="header">🎵 Music</header>
 
