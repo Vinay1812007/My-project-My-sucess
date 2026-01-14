@@ -1,21 +1,27 @@
-export function drawWave(canvas, audio) {
-  const ctx = canvas.getContext("2d");
-  const actx = new AudioContext();
-  const src = actx.createMediaElementSource(audio);
-  const analyser = actx.createAnalyser();
-  src.connect(analyser);
-  analyser.connect(actx.destination);
+/* ===============================
+   AUDIO WAVEFORM VISUALIZER
+   =============================== */
 
-  analyser.fftSize = 256;
+export function startWave(audio, canvas) {
+  const ctx = canvas.getContext("2d");
+  const ac = new AudioContext();
+  const src = ac.createMediaElementSource(audio);
+  const analyser = ac.createAnalyser();
+
+  src.connect(analyser);
+  analyser.connect(ac.destination);
+
+  analyser.fftSize = 64;
   const data = new Uint8Array(analyser.frequencyBinCount);
 
-  function render() {
-    requestAnimationFrame(render);
+  function draw() {
+    requestAnimationFrame(draw);
     analyser.getByteFrequencyData(data);
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    data.forEach((v,i)=>{
-      ctx.fillRect(i*3,canvas.height-v/2,2,v/2);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    data.forEach((v, i) => {
+      ctx.fillStyle = "#00c6ff";
+      ctx.fillRect(i * 5, canvas.height - v / 4, 3, v / 4);
     });
   }
-  render();
+  draw();
 }
