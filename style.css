@@ -278,3 +278,41 @@ h1, h2, h3 {
     transform: none;
   }
 }
+.glass {
+  background: linear-gradient(180deg,#111,#000);
+  backdrop-filter: blur(18px);
+}
+
+.chat {
+  height: calc(100vh - 150px);
+  overflow-y: auto;
+}
+
+.bubble {
+  padding: 12px;
+  border-radius: 18px;
+  margin: 8px;
+  max-width: 75%;
+}
+
+.user {
+  background:#007aff;
+  margin-left:auto;
+}
+
+.ai {
+  background:#2c2c2e;
+}
+
+.input-bar {
+  display:flex;
+  gap:8px;
+  padding:10px;
+}
+
+input {
+  flex:1;
+  border-radius:14px;
+  border:none;
+  padding:12px;
+}
