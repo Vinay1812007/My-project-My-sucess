@@ -1,0 +1,11 @@
+{
+  "name": "Chatgram",
+  "short_name": "Chatgram",
+  "start_url": "/chatgram.html",
+  "display": "standalone",
+  "background_color": "#000",
+  "theme_color": "#000",
+  "icons": [
+    { "src": "/logo.png", "sizes": "192x192", "type": "image/png" }
+  ]
+}
