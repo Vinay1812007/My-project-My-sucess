@@ -1,131 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Video Downloader • Sirimilla Vinay</title>
-
-  <!-- SEO -->
-  <meta name="description" content="Download public MP4 and M3U8 videos securely. Fast, legal, and production-safe." />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://sirimillavinay.online/videodownloder" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="/favicon.png" />
-  <link rel="stylesheet" href="/style.css" />
+<title>Video Downloader</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/style.css">
 </head>
 
-<body>
-<main role="main" aria-label="Video Downloader" style="padding-bottom:120px">
+<body class="glass">
+<header class="header">🎬 Video Tool</header>
 
-  <!-- HEADER -->
-  <header class="glass" style="margin:16px; padding:22px">
-    <h1>🎬 Video Downloader</h1>
-    <p class="muted">Supports public MP4 and M3U8 URLs only</p>
+<input id="url" class="search" placeholder="Paste public video URL">
 
-    <input
-      id="url"
-      type="url"
-      placeholder="Paste public video URL…"
-      aria-label="Video URL"
-      style="width:100%; margin-top:12px; padding:12px; border-radius:12px; border:none"
-    />
+<button onclick="fetchMeta()">Fetch Info</button>
 
-    <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap">
-      <button id="analyze" class="button">Analyze</button>
-      <button id="download" class="button" disabled>Download</button>
-    </div>
-  </header>
-
-  <!-- PREVIEW -->
-  <section id="preview" style="padding:16px; display:none">
-    <div class="glass" style="padding:16px">
-      <strong>Detected Media</strong>
-      <p class="muted" id="type"></p>
-      <progress id="progress" value="0" max="100" style="width:100%"></progress>
-    </div>
-  </section>
-
-</main>
-
-<!-- NAV -->
-<nav class="navbar">
-  <a href="/home">Home</a>
-  <a href="/music">Music</a>
-  <a href="/chat.ai">AI</a>
-  <a href="/videodownloder" class="active">Video</a>
-  <a href="/chat">Chat</a>
-</nav>
-
-<script src="/script.js" defer></script>
+<div id="meta"></div>
 
 <script>
-(() => {
-  "use strict";
+async function fetchMeta() {
+  const url = document.getElementById("url").value.trim();
+  if (!url) return;
 
-  const urlInput = document.getElementById("url");
-  const analyzeBtn = document.getElementById("analyze");
-  const downloadBtn = document.getElementById("download");
-  const preview = document.getElementById("preview");
-  const typeEl = document.getElementById("type");
-  const progress = document.getElementById("progress");
+  const res = await fetch(
+    "https://api.allorigins.win/raw?url=" +
+    encodeURIComponent("https://jsonlink.io/api/extract?url=" + url)
+  );
 
-  let validatedURL = null;
+  const data = await res.json();
 
-  function reset() {
-    preview.style.display = "none";
-    downloadBtn.disabled = true;
-    progress.value = 0;
-    validatedURL = null;
-  }
-
-  analyzeBtn.onclick = async () => {
-    reset();
-    const url = urlInput.value.trim();
-    if (!url) return alert("Enter a valid URL");
-
-    try {
-      const res = await fetch(`/api/video-proxy?url=${encodeURIComponent(url)}`, {
-        method: "HEAD"
-      });
-
-      if (!res.ok) throw new Error("Unsupported or blocked media");
-
-      const type = res.headers.get("content-type") || "Unknown";
-      typeEl.textContent = type;
-      validatedURL = url;
-      preview.style.display = "block";
-      downloadBtn.disabled = false;
-    } catch {
-      alert("This URL is not supported. Only public MP4 or M3U8 allowed.");
-    }
-  };
-
-  downloadBtn.onclick = async () => {
-    if (!validatedURL) return;
-
-    try {
-      progress.value = 10;
-      const res = await fetch(`/api/video-proxy?url=${encodeURIComponent(validatedURL)}`);
-      if (!res.ok) throw new Error("Download failed");
-
-      const blob = await res.blob();
-      progress.value = 80;
-
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "video";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-
-      progress.value = 100;
-    } catch {
-      alert("Download failed. Try again.");
-    }
-  };
-
-})();
+  document.getElementById("meta").innerHTML = `
+    <div class="track">
+      <img src="${data.images?.[0] || ''}">
+      <div>
+        <b>${data.title || 'Unknown title'}</b><br>
+        <small>${data.description || ''}</small><br><br>
+        <a href="${url}" target="_blank">Open original source</a>
+      </div>
+    </div>
+  `;
+}
 </script>
 
+<script src="/script.js"></script>
 </body>
 </html>
