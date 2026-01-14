@@ -1,9 +1,0 @@
-name = "chatgram-worker"
-compatibility_date = "2026-01-14"
-
-[durable_objects]
-bindings = [{ name = "USERS", class_name = "UserSession" }]
-
-[[migrations]]
-tag = "v1"
-new_classes = ["UserSession"]
