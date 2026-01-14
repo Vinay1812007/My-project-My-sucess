@@ -1,66 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>Chat AI</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="/style.css">
+<link rel="manifest" href="/manifest.json">
 </head>
 
 <body class="glass">
 
-<header class="header">🤖 Chat AI</header>
+<header class="header">
+  🤖 Chat AI
+  <select id="mode">
+    <option value="assistant">Assistant</option>
+    <option value="coder">Coder</option>
+    <option value="teacher">Teacher</option>
+    <option value="friend">Friend</option>
+  </select>
+</header>
 
 <div id="chat" class="chat"></div>
 
 <div class="typing" id="typing">AI is typing…</div>
 
 <div class="input-bar">
+  <button onclick="voice()">🎤</button>
   <input id="msg" placeholder="Ask anything…" />
   <button onclick="send()">Send</button>
 </div>
 
 <script>
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");
+
+let profile = localStorage.getItem("profile") || prompt("Enter profile name:");
+localStorage.setItem("profile", profile);
+
 const chat = document.getElementById("chat");
 const typing = document.getElementById("typing");
 const input = document.getElementById("msg");
+const mode = document.getElementById("mode");
 
-let history = JSON.parse(localStorage.getItem("chat_history") || "[]");
-history.forEach(addMsg);
+let history = JSON.parse(localStorage.getItem("chat_"+profile) || "[]");
+history.forEach(addBubble);
 
-function addMsg({role,text}) {
-  const div = document.createElement("div");
-  div.className = "bubble " + role;
-  div.textContent = text;
-  chat.appendChild(div);
+function addBubble(role, text) {
+  const d = document.createElement("div");
+  d.className = "bubble " + role;
+  d.textContent = text;
+  chat.appendChild(d);
   chat.scrollTop = chat.scrollHeight;
 }
 
-async function send() {
-  const text = input.value.trim();
-  if (!text) return;
+async function streamText(text) {
+  const bubble = document.createElement("div");
+  bubble.className = "bubble ai";
+  chat.appendChild(bubble);
 
-  addMsg({role:"user",text});
-  history.push({role:"user",text});
+  for (let w of text.split(" ")) {
+    bubble.textContent += w + " ";
+    await new Promise(r => setTimeout(r, 40));
+    chat.scrollTop = chat.scrollHeight;
+  }
+}
+
+async function send() {
+  const t = input.value.trim();
+  if (!t) return;
+
+  addBubble("user", t);
+  history.push({role:"user",text:t});
   input.value="";
   typing.style.display="block";
 
-  // free public AI endpoint (no key)
   const res = await fetch("https://api.allorigins.win/raw?url=" +
     encodeURIComponent(
-      "https://api.affiliateplus.xyz/api/chatbot?message=" +
-      encodeURIComponent(text) +
-      "&name=Vinay&owner=Vinay&user=web"
+      `https://api.affiliateplus.xyz/api/chatbot?message=${encodeURIComponent(t)}
+      &name=Vinay&owner=Vinay&user=${profile}&mode=${mode.value}`
     )
   );
 
   const data = await res.json();
   typing.style.display="none";
 
-  addMsg({role:"ai",text:data.message});
+  await streamText(data.message);
   history.push({role:"ai",text:data.message});
+  localStorage.setItem("chat_"+profile, JSON.stringify(history));
+}
 
-  localStorage.setItem("chat_history", JSON.stringify(history));
+function voice() {
+  const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  rec.lang = "en-US";
+  rec.start();
+  rec.onresult = e => input.value = e.results[0][0].transcript;
 }
 </script>
 
