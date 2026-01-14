@@ -32,6 +32,16 @@ const list = document.getElementById("list");
 const audio = document.getElementById("audio");
 const playBtn = document.getElementById("play");
 const now = document.getElementById("now");
+let favorites = JSON.parse(localStorage.getItem("fav") || "[]");
+
+function toggleFav(track) {
+  if (favorites.includes(track)) {
+    favorites = favorites.filter(t => t !== track);
+  } else {
+    favorites.push(track);
+  }
+  localStorage.setItem("fav", JSON.stringify(favorites));
+}
 
 let currentUrl = null;
 
