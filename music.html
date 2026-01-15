@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Music</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+
+  <body>
+    <div class="app">
+      <header>
+        <h1>🎶 Music</h1>
+        <a href="/" class="button">Home</a>
+      </header>
+
+      <section class="glass">
+        <audio id="audio" controls style="width: 100%;">
+          <source src="/assets/sample.mp3" type="audio/mpeg" />
+        </audio>
+      </section>
+
+      <section class="glass">
+        <canvas id="wave" width="600" height="200"></canvas>
+      </section>
+    </div>
+
+    <script src="/assets/wave.js"></script>
+  </body>
+</html>
