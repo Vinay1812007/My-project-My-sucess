@@ -1,85 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>AI</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="/style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI</title>
+<link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <div class="app">
-    <header>
-      <h1>🧠 AI Assistant</h1>
-      <a href="/" class="button">Home</a>
-    </header>
-
-    <section id="aiChat" class="glass" style="flex:1;overflow-y:auto;"></section>
-
-    <section class="glass">
-      <form id="aiForm" style="display:flex;gap:10px;">
-        <input id="aiInput" placeholder="Ask something…" style="flex:1;" />
-        <button class="button">Send</button>
-        <button type="button" class="button" id="micBtn">🎤</button>
-      </form>
-    </section>
-  </div>
-
-<script>
-const chat = document.getElementById("aiChat");
-const form = document.getElementById("aiForm");
-const input = document.getElementById("aiInput");
-
-function addBubble(text, self=false) {
-  const div = document.createElement("div");
-  div.className = "glass";
-  div.style.margin = "10px 0";
-  div.style.alignSelf = self ? "flex-end" : "flex-start";
-  div.textContent = text;
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-  return div;
-}
-
-form.onsubmit = async e => {
-  e.preventDefault();
-  if (!input.value.trim()) return;
-  const q = input.value;
-  input.value = "";
-
-  addBubble(q, true);
-  const bubble = addBubble("…");
-
-  const res = await fetch(
-    "https://api.allorigins.win/raw?url=" +
-    encodeURIComponent(`https://api.duckduckgo.com/?q=${q}&format=json`)
-  );
-  const data = await res.json();
-  const answer = data.AbstractText || "No direct answer found.";
-
-  bubble.textContent = "";
-  let i = 0;
-  const interval = setInterval(() => {
-    bubble.textContent += answer[i++] || "";
-    if (i >= answer.length) {
-      clearInterval(interval);
-      speak(answer);
-    }
-  }, 20);
-};
-
-function speak(text) {
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = "en-US";
-  speechSynthesis.speak(u);
-}
-
-/* Voice Input */
-if ("webkitSpeechRecognition" in window) {
-  const rec = new webkitSpeechRecognition();
-  rec.lang = "en-US";
-  rec.onresult = e => input.value = e.results[0][0].transcript;
-  document.getElementById("micBtn").onclick = () => rec.start();
-}
-</script>
+<div class="glass-card">
+  <h1>🤖 AI Page</h1>
+  <p>If you see this, routing is fixed.</p>
+  <a href="/">← Home</a>
+</div>
 </body>
 </html>
