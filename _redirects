@@ -3,4 +3,4 @@
 /ai              /ai.html              200
 /videodownloader /videodownloader.html 200
 
-/*.html          /:splat               301
+/* /index.html 200
