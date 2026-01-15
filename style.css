@@ -163,3 +163,17 @@ footer {
   color: var(--text-secondary);
   opacity: 0.8;
 }
+/* ===== MICRO ANIMATIONS ===== */
+.glass {
+  animation: fadeIn 0.6s ease both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Touch feedback */
+.button:active {
+  transform: scale(0.96);
+     }
