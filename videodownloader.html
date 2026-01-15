@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Video Tool</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="app">
+<header>
+  <h1>📥 Video Tool</h1>
+  <a href="/" class="button">Home</a>
+</header>
+
+<section class="glass">
+  <input id="url" placeholder="Paste public video URL" />
+  <button class="button" onclick="analyze()">Analyze</button>
+</section>
+
+<section id="result"></section>
+</div>
+
+<script>
+async function analyze() {
+  const u = url.value.trim();
+  if (!u) return;
+  result.innerHTML = "Loading…";
+
+  const res = await fetch(
+    "https://api.allorigins.win/raw?url=" +
+    encodeURIComponent(`https://noembed.com/embed?url=${u}`)
+  );
+  const data = await res.json();
+
+  result.innerHTML = `
+    <div class="glass">
+      <img src="${data.thumbnail_url || ""}" style="width:100%;border-radius:14px">
+      <h3>${data.title || "Unknown"}</h3>
+      <p>${data.author_name || ""}</p>
+      <a class="button" href="${u}" target="_blank">Open Original</a>
+    </div>
+  `;
+}
+</script>
+</body>
+</html>
