@@ -1,10 +1,10 @@
-name = "chatgram-worker"
+name = "chatgram-api"
 main = "worker/index.js"
 compatibility_date = "2026-01-16"
 
 [durable_objects]
 bindings = [
-  { name = "CHATROOM", class_name = "ChatRoom" }
+  { name = "CHAT_ROOM", class_name = "ChatRoom" }
 ]
 
 [[migrations]]
