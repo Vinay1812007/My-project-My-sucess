@@ -1,31 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
-  <div class="glass" style="max-width:360px;margin:20vh auto;padding:24px">
-    <input id="email" placeholder="Email" />
-    <button onclick="send()">Send OTP</button>
-    <input id="otp" placeholder="OTP" />
-    <button onclick="verify()">Login</button>
-  </div>
-
-<script>
-async function send() {
-  await fetch("https://vinaybava.workers.dev/auth/send", {
-    method:"POST",
-    body:JSON.stringify({email:email.value})
-  });
-}
-async function verify() {
-  const r = await fetch("https://vinaybava.workers.dev/auth/verify", {
-    method:"POST",
-    body:JSON.stringify({email:email.value,otp:otp.value}),
-    credentials:"include"
-  });
-  if(r.ok) location.href="/chatgram.html";
-}
-</script>
+<div class="glass">
+<h2>🔐 Login</h2>
+<input id="emailInput" placeholder="Email">
+<button onclick="sendOTP()">Send OTP</button>
+<input id="otpInput" placeholder="OTP">
+<button onclick="verifyOTP()">Verify</button>
+</div>
+<script src="/assets/auth.js"></script>
 </body>
 </html>
