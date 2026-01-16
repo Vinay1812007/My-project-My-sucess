@@ -2,41 +2,21 @@ name = "chatgram-api"
 main = "index.js"
 compatibility_date = "2026-01-16"
 
-# KV namespaces (create in dashboard and bind)
-[[kv_namespaces]]
-binding = "USERS_KV"
-id = "REPLACE_WITH_USERS_KV_ID"
+[vars]
+APP_NAME = "Chatgram"
 
 [[kv_namespaces]]
-binding = "SESSIONS_KV"
-id = "REPLACE_WITH_SESSIONS_KV_ID"
+binding = "USERS"
+id = "PUT_YOUR_KV_ID"
 
 [[kv_namespaces]]
-binding = "CHATS_KV"
-id = "REPLACE_WITH_CHATS_KV_ID"
-name = "chatgram-api"
-main = "index.js"
-compatibility_date = "2026-01-16"
+binding = "SESSIONS"
+id = "PUT_YOUR_KV_ID"
 
 [[kv_namespaces]]
-binding = "USERS_KV"
-id = "REPLACE_USERS_KV_ID"
+binding = "CHATS"
+id = "PUT_YOUR_KV_ID"
 
 [[kv_namespaces]]
-binding = "SESSIONS_KV"
-id = "REPLACE_SESSIONS_KV_ID"
-
-[[kv_namespaces]]
-binding = "CHATS_KV"
-id = "REPLACE_CHATS_KV_ID"
-
-[[kv_namespaces]]
-binding = "OTP_KV"
-id = "REPLACE_OTP_KV_ID"
-name = "chatgram-api"
-main = "index.js"
-compatibility_date = "2026-01-16"
-
-kv_namespaces = [
-  { binding = "OTP_KV", id = "re_17nbNezM_8B9ZAkW6VkmAA2reiXV9FWGL" }
-]
+binding = "MESSAGES"
+id = "PUT_YOUR_KV_ID"
