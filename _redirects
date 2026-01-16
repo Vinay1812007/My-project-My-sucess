@@ -1,9 +1,6 @@
-# Serve clean URLs ONLY if the file does NOT exist
-/chatgram  /chatgram.html  200
-/music     /music.html     200
-/ai        /ai.html        200
+/chatgram        /chatgram.html        200
+/music           /music.html           200
+/ai              /ai.html              200
 /videodownloader /videodownloader.html 200
 
-# Fallback (must be LAST)
-# Do NOT redirect existing files
-/*  /index.html  200
+/* /index.html 200
