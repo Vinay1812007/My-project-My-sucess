@@ -164,3 +164,25 @@ const API_URL = "https://chatgram-api.vinaybava.workers.dev/chat/global";
     }
   });
 </script>
+<script>
+const API = "https://chatgram-api.vinaybava.workers.dev";
+const token = localStorage.getItem("chatgram_token");
+
+async function loadChats() {
+  const res = await fetch(API + "/chats", {
+    headers: {
+      "Authorization": "Bearer " + token
+    }
+  });
+  const chats = await res.json();
+
+  document.body.innerHTML = chats.map(c =>
+    `<div>
+      <b>${c.isGroup ? c.name : "Chat"}</b><br>
+      ${c.lastMessage?.text || ""}
+    </div><hr>`
+  ).join("");
+}
+
+loadChats();
+</script>
