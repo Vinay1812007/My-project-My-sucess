@@ -1,8 +1,19 @@
-import { sendOTP, verifyOTP } from "./auth.js";
+import { sendOTP, verifyOTP } from "./auth";
 
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
+
+    // CORS
+    if (req.method === "OPTIONS") {
+      return new Response(null, {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST,GET,OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type"
+        }
+      });
+    }
 
     if (req.method === "POST" && url.pathname === "/auth/send") {
       return sendOTP(req, env);
