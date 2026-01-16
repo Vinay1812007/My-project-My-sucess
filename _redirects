@@ -1,12 +1,16 @@
-# Direct HTML files (primary)
-/index.html 200
-/chatgram.html 200
-/music.html 200
-/ai.html 200
-/videodownloader.html 200
+# Pretty URL routing (NO REDIRECT LOOPS)
 
-# Clean URLs (no redirect, just rewrite)
-/chatgram /chatgram.html 200
-/music /music.html 200
-/ai /ai.html 200
-/video /videodownloader.html 200
+/music       /music.html       200
+/ai          /ai.html          200
+/chatgram    /chatgram.html    200
+/videodownloader /videodownloader.html 200
+
+# Fallback for direct HTML access
+/music.html       /music.html       200
+/ai.html          /ai.html          200
+/chatgram.html    /chatgram.html    200
+/videodownloader.html /videodownloader.html 200
+
+# SPA fallback (LAST RULE ONLY)
+# This must be LAST or everything breaks
+/* /index.html 200
