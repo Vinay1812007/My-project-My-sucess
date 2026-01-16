@@ -1,63 +1,40 @@
-const API_BASE = "https://chatgram-api.vinaybava.workers.dev";
+const API = "https://chatgram-api.vinaybava.workers.dev";
 
-const emailInput = document.getElementById("email");
-const otpInput = document.getElementById("otp");
-const sendBtn = document.getElementById("sendOtpBtn");
-const verifyBtn = document.getElementById("verifyOtpBtn");
-
-// 🔔 toast (top-right, auto-hide)
 function toast(msg, ok = true) {
-  const el = document.createElement("div");
-  el.className = `toast ${ok ? "ok" : "err"}`;
-  el.innerText = msg;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 2000);
+  const t = document.createElement("div");
+  t.className = "toast " + (ok ? "ok" : "err");
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
 }
 
-// ✅ SEND OTP
-sendBtn.onclick = async () => {
-  const email = emailInput.value.trim();
-  if (!email) {
-    toast("Enter email", false);
-    return;
-  }
+async function sendOTP() {
+  const email = document.getElementById("email").value;
 
-  try {
-    const res = await fetch(`${API_BASE}/auth/send`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email })
-    });
+  const res = await fetch(API + "/auth/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email })
+  });
 
-    if (!res.ok) throw new Error();
+  const data = await res.json();
+  data.success
+    ? toast("OTP sent successfully ✅")
+    : toast("Failed to send OTP ❌", false);
+}
 
-    toast("OTP sent successfully");
-  } catch {
-    toast("Failed to send OTP", false);
-  }
-};
+async function verifyOTP() {
+  const email = document.getElementById("email").value;
+  const otp = document.getElementById("otp").value;
 
-// ✅ VERIFY OTP
-verifyBtn.onclick = async () => {
-  const email = emailInput.value.trim();
-  const otp = otpInput.value.trim();
+  const res = await fetch(API + "/auth/verify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, otp })
+  });
 
-  if (!otp) {
-    toast("Enter OTP", false);
-    return;
-  }
-
-  try {
-    const res = await fetch(`${API_BASE}/auth/verify`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, otp })
-    });
-
-    if (!res.ok) throw new Error();
-
-    window.location.href = "/chatgram";
-  } catch {
-    toast("Invalid OTP", false);
-  }
-};
+  const data = await res.json();
+  data.success
+    ? (toast("Login successful 🎉"), setTimeout(() => location.href = "/chatgram.html", 1000))
+    : toast("Invalid OTP ❌", false);
+}
