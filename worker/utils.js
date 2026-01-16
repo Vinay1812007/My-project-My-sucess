@@ -3,8 +3,7 @@ export function json(data, status = 200) {
     status,
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers": "Content-Type"
+      "Access-Control-Allow-Origin": "*"
     }
   });
 }
@@ -13,9 +12,15 @@ export function error(message, status = 400) {
   return json({ error: message }, status);
 }
 
-export function uid(prefix = "") {
-  return (
-    prefix +
-    crypto.randomUUID().replace(/-/g, "").slice(0, 24)
-  );
+export function uid() {
+  return crypto.randomUUID();
+}
+
+export async function requireAuth(env, req) {
+  const auth = req.headers.get("Authorization");
+  if (!auth) return null;
+
+  const token = auth.replace("Bearer ", "");
+  const session = await env.SESSIONS_KV.get(`session:${token}`, "json");
+  return session || null;
 }
