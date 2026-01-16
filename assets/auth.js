@@ -1,15 +1,16 @@
 const API = "https://chatgram-api.vinaybava.workers.dev";
 
-function toast(msg, ok = true) {
+function toast(message, success = true) {
   const t = document.createElement("div");
-  t.className = "toast " + (ok ? "ok" : "err");
-  t.textContent = msg;
+  t.className = `toast ${success ? "ok" : "err"}`;
+  t.innerText = message;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 2000);
 }
 
-async function sendOTP() {
-  const email = document.getElementById("email").value;
+document.getElementById("sendBtn").onclick = async () => {
+  const email = document.getElementById("email").value.trim();
+  if (!email) return toast("Enter email", false);
 
   const res = await fetch(API + "/auth/send", {
     method: "POST",
@@ -21,11 +22,13 @@ async function sendOTP() {
   data.success
     ? toast("OTP sent successfully ✅")
     : toast("Failed to send OTP ❌", false);
-}
+};
 
-async function verifyOTP() {
-  const email = document.getElementById("email").value;
-  const otp = document.getElementById("otp").value;
+document.getElementById("verifyBtn").onclick = async () => {
+  const email = document.getElementById("email").value.trim();
+  const otp = document.getElementById("otp").value.trim();
+
+  if (!otp) return toast("Enter OTP", false);
 
   const res = await fetch(API + "/auth/verify", {
     method: "POST",
@@ -37,4 +40,4 @@ async function verifyOTP() {
   data.success
     ? (toast("Login successful 🎉"), setTimeout(() => location.href = "/chatgram.html", 1000))
     : toast("Invalid OTP ❌", false);
-}
+};
