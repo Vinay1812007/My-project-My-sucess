@@ -137,3 +137,30 @@ const API_URL = "https://chatgram-api.vinaybava.workers.dev/chat/global";
 
 </body>
 </html>
+<div class="app">
+  <aside class="sidebar">
+    <ul id="rooms"></ul>
+    <button onclick="addRoom(prompt('Room name'))">+ Add</button>
+  </aside>
+
+  <main class="chat">
+    <h3 id="room-name"># global</h3>
+    <div id="messages"></div>
+    <input id="input" placeholder="Type..." />
+  </main>
+</div>
+
+<script type="module">
+  import { initRooms } from "./assets/rooms.js";
+  import { sendMessage, loadMessages } from "./assets/chat.js";
+
+  initRooms();
+  loadMessages();
+
+  document.getElementById("input").addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      sendMessage(e.target.value);
+      e.target.value = "";
+    }
+  });
+</script>
