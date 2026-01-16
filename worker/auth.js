@@ -5,7 +5,7 @@ export async function sendOTP(req, env) {
   const code = Math.floor(100000 + Math.random() * 900000).toString();
 
   // Store OTP temporarily (KV / memory for now)
-  env.OTP_STORE.set(email, code, { expirationTtl: 300 });
+  env.OTP_STORE.put(email, code, { expirationTtl: 300 });
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
