@@ -1,11 +1,10 @@
 name = "chatgram-api"
-main = "worker/index.js"
+main = "index.js"
 compatibility_date = "2026-01-16"
 
-[durable_objects]
-bindings = [
-  { name = "CHAT_ROOM", class_name = "ChatRoom" }
-]
+[[durable_objects.bindings]]
+name = "CHAT_ROOM"
+class_name = "ChatRoom"
 
 [[migrations]]
 tag = "v1"
