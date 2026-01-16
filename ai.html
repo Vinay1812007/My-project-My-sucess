@@ -1,16 +1,25 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
 <body>
-  <h1>AI</h1>
-  <button onclick="ask()">Ask</button>
-  <pre id="out"></pre>
+  <div class="app">
+    <div class="header">🤖 AI</div>
+    <div class="sub">Streaming & voice ready UI</div>
 
-  <script>
-    async function ask() {
-      const r = await fetch("/api/ai");
-      document.getElementById("out").textContent =
-        (await r.json()).reply;
-    }
-  </script>
+    <div class="card">
+      <div class="card-title">AI Chat</div>
+      <div class="card-desc">
+        Voice, streaming, waveform coming next
+      </div>
+    </div>
+
+    <a class="card" href="index.html">⬅ Back</a>
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>
