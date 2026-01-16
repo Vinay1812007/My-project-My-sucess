@@ -1,16 +1,9 @@
-# Pretty URL routing (NO REDIRECT LOOPS)
-
-/music       /music.html       200
-/ai          /ai.html          200
-/chatgram    /chatgram.html    200
+# Serve clean URLs ONLY if the file does NOT exist
+/chatgram  /chatgram.html  200
+/music     /music.html     200
+/ai        /ai.html        200
 /videodownloader /videodownloader.html 200
 
-# Fallback for direct HTML access
-/music.html       /music.html       200
-/ai.html          /ai.html          200
-/chatgram.html    /chatgram.html    200
-/videodownloader.html /videodownloader.html 200
-
-# SPA fallback (LAST RULE ONLY)
-# This must be LAST or everything breaks
-/* /index.html 200
+# Fallback (must be LAST)
+# Do NOT redirect existing files
+/*  /index.html  200
