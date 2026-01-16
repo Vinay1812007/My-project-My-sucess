@@ -1,20 +1,15 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>AI</title>
-</head>
 <body>
-  <h1>AI Page</h1>
-  <button onclick="askAI()">Ask AI</button>
-
+  <h1>AI</h1>
+  <button onclick="ask()">Ask</button>
   <pre id="out"></pre>
 
   <script>
-    async function askAI() {
-      const res = await fetch("/api/ai");
-      const data = await res.json();
+    async function ask() {
+      const r = await fetch("/api/ai");
       document.getElementById("out").textContent =
-        data.reply;
+        (await r.json()).reply;
     }
   </script>
 </body>
