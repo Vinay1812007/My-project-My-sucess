@@ -1,16 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<link rel="stylesheet" href="/assets/style.css">
+  <meta charset="UTF-8" />
+  <title>Chatgram Login</title>
+  <link rel="stylesheet" href="/assets/style.css" />
 </head>
-<body>
-<div class="glass">
-<h2>🔐 Login</h2>
-<input id="emailInput" placeholder="Email">
-<button onclick="sendOTP()">Send OTP</button>
-<input id="otpInput" placeholder="OTP">
-<button onclick="verifyOTP()">Verify</button>
-</div>
-<script src="/assets/auth.js"></script>
+<body class="dark">
+
+  <div class="login-card">
+    <h2>🔐 Login</h2>
+
+    <input id="email" type="email" placeholder="Email address" />
+
+    <button id="sendOtpBtn">Send OTP</button>
+
+    <input id="otp" type="text" placeholder="Enter OTP" />
+
+    <button id="verifyOtpBtn">Verify</button>
+  </div>
+
+  <script src="/assets/auth.js"></script>
 </body>
 </html>
