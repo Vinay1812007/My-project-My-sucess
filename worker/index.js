@@ -1,22 +1,20 @@
+import { ChatRoom } from "./chatRoom.js";
+
 export default {
-  async fetch(request) {
+  fetch(request, env) {
     const url = new URL(request.url);
 
-    // Only allow API routes
-    if (!url.pathname.startsWith("/api/")) {
-      return new Response("Not Found", { status: 404 });
+    if (url.pathname === "/ws") {
+      const room = url.searchParams.get("room") || "global";
+
+      const id = env.CHATROOM.idFromName(room);
+      const stub = env.CHATROOM.get(id);
+
+      return stub.fetch(request);
     }
 
-    if (url.pathname === "/api/ai") {
-      return Response.json({ reply: "AI working ✅" });
-    }
-
-    if (url.pathname === "/api/music") {
-      return Response.json({
-        tracks: ["Song A", "Song B"]
-      });
-    }
-
-    return new Response("API not found", { status: 404 });
+    return new Response("Chatgram Worker Running", { status: 200 });
   }
 };
+
+export { ChatRoom };
