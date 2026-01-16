@@ -1,179 +1,111 @@
-/* ================================
-   ROOT DESIGN TOKENS
-================================ */
 :root {
-  --bg-main: #0b0b12;
-  --glass-bg: rgba(255, 255, 255, 0.08);
-  --glass-border: rgba(255, 255, 255, 0.18);
-  --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-
-  --neon-blue: #4fc3ff;
-  --neon-purple: #b388ff;
-  --neon-pink: #ff5fd2;
-
-  --text-primary: #ffffff;
-  --text-secondary: #cfcfe6;
-
-  --radius-lg: 22px;
-  --radius-md: 14px;
-
-  --blur: blur(18px);
-  --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --bg: #0b0f1a;
+  --glass: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.15);
+  --text: #ffffff;
+  --muted: #a0a6b8;
+  --neon1: #7c7cff;
+  --neon2: #00ffd5;
 }
 
-/* ================================
-   GLOBAL RESET
-================================ */
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
 
-html,
 body {
   margin: 0;
-  padding: 0;
-  height: 100%;
-  background: radial-gradient(circle at top left, #1a1a3d, #05050a);
-  color: var(--text-primary);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Display",
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
     "Segoe UI", sans-serif;
-}
-
-/* ================================
-   LAYOUT
-================================ */
-.app {
+  background: radial-gradient(
+      circle at top left,
+      #1a1f3c,
+      transparent 60%
+    ),
+    radial-gradient(circle at bottom right, #003d33, transparent 60%),
+    var(--bg);
+  color: var(--text);
   min-height: 100vh;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
 }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-header h1 {
-  font-size: 1.4rem;
-  font-weight: 600;
-  background: linear-gradient(
-    90deg,
-    var(--neon-blue),
-    var(--neon-purple),
-    var(--neon-pink)
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* ================================
-   GLASS CARD
-================================ */
-.glass {
-  background: var(--glass-bg);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-  padding: 20px;
-  transition: var(--transition);
-}
-
-.glass:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.65);
-}
-
-/* ================================
-   DASHBOARD GRID
-================================ */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 16px;
-}
-
-.tile {
+a {
   text-decoration: none;
-  color: var(--text-primary);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: center;
-  justify-content: center;
-  min-height: 140px;
-  font-weight: 500;
-  position: relative;
-  overflow: hidden;
+  color: inherit;
 }
 
-.tile::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    120deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
-  opacity: 0;
-  transition: var(--transition);
+.app {
+  max-width: 420px;
+  margin: auto;
+  padding: 24px 16px 40px;
 }
 
-.tile:hover::after {
-  opacity: 1;
+.header {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 20px;
 }
 
-/* ================================
-   BUTTONS
-================================ */
-.button {
+.sub {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.card {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 16px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0, 255, 213, 0.12);
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.card-desc {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.nav {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.nav a {
+  text-align: center;
+  padding: 16px;
+  border-radius: 16px;
   background: linear-gradient(
     135deg,
-    var(--neon-blue),
-    var(--neon-purple)
+    rgba(124, 124, 255, 0.2),
+    rgba(0, 255, 213, 0.15)
   );
-  border: none;
-  border-radius: var(--radius-md);
-  color: white;
-  padding: 12px 18px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: var(--transition);
+  border: 1px solid var(--border);
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.button:hover {
-  filter: brightness(1.15);
+.nav a:hover {
   transform: scale(1.03);
+  box-shadow: 0 8px 30px rgba(124, 124, 255, 0.25);
 }
 
-/* ================================
-   FOOTER
-================================ */
-footer {
-  margin-top: auto;
+.footer {
   text-align: center;
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  opacity: 0.8;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 30px;
 }
-/* ===== MICRO ANIMATIONS ===== */
-.glass {
-  animation: fadeIn 0.6s ease both;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: none; }
-}
-
-/* Touch feedback */
-.button:active {
-  transform: scale(0.96);
-     }
