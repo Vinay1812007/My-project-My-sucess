@@ -1,44 +1,32 @@
-import { json, cors } from "./utils.js";
-
 export class ChatRoom {
   constructor(state) {
     this.state = state;
-    this.state.blockConcurrencyWhile(async () => {
-      this.messages = (await state.storage.get("messages")) || [];
-    });
   }
 
-  async fetch(req) {
-    const url = new URL(req.url);
+  async fetch(request) {
+    const method = request.method;
 
-    if (req.method === "OPTIONS") return cors();
-
-    // Get history
-    if (req.method === "GET") {
-      return json(this.messages);
+    if (method === "GET") {
+      const messages = (await this.state.storage.get("messages")) || [];
+      return Response.json(messages);
     }
 
-    // Post message
-    if (req.method === "POST") {
-      const body = await req.json();
+    if (method === "POST") {
+      const body = await request.json();
+      const messages = (await this.state.storage.get("messages")) || [];
 
-      const msg = {
-        id: crypto.randomUUID(),
+      const message = {
         user: body.user || "Anonymous",
         text: body.text,
         time: Date.now()
       };
 
-      this.messages.push(msg);
+      messages.push(message);
+      await this.state.storage.put("messages", messages);
 
-      // Keep last 100 messages
-      this.messages = this.messages.slice(-100);
-
-      await this.state.storage.put("messages", this.messages);
-
-      return json(msg);
+      return Response.json({ success: true });
     }
 
-    return json({ error: "Method not allowed" }, 405);
+    return new Response("Method Not Allowed", { status: 405 });
   }
 }
