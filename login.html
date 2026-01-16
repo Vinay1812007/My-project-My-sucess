@@ -5,15 +5,19 @@
   <title>Chatgram Login</title>
   <link rel="stylesheet" href="/assets/style.css" />
 </head>
-<body class="dark">
+
+<body class="auth-bg">
 
   <div class="login-card">
     <h2>🔐 Login</h2>
 
-<input id="email" placeholder="Email" />
-<button onclick="sendOTP()">Send OTP</button>
+    <input id="email" type="email" placeholder="Enter email" />
+    <button id="sendBtn">Send OTP</button>
 
-<input id="otp" placeholder="OTP" />
-<button onclick="verifyOTP()">Verify</button>
+    <input id="otp" type="text" placeholder="Enter OTP" />
+    <button id="verifyBtn">Verify</button>
+  </div>
 
-<script src="/assets/auth.js"></script>
+  <script src="/assets/auth.js"></script>
+</body>
+</html>
