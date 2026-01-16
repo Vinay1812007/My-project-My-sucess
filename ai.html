@@ -1,16 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AI</title>
-<link rel="stylesheet" href="/style.css">
+  <title>AI</title>
 </head>
 <body>
-<div class="glass-card">
-  <h1>🤖 AI Page</h1>
-  <p>If you see this, routing is fixed.</p>
-  <a href="/">← Home</a>
-</div>
+  <h1>AI Page</h1>
+  <button onclick="askAI()">Ask AI</button>
+
+  <pre id="out"></pre>
+
+  <script>
+    async function askAI() {
+      const res = await fetch("/api/ai");
+      const data = await res.json();
+      document.getElementById("out").textContent =
+        data.reply;
+    }
+  </script>
 </body>
 </html>
