@@ -1,28 +1,29 @@
-import { corsHeaders, error } from "./utils.js";
-import { UserSession } from "./userSession.js";
-import { ChatRoom } from "./chatRoom.js";
-
 export default {
-  async fetch(request, env) {
-    if (request.method === "OPTIONS") {
-      return new Response(null, { headers: corsHeaders });
-    }
-
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
-    if (url.pathname === "/ws") {
-      const id = env.USERSESSION.idFromName("global");
-      const stub = env.USERSESSION.get(id);
-      return stub.fetch(request);
+    // ❌ Never touch frontend pages
+    if (!url.pathname.startsWith("/api/")) {
+      return new Response("Not Found", { status: 404 });
     }
 
-    if (url.pathname.startsWith("/room/")) {
-      const roomId = url.pathname.split("/").pop();
-      const id = env.CHATROOM.idFromName(roomId);
-      const stub = env.CHATROOM.get(id);
-      return stub.fetch(request);
+    // ✅ AI demo endpoint
+    if (url.pathname === "/api/ai") {
+      return Response.json({
+        reply: "AI endpoint working ✅"
+      });
     }
 
-    return error("Not found", 404);
-  },
+    // ✅ Music demo endpoint
+    if (url.pathname === "/api/music") {
+      return Response.json({
+        tracks: [
+          { title: "Track One", artist: "Demo Artist" },
+          { title: "Track Two", artist: "Demo Artist" }
+        ]
+      });
+    }
+
+    return new Response("API route not found", { status: 404 });
+  }
 };
