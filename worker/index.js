@@ -1,13 +1,7 @@
-import { sendOTP } from "./auth.js";
-
 export default {
   async fetch(req, env) {
-    const url = new URL(req.url);
-
-    if (req.method === "POST" && url.pathname === "/auth/send") {
-      return sendOTP(req, env);
-    }
-
-    return new Response("Not found", { status: 404 });
+    await env.OTP_STORE.put("debug@test.com", "999999", { expirationTtl: 300 });
+    const v = await env.OTP_STORE.get("debug@test.com");
+    return new Response("KV TEST: " + v);
   }
 };
