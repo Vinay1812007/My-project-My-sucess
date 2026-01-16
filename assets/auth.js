@@ -1,64 +1,33 @@
-// assets/auth.js
+const API = 'https://chatgram-api.vinaybava.workers.dev';
 
-function showToast(message, success = true) {
-  const toast = document.createElement("div");
-  toast.className = `toast ${success ? "success" : "error"}`;
-  toast.textContent = message;
-
-  document.body.appendChild(toast);
-
-  setTimeout(() => toast.classList.add("show"), 50);
-  setTimeout(() => {
-    toast.classList.remove("show");
-    setTimeout(() => toast.remove(), 300);
-  }, 2000);
+function toast(msg, ok = true) {
+  const t = document.createElement('div');
+  t.className = `toast ${ok ? 'ok' : 'err'}`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
 }
 
 async function sendOTP() {
-  const email = document.getElementById("emailInput").value.trim();
-  if (!email) {
-    showToast("Enter email", false);
-    return;
-  }
-
-  const res = await fetch("/auth/send", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+  const email = emailInput.value;
+  const r = await fetch(`${API}/auth/send`, {
+    method: 'POST',
     body: JSON.stringify({ email })
   });
 
-  if (res.ok) {
-    showToast("OTP sent successfully");
-  } else {
-    showToast("Failed to send OTP", false);
-  }
+  if (r.ok) toast('OTP sent successfully');
+  else toast('Failed to send OTP', false);
 }
 
 async function verifyOTP() {
-  const email = document.getElementById("emailInput").value.trim();
-  const code = document.getElementById("otpInput").value.trim();
+  const email = emailInput.value;
+  const otp = otpInput.value;
 
-  if (!code) {
-    showToast("Enter OTP", false);
-    return;
-  }
-
-  const res = await fetch("/auth/verify", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ email, code })
+  const r = await fetch(`${API}/auth/verify`, {
+    method: 'POST',
+    body: JSON.stringify({ email, otp })
   });
 
-  if (res.ok) {
-    showToast("Login successful");
-    setTimeout(() => {
-      window.location.href = "/chatgram.html";
-    }, 800);
-  } else {
-    showToast("Invalid OTP", false);
-  }
+  if (r.ok) location.href = '/chatgram';
+  else toast('Invalid OTP', false);
 }
