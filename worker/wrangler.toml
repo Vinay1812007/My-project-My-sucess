@@ -1,22 +1,13 @@
-name = "chatgram-api"
+name = "chatgram-worker"
 main = "index.js"
 compatibility_date = "2026-01-16"
 
+kv_namespaces = [
+  { binding = "USERS", id = "REPLACE_USERS_KV_ID" },
+  { binding = "SESSIONS", id = "REPLACE_SESSIONS_KV_ID" },
+  { binding = "CHATS", id = "REPLACE_CHATS_KV_ID" },
+  { binding = "MESSAGES", id = "REPLACE_MESSAGES_KV_ID" }
+]
+
 [vars]
-APP_NAME = "Chatgram"
-
-[[kv_namespaces]]
-binding = "USERS"
-id = "PUT_YOUR_KV_ID"
-
-[[kv_namespaces]]
-binding = "SESSIONS"
-id = "PUT_YOUR_KV_ID"
-
-[[kv_namespaces]]
-binding = "CHATS"
-id = "PUT_YOUR_KV_ID"
-
-[[kv_namespaces]]
-binding = "MESSAGES"
-id = "PUT_YOUR_KV_ID"
+RESEND_FROM_EMAIL = "onboarding@resend.dev"
