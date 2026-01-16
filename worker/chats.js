@@ -1,35 +1,43 @@
 import { uid } from "./utils.js";
 
-export async function createDirectChat(env, userA, userB) {
-  const chatId = uid("chat_");
+export async function createChat(env, members, isGroup = false, name = null) {
+  const id = uid();
 
   const chat = {
-    id: chatId,
-    type: "direct",
-    members: [userA, userB],
-    createdAt: Date.now()
-  };
-
-  await env.CHATS_KV.put(`chat:${chatId}`, JSON.stringify(chat));
-  return chat;
-}
-
-export async function createGroupChat(env, creatorId, name, members) {
-  const chatId = uid("chat_");
-
-  const chat = {
-    id: chatId,
-    type: "group",
+    id,
+    members,
+    isGroup,
     name,
-    members: Array.from(new Set([creatorId, ...members])),
-    createdAt: Date.now()
+    createdAt: Date.now(),
+    lastMessage: null
   };
 
-  await env.CHATS_KV.put(`chat:${chatId}`, JSON.stringify(chat));
+  await env.CHATS_KV.put(`chat:${id}`, JSON.stringify(chat));
+
+  for (const userId of members) {
+    await env.CHATS_KV.put(
+      `user:${userId}:chat:${id}`,
+      "1"
+    );
+  }
+
   return chat;
 }
 
-export async function getChat(env, chatId) {
-  const data = await env.CHATS_KV.get(`chat:${chatId}`);
-  return data ? JSON.parse(data) : null;
+export async function getUserChats(env, userId) {
+  const list = await env.CHATS_KV.list({
+    prefix: `user:${userId}:chat:`
+  });
+
+  const chats = [];
+
+  for (const key of list.keys) {
+    const chatId = key.name.split(":").pop();
+    const chat = await env.CHATS_KV.get(`chat:${chatId}`, "json");
+    if (chat) chats.push(chat);
+  }
+
+  return chats.sort((a, b) =>
+    (b.lastMessage?.time || 0) - (a.lastMessage?.time || 0)
+  );
 }
