@@ -1,4 +1,12 @@
-/chat      /chatgram.html        200
-/video    /videodownloader.html 200
-/music    /music.html           200
-/ai       /ai.html              200
+# Allow direct HTML files to load normally
+/index.html 200
+/chatgram.html 200
+/music.html 200
+/ai.html 200
+/videodownloader.html 200
+
+# SPA-style routes (optional, clean URLs)
+/chatgram /chatgram.html 200
+/music /music.html 200
+/ai /ai.html 200
+/video /videodownloader.html 200
