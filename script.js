@@ -1,52 +1,34 @@
-/* ===============================
-   GLOBAL APP LOGIC
-================================ */
-let deferredPrompt = null;
-
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  const btn = document.getElementById("installBtn");
-  if (btn) btn.hidden = false;
-});
-
-document.addEventListener("click", async (e) => {
-  if (e.target?.id === "installBtn" && deferredPrompt) {
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    e.target.hidden = true;
-  }
-});
-
-/* ===============================
-   SERVICE WORKER
-================================ */
+// PWA registration
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("/sw.js");
   });
 }
 
-/* ===============================
-   UTILITIES
-================================ */
-export function qs(id) {
-  return document.getElementById(id);
+// Navigation helper (NO auto redirects)
+function go(page) {
+  window.location.href = page;
 }
 
-export function uid() {
-  return crypto.randomUUID();
-}
+// Install prompt
+let deferredPrompt;
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
 
-export function save(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
+window.installApp = async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt = null;
+};
 
-export function load(key, fallback = null) {
-  try {
-    return JSON.parse(localStorage.getItem(key)) ?? fallback;
-  } catch {
-    return fallback;
-  }
-}
+// Theme persistence
+const theme = localStorage.getItem("theme") || "dark";
+document.documentElement.dataset.theme = theme;
+
+window.toggleTheme = () => {
+  const t = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = t;
+  localStorage.setItem("theme", t);
+};
