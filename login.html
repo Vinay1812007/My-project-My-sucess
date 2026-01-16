@@ -2,22 +2,61 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Chatgram Login</title>
-  <link rel="stylesheet" href="/assets/style.css" />
+  <title>Login</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
+<body>
 
-<body class="auth-bg">
+<div class="toast" id="toast"></div>
 
-  <div class="login-card">
-    <h2>🔐 Login</h2>
+<div class="card">
+  <h2>🔐 Login</h2>
 
-    <input id="email" type="email" placeholder="Enter email" />
-    <button id="sendBtn">Send OTP</button>
+  <input id="email" type="email" placeholder="Email" />
+  <button onclick="sendOtp()">Send OTP</button>
 
-    <input id="otp" type="text" placeholder="Enter OTP" />
-    <button id="verifyBtn">Verify</button>
-  </div>
+  <input id="otp" placeholder="Enter OTP" />
+  <button onclick="verifyOtp()">Verify</button>
+</div>
 
-  <script src="/assets/auth.js"></script>
+<script>
+const API = "https://chatgram-api.vinaybava.workers.dev";
+
+function showToast(msg, ok = true) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast show " + (ok ? "success" : "error");
+  setTimeout(() => t.className = "toast", 2000);
+}
+
+async function sendOtp() {
+  const email = document.getElementById("email").value;
+  if (!email) return showToast("Email required", false);
+
+  const res = await fetch(API + "/auth/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email })
+  });
+
+  const data = await res.json();
+  showToast(data.success ? "OTP sent successfully" : data.message, data.success);
+}
+
+async function verifyOtp() {
+  const email = document.getElementById("email").value;
+  const otp = document.getElementById("otp").value;
+
+  const res = await fetch(API + "/auth/verify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, otp })
+  });
+
+  const data = await res.json();
+  showToast(data.success ? "Login successful" : data.message, data.success);
+}
+</script>
+
 </body>
 </html>
