@@ -1,0 +1,19 @@
+:root {
+  --glass: rgba(255,255,255,0.08);
+  --blur: blur(20px);
+  --accent: #0a84ff;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(135deg, #0a0f1f, #000);
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont;
+}
+
+.glass {
+  backdrop-filter: var(--blur);
+  background: var(--glass);
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
