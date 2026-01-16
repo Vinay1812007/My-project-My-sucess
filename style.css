@@ -1,6 +1,55 @@
 body {
-  background: black;
-  color: white;
-  text-align: center;
-  padding: 40px;
+  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  font-family: Arial;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
 }
+
+.card {
+  background:#1f2f3a;
+  padding:30px;
+  border-radius:12px;
+  width:300px;
+  text-align:center;
+}
+
+input {
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:6px;
+  border:none;
+}
+
+button {
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  background:#1e90ff;
+  border:none;
+  color:white;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+button:hover {
+  background:#187bcd;
+}
+
+.toast {
+  position:fixed;
+  top:20px;
+  right:20px;
+  opacity:0;
+  padding:12px 18px;
+  border-radius:6px;
+  color:white;
+  transition:.3s;
+  z-index:9999;
+}
+
+.toast.show { opacity:1; }
+.toast.success { background:#2ecc71; }
+.toast.error { background:#e74c3c; }
