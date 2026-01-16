@@ -1,51 +1,77 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Login – Chatgram</title>
+  <title>Chatgram Login</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43);
+      font-family: sans-serif;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .box {
+      background: rgba(0,0,0,0.6);
+      padding: 30px;
+      border-radius: 12px;
+      width: 320px;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: none;
+    }
+    button {
+      background: #00c6ff;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
 
-<h2>Email Login</h2>
+<div class="box">
+  <h2>Chatgram</h2>
 
-<input id="email" placeholder="Enter email" />
-<button onclick="requestOTP()">Send Code</button>
+  <input id="email" placeholder="Enter Gmail" />
+  <button onclick="sendOTP()">Send OTP</button>
 
-<br><br>
-
-<input id="otp" placeholder="Enter OTP" />
-<button onclick="verifyOTP()">Verify</button>
+  <input id="otp" placeholder="Enter OTP" />
+  <button onclick="verifyOTP()">Verify</button>
+</div>
 
 <script>
 const API = "https://chatgram-api.vinaybava.workers.dev";
 
-async function requestOTP() {
-  const email = document.getElementById("email").value;
+async function sendOTP() {
   await fetch(API + "/auth/request-otp", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email })
+    body: JSON.stringify({ email: email.value })
   });
-  alert("OTP sent to email");
+  alert("OTP sent!");
 }
 
 async function verifyOTP() {
-  const email = document.getElementById("email").value;
-  const code = document.getElementById("otp").value;
-
   const res = await fetch(API + "/auth/verify-otp", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, code })
+    body: JSON.stringify({
+      email: email.value,
+      otp: otp.value
+    })
   });
-
   const data = await res.json();
   if (data.token) {
     localStorage.setItem("chatgram_token", data.token);
-    alert("Login success");
     location.href = "/chatgram";
   } else {
-    alert("Invalid code");
+    alert("Invalid OTP");
   }
 }
 </script>
