@@ -29,3 +29,34 @@ button {
   color: white;
   font-weight: 600;
 }
+/* Toast notification */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 9999;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(20px);
+  color: white;
+}
+
+.toast.success {
+  background: rgba(0, 180, 120, 0.35);
+  border: 1px solid rgba(0, 255, 180, 0.4);
+}
+
+.toast.error {
+  background: rgba(200, 50, 50, 0.35);
+  border: 1px solid rgba(255, 100, 100, 0.4);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
