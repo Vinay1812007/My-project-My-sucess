@@ -85,3 +85,25 @@ button {
   0% { opacity: 1 }
   100% { opacity: 0 }
 }
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  backdrop-filter: blur(14px);
+  background: rgba(30,30,30,.7);
+  color: white;
+  font-weight: 500;
+  animation: fade 2s forwards;
+}
+
+.toast.ok { border-left: 4px solid #4ade80; }
+.toast.err { border-left: 4px solid #f87171; }
+
+@keyframes fade {
+  0% { opacity: 0; transform: translateY(-10px); }
+  10% { opacity: 1; transform: none; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
