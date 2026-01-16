@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Login – Chatgram</title>
+</head>
+<body>
+
+<h2>Email Login</h2>
+
+<input id="email" placeholder="Enter email" />
+<button onclick="requestOTP()">Send Code</button>
+
+<br><br>
+
+<input id="otp" placeholder="Enter OTP" />
+<button onclick="verifyOTP()">Verify</button>
+
+<script>
+const API = "https://chatgram-api.vinaybava.workers.dev";
+
+async function requestOTP() {
+  const email = document.getElementById("email").value;
+  await fetch(API + "/auth/request-otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email })
+  });
+  alert("OTP sent to email");
+}
+
+async function verifyOTP() {
+  const email = document.getElementById("email").value;
+  const code = document.getElementById("otp").value;
+
+  const res = await fetch(API + "/auth/verify-otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, code })
+  });
+
+  const data = await res.json();
+  if (data.token) {
+    localStorage.setItem("chatgram_token", data.token);
+    alert("Login success");
+    location.href = "/chatgram";
+  } else {
+    alert("Invalid code");
+  }
+}
+</script>
+
+</body>
+</html>
