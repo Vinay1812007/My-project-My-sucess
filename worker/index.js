@@ -1,51 +1,53 @@
-import { json, error } from "./utils.js";
-import { createUser, getUserByEmail } from "./users.js";
-import { createSession } from "./sessions.js";
-import { sendOTP, verifyOTP } from "./auth.js";
+import { requireAuth, json, error } from "./utils.js";
+import { createChat, getUserChats } from "./chats.js";
+import { sendMessage, getMessages } from "./messages.js";
 
-export default {
-  async fetch(req, env) {
-    const url = new URL(req.url);
+/* LIST CHATS */
+if (url.pathname === "/chats" && req.method === "GET") {
+  const session = await requireAuth(env, req);
+  if (!session) return error("Unauthorized", 401);
 
-    if (req.method === "OPTIONS") {
-      return new Response(null, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type"
-        }
-      });
-    }
+  const chats = await getUserChats(env, session.userId);
+  return json(chats);
+}
 
-    /* HEALTH */
-    if (url.pathname === "/health") {
-      return json({ status: "ok", service: "chatgram-api" });
-    }
+/* CREATE CHAT */
+if (url.pathname === "/chats" && req.method === "POST") {
+  const session = await requireAuth(env, req);
+  if (!session) return error("Unauthorized", 401);
 
-    /* STEP 1 — REQUEST OTP */
-    if (url.pathname === "/auth/request-otp" && req.method === "POST") {
-      const { email } = await req.json();
-      if (!email) return error("Email required");
+  const { members, name } = await req.json();
+  if (!members || !Array.isArray(members))
+    return error("Members required");
 
-      await sendOTP(env, email);
-      return json({ success: true });
-    }
+  const chat = await createChat(
+    env,
+    [session.userId, ...members],
+    members.length > 1,
+    name
+  );
 
-    /* STEP 2 — VERIFY OTP */
-    if (url.pathname === "/auth/verify-otp" && req.method === "POST") {
-      const { email, code } = await req.json();
-      if (!email || !code) return error("Invalid request");
+  return json(chat);
+}
 
-      const valid = await verifyOTP(env, email, code);
-      if (!valid) return error("Invalid or expired OTP", 401);
+/* SEND MESSAGE */
+if (url.pathname === "/messages" && req.method === "POST") {
+  const session = await requireAuth(env, req);
+  if (!session) return error("Unauthorized", 401);
 
-      let user = await getUserByEmail(env, email);
-      if (!user) user = await createUser(env, email);
+  const { chatId, text } = await req.json();
+  if (!chatId || !text) return error("Invalid");
 
-      const token = await createSession(env, user.id);
-      return json({ token, user });
-    }
+  const msg = await sendMessage(env, chatId, session.userId, text);
+  return json(msg);
+}
 
-    return error("Route not found", 404);
-  }
-};
+/* GET MESSAGES */
+if (url.pathname.startsWith("/messages/")) {
+  const session = await requireAuth(env, req);
+  if (!session) return error("Unauthorized", 401);
+
+  const chatId = url.pathname.split("/").pop();
+  const msgs = await getMessages(env, chatId);
+  return json(msgs);
+}
