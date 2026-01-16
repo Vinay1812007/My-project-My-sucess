@@ -1,0 +1,16 @@
+name = "chatgram-api"
+main = "index.js"
+compatibility_date = "2026-01-16"
+
+# KV namespaces (create in dashboard and bind)
+[[kv_namespaces]]
+binding = "USERS_KV"
+id = "REPLACE_WITH_USERS_KV_ID"
+
+[[kv_namespaces]]
+binding = "SESSIONS_KV"
+id = "REPLACE_WITH_SESSIONS_KV_ID"
+
+[[kv_namespaces]]
+binding = "CHATS_KV"
+id = "REPLACE_WITH_CHATS_KV_ID"
