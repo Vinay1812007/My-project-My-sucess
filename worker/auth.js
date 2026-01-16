@@ -1,11 +1,7 @@
-import { json } from "./utils.js";
+export async function sendOTP(email, env) {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-export async function sendOTP(req, env) {
-  const { email } = await req.json();
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
-
-  // Store OTP temporarily (KV / memory for now)
-  env.OTP_STORE.put(email, code, { expirationTtl: 300 });
+  await env.OTP_STORE.put(email, otp, { expirationTtl: 300 });
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -17,13 +13,11 @@ export async function sendOTP(req, env) {
       from: "Chatgram <onboarding@resend.dev>",
       to: email,
       subject: "Your Chatgram OTP",
-      html: `<h2>Your OTP</h2><p><strong>${code}</strong></p>`
+      html: `<h2>Your OTP: ${otp}</h2><p>Valid for 5 minutes</p>`
     })
   });
 
   if (!res.ok) {
-    return json({ error: "Email failed" }, 500);
+    throw new Error("Email failed");
   }
-
-  return json({ success: true });
 }
