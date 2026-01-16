@@ -1,27 +1,18 @@
-const CACHE = "my-success-v1";
-const ASSETS = [
-  "/",
-  "/index.html",
-  "/chatgram.html",
-  "/music.html",
-  "/ai.html",
-  "/videodownloader.html",
-  "/style.css",
-  "/script.js"
-];
+const CACHE_NAME = "vinay-pwa-v2";
 
-self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+self.addEventListener("install", event => {
+  self.skipWaiting();
 });
 
-self.addEventListener("fetch", e => {
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      const fetcher = fetch(e.request).then(r => {
-        caches.open(CACHE).then(c => c.put(e.request, r.clone()));
-        return r;
-      });
-      return cached || fetcher;
-    })
+self.addEventListener("activate", event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.map(k => caches.delete(k)))
+    )
   );
+  self.clients.claim();
+});
+
+self.addEventListener("fetch", event => {
+  event.respondWith(fetch(event.request));
 });
