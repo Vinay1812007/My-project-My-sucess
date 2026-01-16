@@ -1,16 +1,25 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Music</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
 <body>
-  <h1>Music</h1>
-  <button onclick="load()">Load</button>
-  <pre id="out"></pre>
+  <div class="app">
+    <div class="header">🎵 Music</div>
+    <div class="sub">Neon music experience</div>
 
-  <script>
-    async function load() {
-      const r = await fetch("/api/music");
-      document.getElementById("out").textContent =
-        JSON.stringify(await r.json(), null, 2);
-    }
-  </script>
+    <div class="card">
+      <div class="card-title">Wave Player</div>
+      <div class="card-desc">
+        UI ready for waveform & playlists
+      </div>
+    </div>
+
+    <a class="card" href="index.html">⬅ Back</a>
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>
