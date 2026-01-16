@@ -1,107 +1,73 @@
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text";
+}
 
-body {
+body.auth-bg {
+  height: 100vh;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont;
   background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  width: 320px;
+  padding: 24px;
+  border-radius: 20px;
+  backdrop-filter: blur(20px);
+  background: rgba(255,255,255,0.12);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  text-align: center;
   color: white;
 }
 
-.glass {
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(20px);
-  border-radius: 18px;
-  padding: 24px;
-  margin: 40px auto;
-  max-width: 420px;
+.login-card h2 {
+  margin-bottom: 20px;
 }
 
-input, button {
+.login-card input {
   width: 100%;
   padding: 12px;
-  margin: 8px 0;
   border-radius: 12px;
   border: none;
+  margin-bottom: 12px;
+  outline: none;
 }
 
-button {
-  background: #0a84ff;
+.login-card button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: #1e90ff;
   color: white;
-  font-weight: 600;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 12px;
 }
-/* Toast notification */
+
+.login-card button:hover {
+  opacity: 0.9;
+}
+
 .toast {
   position: fixed;
   top: 20px;
   right: 20px;
-  padding: 14px 20px;
+  padding: 12px 18px;
   border-radius: 14px;
-  font-size: 14px;
-  font-weight: 600;
-  z-index: 9999;
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: all 0.3s ease;
-  backdrop-filter: blur(20px);
-  color: white;
-}
-
-.toast.success {
-  background: rgba(0, 180, 120, 0.35);
-  border: 1px solid rgba(0, 255, 180, 0.4);
-}
-
-.toast.error {
-  background: rgba(200, 50, 50, 0.35);
-  border: 1px solid rgba(255, 100, 100, 0.4);
-}
-
-.toast.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-.toast {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 12px 18px;
-  border-radius: 12px;
-  font-weight: 600;
   backdrop-filter: blur(12px);
-  animation: fade 2s forwards;
-}
-
-.toast.ok {
-  background: rgba(0, 200, 120, 0.85);
+  background: rgba(0,0,0,0.7);
   color: white;
-}
-
-.toast.err {
-  background: rgba(220, 50, 50, 0.85);
-  color: white;
-}
-
-@keyframes fade {
-  0% { opacity: 1 }
-  100% { opacity: 0 }
-}
-.toast {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 12px 18px;
-  border-radius: 12px;
-  backdrop-filter: blur(14px);
-  background: rgba(30,30,30,.7);
-  color: white;
-  font-weight: 500;
-  animation: fade 2s forwards;
+  animation: slide 2s forwards;
 }
 
 .toast.ok { border-left: 4px solid #4ade80; }
 .toast.err { border-left: 4px solid #f87171; }
 
-@keyframes fade {
+@keyframes slide {
   0% { opacity: 0; transform: translateY(-10px); }
   10% { opacity: 1; transform: none; }
   90% { opacity: 1; }
