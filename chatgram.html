@@ -1,48 +1,32 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chatgram</title>
-  <link rel="stylesheet" href="style.css"/>
-</head>
-<body>
-  <div class="app">
-    <div class="header">💬 Chatgram</div>
-    <div class="sub">Real-time group chat</div>
+<script>
+  const room = "global";
 
-    <div id="messages" class="card" style="height:260px; overflow:auto;"></div>
+  const ws = new WebSocket(
+    "wss://vinaybava.workers.dev/ws?room=" + room
+  );
 
-    <div class="card">
-      <input id="msg" placeholder="Type message..."
-        style="width:100%;padding:12px;border-radius:12px;border:none"/>
-    </div>
+  const box = document.getElementById("messages");
+  const input = document.getElementById("msg");
 
-    <a class="card" href="index.html">⬅ Back</a>
-  </div>
+  ws.onopen = () => {
+    console.log("✅ Connected to Chatgram backend");
+  };
 
-  <script>
-    const room = "global";
-    const ws = new WebSocket(
-      "wss://YOUR_WORKER_SUBDOMAIN.workers.dev/ws?room=" + room
-    );
+  ws.onmessage = (e) => {
+    const div = document.createElement("div");
+    div.textContent = e.data;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  };
 
-    const box = document.getElementById("messages");
-    const input = document.getElementById("msg");
+  ws.onerror = (err) => {
+    console.error("❌ WebSocket error", err);
+  };
 
-    ws.onmessage = (e) => {
-      const div = document.createElement("div");
-      div.textContent = e.data;
-      box.appendChild(div);
-      box.scrollTop = box.scrollHeight;
-    };
-
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && input.value.trim()) {
-        ws.send(input.value);
-        input.value = "";
-      }
-    });
-  </script>
-</body>
-</html>
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && input.value.trim()) {
+      ws.send(input.value);
+      input.value = "";
+    }
+  });
+</script>
