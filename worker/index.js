@@ -51,3 +51,27 @@ if (url.pathname.startsWith("/messages/")) {
   const msgs = await getMessages(env, chatId);
   return json(msgs);
 }
+import { json, error } from "./utils.js";
+import { requestOTP, verifyOTP } from "./auth.js";
+
+export default {
+  async fetch(req, env) {
+    const url = new URL(req.url);
+
+    if (req.method === "POST" && url.pathname === "/auth/request-otp") {
+      const { email } = await req.json();
+      if (!email) return error("Email required");
+      await requestOTP(env, email);
+      return json({ success: true });
+    }
+
+    if (req.method === "POST" && url.pathname === "/auth/verify-otp") {
+      const { email, otp } = await req.json();
+      const token = await verifyOTP(env, email, otp);
+      if (!token) return error("Invalid OTP", 401);
+      return json({ token });
+    }
+
+    return error("Not found", 404);
+  }
+};
