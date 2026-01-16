@@ -1,20 +1,15 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Music</title>
-</head>
 <body>
-  <h1>Music Page</h1>
-  <button onclick="loadMusic()">Load Music</button>
-
+  <h1>Music</h1>
+  <button onclick="load()">Load</button>
   <pre id="out"></pre>
 
   <script>
-    async function loadMusic() {
-      const res = await fetch("/api/music");
-      const data = await res.json();
+    async function load() {
+      const r = await fetch("/api/music");
       document.getElementById("out").textContent =
-        JSON.stringify(data, null, 2);
+        JSON.stringify(await r.json(), null, 2);
     }
   </script>
 </body>
