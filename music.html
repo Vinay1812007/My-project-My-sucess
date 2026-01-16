@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Music</title>
-<link rel="stylesheet" href="/style.css">
+  <meta charset="UTF-8" />
+  <title>Music</title>
+  <link rel="stylesheet" href="/style.css">
 </head>
-<body>
-<div class="glass-card">
-  <h1>🎵 Music Page</h1>
-  <p>If you see this, routing is fixed.</p>
-  <a href="/">← Home</a>
-</div>
+<body class="app">
+
+<header class="glass top">
+  <button onclick="go('/index.html')">← Home</button>
+  <h1>Music</h1>
+</header>
+
+<main class="glass card">
+  <canvas id="wave"></canvas>
+</main>
+
+<script src="/assets/wave.js"></script>
+<script src="/script.js"></script>
 </body>
 </html>
