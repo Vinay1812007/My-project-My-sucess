@@ -1,47 +1,44 @@
-import { json, randomOTP, uuid } from "./utils.js";
+import { json, otp } from "./utils.js";
+import { getUser, createUser } from "./users.js";
+import { createSession } from "./sessions.js";
 
 export async function sendOTP(req, env) {
   const { email } = await req.json();
-  const otp = randomOTP();
+  if (!email) return json({ error: "Email required" }, 400);
 
-  await env.USERS.put(email, JSON.stringify({
-    email,
-    otp,
-    expires: Date.now() + 5 * 60 * 1000
-  }));
+  const code = otp();
+  await env.USERS.put(`otp:${email}`, code, { expirationTtl: 300 });
 
   await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${env.RESEND_API_KEY}`,
-      "Content-Type": "application/json"
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "Chatgram <onboarding@resend.dev>",
+      from: env.RESEND_FROM_EMAIL,
       to: email,
-      subject: "Your Chatgram OTP",
-      html: `<h2>${otp}</h2><p>Valid for 5 minutes</p>`
-    })
+      subject: "Chatgram OTP",
+      html: `<h2>Your OTP: ${code}</h2>`,
+    }),
   });
 
   return json({ success: true });
 }
 
 export async function verifyOTP(req, env) {
-  const { email, otp } = await req.json();
-  const user = JSON.parse(await env.USERS.get(email));
+  const { email, code } = await req.json();
+  const saved = await env.USERS.get(`otp:${email}`);
+  if (saved !== code) return json({ error: "Invalid OTP" }, 401);
 
-  if (!user || user.otp !== otp || Date.now() > user.expires) {
-    return json({ error: "Invalid OTP" }, 401);
-  }
+  let user = await getUser(env, email);
+  if (!user) await createUser(env, email);
 
-  const session = uuid();
-  await env.SESSIONS.put(session, email, { expirationTtl: 86400 });
+  const token = await createSession(env, email);
 
-  return new Response(JSON.stringify({ success: true }), {
-    headers: {
-      "Set-Cookie": `session=${session}; HttpOnly; Secure; SameSite=None; Path=/`,
-      "Content-Type": "application/json"
-    }
-  });
+  return json(
+    { success: true },
+    200,
+    [`session=${token}; Path=/; HttpOnly; Max-Age=604800`]
+  );
 }
