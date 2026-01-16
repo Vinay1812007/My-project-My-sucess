@@ -10,15 +10,10 @@
   <div class="login-card">
     <h2>🔐 Login</h2>
 
-    <input id="email" type="email" placeholder="Email address" />
+<input id="email" placeholder="Email" />
+<button onclick="sendOTP()">Send OTP</button>
 
-    <button id="sendOtpBtn">Send OTP</button>
+<input id="otp" placeholder="OTP" />
+<button onclick="verifyOTP()">Verify</button>
 
-    <input id="otp" type="text" placeholder="Enter OTP" />
-
-    <button id="verifyOtpBtn">Verify</button>
-  </div>
-
-  <script src="/assets/auth.js"></script>
-</body>
-</html>
+<script src="/assets/auth.js"></script>
