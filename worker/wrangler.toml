@@ -33,3 +33,10 @@ id = "REPLACE_CHATS_KV_ID"
 [[kv_namespaces]]
 binding = "OTP_KV"
 id = "REPLACE_OTP_KV_ID"
+name = "chatgram-api"
+main = "index.js"
+compatibility_date = "2026-01-16"
+
+kv_namespaces = [
+  { binding = "OTP_KV", id = "re_17nbNezM_8B9ZAkW6VkmAA2reiXV9FWGL" }
+]
